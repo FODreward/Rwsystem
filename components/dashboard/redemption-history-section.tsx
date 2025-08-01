@@ -23,7 +23,7 @@ export default function RedemptionHistorySection() {
       setIsLoading(true)
       try {
         const data = await apiCall<Redemption[]>("/redemption/history", "GET", null, true)
-        setHistory(data)
+        setHistory(Array.isArray(data) ? data : [])
       } catch (error: any) {
         toast({
           title: "Error",
