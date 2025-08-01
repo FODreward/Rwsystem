@@ -16,8 +16,7 @@ const ToastViewport = React.forwardRef<
   <ToastPrimitives.Viewport
     ref={ref}
     className={cn(
-      // Ensure it's fixed, top-center, and has a high z-index
-      "fixed top-0 left-1/2 -translate-x-1/2 z-[9999] flex max-h-screen w-full flex-col-reverse p-4 sm:flex-col md:max-w-[420px]",
+      "fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]",
       className,
     )}
     {...props}
@@ -26,8 +25,7 @@ const ToastViewport = React.forwardRef<
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName
 
 const toastVariants = cva(
-  // Original shadcn/ui styles for reference, but they will be overridden below
-  "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-6 pr-8 shadow-lg transition-all min-w-[300px] data-[state=open]:animate-in data-[state=open]:fade-in-90 data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full data-[state=open]:sm:zoom-in-95",
+  "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-6 pr-8 shadow-lg transition-all data-[state=open]:animate-in data-[state=open]:fade-in-90 data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full data-[state=open]:sm:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-top-full data-[state=closed]:sm:slide-out-to-bottom-full",
   {
     variants: {
       variant: {
@@ -45,20 +43,7 @@ const Toast = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Root>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root> & VariantProps<typeof toastVariants>
 >(({ className, variant, ...props }, ref) => {
-  return (
-    <ToastPrimitives.Root
-      ref={ref}
-      className={cn(
-        toastVariants({ variant }), // Apply base variants first
-        // *** EXTREME VISIBILITY OVERRIDE ***
-        // This will force a bright, contrasting background and text color,
-        // and a fixed size, regardless of dark mode or other styles.
-        "bg-red-500 text-white border-4 border-yellow-300 w-[300px] h-[100px] flex items-center justify-center text-center",
-        className,
-      )}
-      {...props}
-    />
-  )
+  return <ToastPrimitives.Root ref={ref} className={cn(toastVariants({ variant }), className)} {...props} />
 })
 Toast.displayName = ToastPrimitives.Root.displayName
 
