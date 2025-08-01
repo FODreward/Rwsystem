@@ -36,13 +36,16 @@ export async function apiCall<T>(
   if (requiresAuth) {
     const token = sessionStorage.getItem("accessToken")
     if (!token) {
-      console.log("Toast: Authentication Required", "Please log in to access this feature.") // Debug log
+      console.log("Toast: Authentication Required", "Please log in to access this feature.")
       toast({
         title: "Authentication Required",
         description: "Please log in to access this feature.",
         variant: "destructive",
       })
-      window.location.href = "/login" // Redirect to login page
+      // Redirect to login page and clear auth data
+      sessionStorage.removeItem("accessToken")
+      sessionStorage.removeItem("currentUser")
+      window.location.href = "/login"
       throw new Error("No authentication token found. Please log in.")
     }
     ;(options.headers as Record<string, string>)["Authorization"] = `Bearer ${token}`
@@ -54,7 +57,23 @@ export async function apiCall<T>(
 
     if (!response.ok) {
       const errorMessage = responseData.detail || "An unknown error occurred."
-      console.log("Toast: API Error", errorMessage) // Debug log
+
+      // Handle 401 Unauthorized specifically for expired tokens
+      if (response.status === 401 && requiresAuth) {
+        console.log("Toast: Session Expired", "Your session has expired. Please log in again.")
+        toast({
+          title: "Session Expired",
+          description: "Your session has expired. Please log in again.",
+          variant: "destructive",
+        })
+        // Clear auth data and redirect to login page
+        sessionStorage.removeItem("accessToken")
+        sessionStorage.removeItem("currentUser")
+        window.location.href = "/login"
+        throw new Error("Session expired. Please log in again.")
+      }
+
+      console.log("Toast: API Error", errorMessage)
       toast({
         title: "API Error",
         description: errorMessage,
@@ -65,8 +84,9 @@ export async function apiCall<T>(
     return responseData as T
   } catch (error: any) {
     console.error("API Call Error:", error)
-    if (!error.message.includes("No authentication token found")) {
-      console.log("Toast: Network Error", error.message || "Could not connect to the server.") // Debug log
+    // Only show generic network error if it's not an auth-related redirect
+    if (!error.message.includes("No authentication token found") && !error.message.includes("Session expired")) {
+      console.log("Toast: Network Error", error.message || "Could not connect to the server.")
       toast({
         title: "Network Error",
         description: error.message || "Could not connect to the server.",
