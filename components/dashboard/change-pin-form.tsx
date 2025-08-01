@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { PinInput } from "@/components/ui/pin-input"
 import { apiCall } from "@/lib/api"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/hooks/use-toast"
 
 export default function ChangePinForm({ onReturnToDashboard }: { onReturnToDashboard: () => void }) {
   const [oldPin, setOldPin] = useState("")
