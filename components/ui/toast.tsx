@@ -16,7 +16,8 @@ const ToastViewport = React.forwardRef<
   <ToastPrimitives.Viewport
     ref={ref}
     className={cn(
-      "fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]",
+      // Ensure it's fixed, top-center, and has a high z-index
+      "fixed top-0 left-1/2 -translate-x-1/2 z-[9999] flex max-h-screen w-full flex-col-reverse p-4 sm:flex-col md:max-w-[420px]",
       className,
     )}
     {...props}
@@ -25,7 +26,8 @@ const ToastViewport = React.forwardRef<
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName
 
 const toastVariants = cva(
-  "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-6 pr-8 shadow-lg transition-all min-w-[300px] data-[state=open]:animate-in data-[state=open]:fade-in-90 data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full data-[state=open]:sm:zoom-in-95",
+  // TEMPORARY: Added bg-blue-500 text-white w-80 h-24 for extreme visibility
+  "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-6 pr-8 shadow-lg transition-all min-w-[300px] data-[state=open]:animate-in data-[state=open]:fade-in-90 data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full data-[state=open]:sm:zoom-in-95 bg-blue-500 text-white w-80 h-24",
   {
     variants: {
       variant: {
