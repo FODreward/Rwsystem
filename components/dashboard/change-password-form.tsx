@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { PasswordInput } from "@/components/ui/password-input"
 import { apiCall } from "@/lib/api"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/hooks/use-toast"
 
 export default function ChangePasswordForm({ onReturnToDashboard }: { onReturnToDashboard: () => void }) {
   const [currentPassword, setCurrentPassword] = useState("")
