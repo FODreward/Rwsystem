@@ -18,7 +18,7 @@ export function Toaster() {
           <ToastClose />
         </Toast>
       ))}
-      {/* Reverted ToastViewport to original state */}
+      {/* IMPORTANT: The temporary debugging styles (bg-black/50 border-2 border-red-500) have been removed. */}
       <ToastViewport className="z-[9999]" />
     </ToastProvider>
   )
