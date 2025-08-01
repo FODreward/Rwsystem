@@ -84,7 +84,7 @@ export default function RedemptionHistorySection() {
                 <strong>Points:</strong> {item.points_amount} pts
               </p>
               <p className="text-text-secondary text-base">
-                <strong>Value:</strong> ${item.equivalent_value.toFixed(2)}
+                <strong>Value:</strong> ${Number(item.equivalent_value || 0).toFixed(2)}
               </p>
               <p className="text-text-secondary text-sm mt-2">
                 <strong>Submitted:</strong> {new Date(item.created_at).toLocaleString()}
