@@ -7,8 +7,9 @@ export async function apiCall<T>(
   method: "GET" | "POST" | "PUT" | "DELETE" = "GET",
   data: any = null,
   requiresAuth = false,
+  queryParams: Record<string, string | number | boolean | undefined | null> = {}, // Added queryParams
 ): Promise<T> {
-  const url = `${BASE_API_URL}${endpoint}`
+  let url = `${BASE_API_URL}${endpoint}`
   const options: RequestInit = {
     method: method,
     headers: {
@@ -16,7 +17,19 @@ export async function apiCall<T>(
     },
   }
 
-  if (data) {
+  // Handle query parameters for GET requests
+  if (method === "GET" && Object.keys(queryParams).length > 0) {
+    const params = new URLSearchParams()
+    for (const key in queryParams) {
+      const value = queryParams[key]
+      if (value !== undefined && value !== null) {
+        // Only append if value is not undefined or null
+        params.append(key, String(value))
+      }
+    }
+    url = `${url}?${params.toString()}`
+  } else if (data) {
+    // For non-GET requests with data, stringify body
     options.body = JSON.stringify(data)
   }
 
