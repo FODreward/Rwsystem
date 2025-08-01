@@ -18,8 +18,8 @@ export function Toaster() {
           <ToastClose />
         </Toast>
       ))}
-      {/* Added temporary background and border for debugging visibility */}
-      <ToastViewport className="z-[9999] bg-black/50 border-2 border-red-500" />
+      {/* Reverted ToastViewport to original state */}
+      <ToastViewport className="z-[9999]" />
     </ToastProvider>
   )
 }
