@@ -141,6 +141,11 @@ export default function DashboardPage() {
     setIsMenuOpen(false)
   }
 
+  // Callback to return to dashboard home
+  const handleReturnToDashboard = useCallback(() => {
+    setActiveSection("dashboardHome")
+  }, [])
+
   const handleLogout = () => {
     clearAuthData()
     toast({
@@ -196,7 +201,7 @@ export default function DashboardPage() {
             {/* Survey Section */}
             <section className="bg-card-background p-6 rounded-2xl shadow-lg">
               <h3 className="text-2xl font-bold mb-6 text-primary">🎉 Available Surveys</h3>
-              <AvailableSurveysSection />
+              <AvailableSurveysSection onReturnToDashboard={handleReturnToDashboard} />
             </section>
 
             {/* Activity Feed */}
@@ -235,24 +240,26 @@ export default function DashboardPage() {
           </>
         )
       case "profile":
-        return <ProfileSection />
+        return <ProfileSection onReturnToDashboard={handleReturnToDashboard} />
       case "history":
-        return <TransferHistorySection />
+        return <TransferHistorySection onReturnToDashboard={handleReturnToDashboard} />
       case "redeem":
-        return <RedeemPointsForm onRedeemSuccess={loadDashboardStats} />
+        return <RedeemPointsForm onRedeemSuccess={loadDashboardStats} onReturnToDashboard={handleReturnToDashboard} />
       case "redemptionHistory":
-        return <RedemptionHistorySection />
+        return <RedemptionHistorySection onReturnToDashboard={handleReturnToDashboard} />
       case "transfer":
-        return <TransferPointsForm onTransferSuccess={loadDashboardStats} />
+        return (
+          <TransferPointsForm onTransferSuccess={loadDashboardStats} onReturnToDashboard={handleReturnToDashboard} />
+        )
       case "password":
-        return <ChangePasswordForm />
+        return <ChangePasswordForm onReturnToDashboard={handleReturnToDashboard} />
       case "pin":
-        return <ChangePinForm />
+        return <ChangePinForm onReturnToDashboard={handleReturnToDashboard} />
       case "surveys":
         return (
           <section className="bg-card-background p-6 rounded-2xl shadow-lg">
             <h3 className="text-2xl font-bold mb-6 text-primary">🎉 Available Surveys</h3>
-            <AvailableSurveysSection />
+            <AvailableSurveysSection onReturnToDashboard={handleReturnToDashboard} />
           </section>
         )
       default:
