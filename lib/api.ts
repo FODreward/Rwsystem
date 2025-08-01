@@ -1,4 +1,4 @@
-import { toast } from "@/components/ui/use-toast"
+import { toast } from "@/hooks/use-toast" // Corrected import path
 
 const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL || "https://dansog-backend.onrender.com/api"
 
