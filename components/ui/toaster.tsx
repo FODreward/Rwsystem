@@ -18,8 +18,8 @@ export function Toaster() {
           <ToastClose />
         </Toast>
       ))}
-      {/* IMPORTANT: The temporary debugging styles (bg-black/50 border-2 border-red-500) have been removed. */}
-      <ToastViewport className="z-[9999]" />
+      {/* Explicitly position the viewport to be centered at the top */}
+      <ToastViewport className="z-[9999] fixed top-0 left-1/2 -translate-x-1/2 flex max-h-screen w-full flex-col-reverse p-4 sm:flex-col md:max-w-[420px]" />
     </ToastProvider>
   )
 }
