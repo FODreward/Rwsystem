@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react"
 import { apiCall } from "@/lib/api"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button" // Import Button
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
