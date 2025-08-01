@@ -8,18 +8,20 @@ export function Toaster() {
 
   return (
     <ToastProvider>
-      {toasts.map(({ id, title, description, action, ...props }) => (
-        <Toast key={id} {...props}>
-          <div className="grid gap-1">
-            {title && <ToastTitle>{title}</ToastTitle>}
-            {description && <ToastDescription>{description}</ToastDescription>}
-          </div>
-          {action}
-          <ToastClose />
-        </Toast>
-      ))}
-      {/* Explicitly position the viewport to be centered at the top */}
-      <ToastViewport className="z-[9999]" />
+      <ToastViewport className="z-[9999]">
+        {" "}
+        {/* ToastViewport is now the single child */}
+        {toasts.map(({ id, title, description, action, ...props }) => (
+          <Toast key={id} {...props}>
+            <div className="grid gap-1">
+              {title && <ToastTitle>{title}</ToastTitle>}
+              {description && <ToastDescription>{description}</ToastDescription>}
+            </div>
+            {action}
+            <ToastClose />
+          </Toast>
+        ))}
+      </ToastViewport>
     </ToastProvider>
   )
 }
