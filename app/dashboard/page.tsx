@@ -19,7 +19,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { apiCall } from "@/lib/api"
 import { useAuth } from "@/hooks/use-auth"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/hooks/use-toast"
 
 // Import dashboard sections
 import ProfileSection from "@/components/dashboard/profile-section"
