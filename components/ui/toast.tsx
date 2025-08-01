@@ -26,8 +26,8 @@ const ToastViewport = React.forwardRef<
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName
 
 const toastVariants = cva(
-  // TEMPORARY: Added bg-blue-500 text-white w-80 h-24 for extreme visibility
-  "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-6 pr-8 shadow-lg transition-all min-w-[300px] data-[state=open]:animate-in data-[state=open]:fade-in-90 data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full data-[state=open]:sm:zoom-in-95 bg-blue-500 text-white w-80 h-24",
+  // Original shadcn/ui styles for reference, but they will be overridden below
+  "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-6 pr-8 shadow-lg transition-all min-w-[300px] data-[state=open]:animate-in data-[state=open]:fade-in-90 data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full data-[state=open]:sm:zoom-in-95",
   {
     variants: {
       variant: {
@@ -45,7 +45,20 @@ const Toast = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Root>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root> & VariantProps<typeof toastVariants>
 >(({ className, variant, ...props }, ref) => {
-  return <ToastPrimitives.Root ref={ref} className={cn(toastVariants({ variant }), className)} {...props} />
+  return (
+    <ToastPrimitives.Root
+      ref={ref}
+      className={cn(
+        toastVariants({ variant }), // Apply base variants first
+        // *** EXTREME VISIBILITY OVERRIDE ***
+        // This will force a bright, contrasting background and text color,
+        // and a fixed size, regardless of dark mode or other styles.
+        "bg-red-500 text-white border-4 border-yellow-300 w-[300px] h-[100px] flex items-center justify-center text-center",
+        className,
+      )}
+      {...props}
+    />
+  )
 })
 Toast.displayName = ToastPrimitives.Root.displayName
 
