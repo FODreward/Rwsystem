@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { apiCall } from "@/lib/api"
 import { useAuth } from "@/hooks/use-auth"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/hooks/use-toast"
 
 interface Transfer {
   id: string
