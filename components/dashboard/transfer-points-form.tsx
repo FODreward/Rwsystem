@@ -1,14 +1,17 @@
 "use client"
 
 import type React from "react"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/components/ui/use-toast"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { apiCall } from "@/lib/api"
 
-export default function TransferPointsForm({ onTransferSuccess }: { onTransferSuccess: () => void }) {
+export default function TransferPointsForm({
+  onTransferSuccess,
+  onReturnToDashboard,
+}: { onTransferSuccess: () => void; onReturnToDashboard: () => void }) {
   const [receiverEmail, setReceiverEmail] = useState("")
   const [amount, setAmount] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -49,7 +52,12 @@ export default function TransferPointsForm({ onTransferSuccess }: { onTransferSu
 
   return (
     <div className="bg-card-background p-8 rounded-2xl shadow-lg max-w-md mx-auto">
-      <h3 className="text-2xl font-bold mb-6 text-primary">💸 Transfer Points</h3>
+      <h3 className="text-2xl font-bold mb-6 text-primary flex justify-between items-center">
+        💸 Transfer Points
+        <Button onClick={onReturnToDashboard} className="btn-secondary">
+          Return to Dashboard
+        </Button>
+      </h3>
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
           <Label htmlFor="receiverEmail">Receiver Email</Label>

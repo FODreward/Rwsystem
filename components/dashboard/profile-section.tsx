@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react"
 import { apiCall } from "@/lib/api"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/components/ui/use-toast"
+import { Button } from "@/components/ui/button" // Import Button
 
 interface UserProfile {
   email: string
@@ -16,7 +17,7 @@ interface UserProfile {
   created_at: string
 }
 
-export default function ProfileSection() {
+export default function ProfileSection({ onReturnToDashboard }: { onReturnToDashboard: () => void }) {
   const [user, setUser] = useState<UserProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const { toast } = useToast()
@@ -50,13 +51,23 @@ export default function ProfileSection() {
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center min-h-[200px] text-red-500 text-lg">Failed to load profile.</div>
+      <div className="flex items-center justify-center min-h-[200px] text-red-500 text-lg">
+        Failed to load profile.
+        <Button onClick={onReturnToDashboard} className="btn-secondary ml-4">
+          Return to Dashboard
+        </Button>
+      </div>
     )
   }
 
   return (
     <div className="bg-card-background p-8 rounded-2xl shadow-lg max-w-2xl mx-auto">
-      <h3 className="text-2xl font-bold mb-6 text-primary">👤 Your Profile</h3>
+      <h3 className="text-2xl font-bold mb-6 text-primary flex justify-between items-center">
+        👤 Your Profile
+        <Button onClick={onReturnToDashboard} className="btn-secondary">
+          Return to Dashboard
+        </Button>
+      </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-lg">
         <p>
           <strong className="text-text-primary">Email:</strong>{" "}

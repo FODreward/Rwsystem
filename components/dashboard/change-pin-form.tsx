@@ -1,14 +1,15 @@
 "use client"
 
 import type React from "react"
+
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { PinInput } from "@/components/ui/pin-input"
 import { apiCall } from "@/lib/api"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/components/ui/use-toast"
 
-export default function ChangePinForm() {
+export default function ChangePinForm({ onReturnToDashboard }: { onReturnToDashboard: () => void }) {
   const [oldPin, setOldPin] = useState("")
   const [newPin, setNewPin] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -57,7 +58,12 @@ export default function ChangePinForm() {
 
   return (
     <div className="bg-card-background p-8 rounded-2xl shadow-lg max-w-md mx-auto">
-      <h3 className="text-2xl font-bold mb-6 text-primary">🔒 Change PIN</h3>
+      <h3 className="text-2xl font-bold mb-6 text-primary flex justify-between items-center">
+        🔒 Change PIN
+        <Button onClick={onReturnToDashboard} className="btn-secondary">
+          Return to Dashboard
+        </Button>
+      </h3>
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
           <Label htmlFor="oldPin">Old PIN</Label>

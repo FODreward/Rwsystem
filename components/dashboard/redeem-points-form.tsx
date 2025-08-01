@@ -8,14 +8,17 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { apiCall } from "@/lib/api"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/components/ui/use-toast"
 
 interface RedemptionRates {
   bitcoin_rate: number
   gift_card_rate: number
 }
 
-export default function RedeemPointsForm({ onRedeemSuccess }: { onRedeemSuccess: () => void }) {
+export default function RedeemPointsForm({
+  onRedeemSuccess,
+  onReturnToDashboard,
+}: { onRedeemSuccess: () => void; onReturnToDashboard: () => void }) {
   const [redeemType, setRedeemType] = useState("bitcoin")
   const [amount, setAmount] = useState("")
   const [destination, setDestination] = useState("")
@@ -100,7 +103,12 @@ export default function RedeemPointsForm({ onRedeemSuccess }: { onRedeemSuccess:
 
   return (
     <div className="bg-card-background p-8 rounded-2xl shadow-lg max-w-md mx-auto">
-      <h3 className="text-2xl font-bold mb-6 text-primary">💰 Redeem Points</h3>
+      <h3 className="text-2xl font-bold mb-6 text-primary flex justify-between items-center">
+        💰 Redeem Points
+        <Button onClick={onReturnToDashboard} className="btn-secondary">
+          Return to Dashboard
+        </Button>
+      </h3>
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
           <Label htmlFor="redeemType">Redemption Type</Label>
