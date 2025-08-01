@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { apiCall } from "@/lib/api"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/hooks/use-toast"
 
 interface Redemption {
   id: string
