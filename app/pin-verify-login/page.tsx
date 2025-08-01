@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PasswordInput } from "@/components/ui/password-input"
 import { apiCall } from "@/lib/api"
 import { useAuth } from "@/hooks/use-auth"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/hooks/use-toast"
 
 export default function PinVerifyLoginPage() {
   const [pin, setPin] = useState("")
