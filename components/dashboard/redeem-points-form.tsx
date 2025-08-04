@@ -1,4 +1,5 @@
-import type React from "react"
+"use client"
+
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,17 +15,12 @@ import { apiCall } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 
 interface RedemptionRates {
-  bitcoin_rate: number  // e.g. 10 means 10 pts => $5
+  bitcoin_rate: number
   gift_card_rate: number
+  base_dollar: number
 }
 
-export default function RedeemPointsForm({
-  onRedeemSuccess,
-  onReturnToDashboard,
-}: {
-  onRedeemSuccess: () => void
-  onReturnToDashboard: () => void
-}) {
+export default function RedeemPointsForm({ onRedeemSuccess, onReturnToDashboard }: { onRedeemSuccess: () => void, onReturnToDashboard: () => void }) {
   const [redeemType, setRedeemType] = useState("bitcoin")
   const [amount, setAmount] = useState("")
   const [destination, setDestination] = useState("")
@@ -35,12 +31,7 @@ export default function RedeemPointsForm({
   useEffect(() => {
     const loadRates = async () => {
       try {
-        const data = await apiCall<RedemptionRates>(
-          "/redemption/rates",
-          "GET",
-          null,
-          true
-        )
+        const data = await apiCall<RedemptionRates>("/redemption/rates", "GET", null, true)
         setRates(data)
       } catch (error: any) {
         toast({
@@ -53,7 +44,7 @@ export default function RedeemPointsForm({
     loadRates()
   }, [toast])
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleSubmit = async (event: any) => {
     event.preventDefault()
     setIsLoading(true)
 
@@ -71,7 +62,7 @@ export default function RedeemPointsForm({
     if (!destination.trim()) {
       toast({
         title: "Missing Destination",
-        description: "Please enter a destination (wallet address or email).",
+        description: "Please enter a destination (wallet or email).",
         variant: "destructive",
       })
       setIsLoading(false)
@@ -109,12 +100,14 @@ export default function RedeemPointsForm({
     }
   }
 
-  const btcDisplay = rates
-    ? `${rates.bitcoin_rate.toFixed(2)} pts / $5.00`
-    : "Loading..."
-  const giftDisplay = rates
-    ? `${rates.gift_card_rate.toFixed(2)} pts / $5.00`
-    : "Loading..."
+  const formatRate = (rate: number): string => {
+    if (!rates) return "Loading..."
+    const points = rate * rates.base_dollar
+    return `${points.toFixed(2)} pts / $${rates.base_dollar.toFixed(2)}`
+  }
+
+  const bitcoinRateLabel = rates ? formatRate(rates.bitcoin_rate) : "Loading..."
+  const giftCardRateLabel = rates ? formatRate(rates.gift_card_rate) : "Loading..."
 
   return (
     <div className="bg-card-background p-8 rounded-2xl shadow-lg max-w-md mx-auto">
@@ -132,8 +125,8 @@ export default function RedeemPointsForm({
               <SelectValue placeholder="Select redemption type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="bitcoin">Bitcoin ({btcDisplay})</SelectItem>
-              <SelectItem value="gift_card">Gift Card ({giftDisplay})</SelectItem>
+              <SelectItem value="bitcoin">Bitcoin ({bitcoinRateLabel})</SelectItem>
+              <SelectItem value="gift_card">Gift Card ({giftCardRateLabel})</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -156,11 +149,7 @@ export default function RedeemPointsForm({
           <Input
             id="redeemDestination"
             name="destination"
-            placeholder={
-              redeemType === "bitcoin"
-                ? "Wallet Address"
-                : "Email for Gift Card"
-            }
+            placeholder={redeemType === "bitcoin" ? "Wallet Address" : "Email for Gift Card"}
             required
             value={destination}
             onChange={(e) => setDestination(e.target.value)}
