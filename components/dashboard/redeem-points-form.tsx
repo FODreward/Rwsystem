@@ -1,12 +1,17 @@
 "use client"
 
 import type React from "react"
-
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { apiCall } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 
@@ -18,7 +23,10 @@ interface RedemptionRates {
 export default function RedeemPointsForm({
   onRedeemSuccess,
   onReturnToDashboard,
-}: { onRedeemSuccess: () => void; onReturnToDashboard: () => void }) {
+}: {
+  onRedeemSuccess: () => void
+  onReturnToDashboard: () => void
+}) {
   const [redeemType, setRedeemType] = useState("bitcoin")
   const [amount, setAmount] = useState("")
   const [destination, setDestination] = useState("")
@@ -86,7 +94,7 @@ export default function RedeemPointsForm({
       })
       setAmount("")
       setDestination("")
-      onRedeemSuccess() // Callback to refresh dashboard stats
+      onRedeemSuccess()
     } catch (error: any) {
       toast({
         title: "Redemption Failed",
@@ -98,8 +106,18 @@ export default function RedeemPointsForm({
     }
   }
 
-  const btcPtsPerDollar = rates ? (1 / rates.bitcoin_rate).toFixed(0) : "N/A"
-  const giftPtsPerDollar = rates ? (1 / rates.gift_card_rate).toFixed(0) : "N/A"
+  // Format admin's configured redemption rates
+  const formatRate = (points: number, dollars: number): string => {
+    return `${points.toFixed(2)} pts / $${dollars.toFixed(2)}`
+  }
+
+  const bitcoinDisplayRate = rates
+    ? formatRate(rates.bitcoin_rate, 5)
+    : "Loading..."
+
+  const giftCardDisplayRate = rates
+    ? formatRate(rates.gift_card_rate, 5)
+    : "Loading..."
 
   return (
     <div className="bg-card-background p-8 rounded-2xl shadow-lg max-w-md mx-auto">
@@ -117,8 +135,12 @@ export default function RedeemPointsForm({
               <SelectValue placeholder="Select redemption type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="bitcoin">Bitcoin ({btcPtsPerDollar} pts/$)</SelectItem>
-              <SelectItem value="gift_card">Gift Card ({giftPtsPerDollar} pts/$)</SelectItem>
+              <SelectItem value="bitcoin">
+                Bitcoin ({bitcoinDisplayRate})
+              </SelectItem>
+              <SelectItem value="gift_card">
+                Gift Card ({giftCardDisplayRate})
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
