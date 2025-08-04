@@ -114,10 +114,10 @@ export default function RedeemPointsForm({
       ? rates.base_dollar
       : parseFloat(rates.base_dollar)
 
-    if (isNaN(rate) || isNaN(baseDollar)) return "Invalid rate"
+    if (isNaN(rate) || isNaN(baseDollar) || rate === 0) return "Invalid rate"
 
-    const points = rate * baseDollar
-    return `${points.toFixed(2)} pts / $${baseDollar.toFixed(2)}`
+    const points = baseDollar / rate
+    return `${points.toFixed(0)} pts / $${baseDollar.toFixed(2)}`
   }
 
   const bitcoinRateLabel = rates ? formatRate(rates.bitcoin_rate) : "Loading..."
