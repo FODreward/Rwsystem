@@ -65,7 +65,11 @@ export default function RedemptionHistorySection({ onReturnToDashboard }: { onRe
         end_date: endDate,
         limit: limit,
       })
-      setHistory(Array.isArray(data) ? data : [])
+      setHistory(
+  Array.isArray(data)
+    ? data.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    : []
+)
     } catch (error: any) {
       toast({
         title: "Error",
