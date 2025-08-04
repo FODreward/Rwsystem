@@ -15,12 +15,18 @@ import { apiCall } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 
 interface RedemptionRates {
-  bitcoin_rate: number
-  gift_card_rate: number
-  base_dollar: number
+  bitcoin_rate: number | string
+  gift_card_rate: number | string
+  base_dollar: number | string
 }
 
-export default function RedeemPointsForm({ onRedeemSuccess, onReturnToDashboard }: { onRedeemSuccess: () => void, onReturnToDashboard: () => void }) {
+export default function RedeemPointsForm({
+  onRedeemSuccess,
+  onReturnToDashboard,
+}: {
+  onRedeemSuccess: () => void
+  onReturnToDashboard: () => void
+}) {
   const [redeemType, setRedeemType] = useState("bitcoin")
   const [amount, setAmount] = useState("")
   const [destination, setDestination] = useState("")
@@ -48,7 +54,7 @@ export default function RedeemPointsForm({ onRedeemSuccess, onReturnToDashboard 
     event.preventDefault()
     setIsLoading(true)
 
-    const pointsAmount = Number.parseFloat(amount)
+    const pointsAmount = parseFloat(amount)
     if (isNaN(pointsAmount) || pointsAmount <= 0) {
       toast({
         title: "Invalid Amount",
@@ -100,10 +106,18 @@ export default function RedeemPointsForm({ onRedeemSuccess, onReturnToDashboard 
     }
   }
 
-  const formatRate = (rate: number): string => {
+  const formatRate = (rateInput: number | string): string => {
     if (!rates) return "Loading..."
-    const points = rate * rates.base_dollar
-    return `${points.toFixed(2)} pts / $${rates.base_dollar.toFixed(2)}`
+
+    const rate = typeof rateInput === "number" ? rateInput : parseFloat(rateInput)
+    const baseDollar = typeof rates.base_dollar === "number"
+      ? rates.base_dollar
+      : parseFloat(rates.base_dollar)
+
+    if (isNaN(rate) || isNaN(baseDollar)) return "Invalid rate"
+
+    const points = rate * baseDollar
+    return `${points.toFixed(2)} pts / $${baseDollar.toFixed(2)}`
   }
 
   const bitcoinRateLabel = rates ? formatRate(rates.bitcoin_rate) : "Loading..."
