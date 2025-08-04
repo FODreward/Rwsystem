@@ -1,5 +1,3 @@
-"use client"
-
 import type React from "react"
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -16,7 +14,7 @@ import { apiCall } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 
 interface RedemptionRates {
-  bitcoin_rate: number
+  bitcoin_rate: number  // e.g. 10 means 10 pts => $5
   gift_card_rate: number
 }
 
@@ -37,7 +35,12 @@ export default function RedeemPointsForm({
   useEffect(() => {
     const loadRates = async () => {
       try {
-        const data = await apiCall<RedemptionRates>("/redemption/rates", "GET", null, true)
+        const data = await apiCall<RedemptionRates>(
+          "/redemption/rates",
+          "GET",
+          null,
+          true
+        )
         setRates(data)
       } catch (error: any) {
         toast({
@@ -106,17 +109,11 @@ export default function RedeemPointsForm({
     }
   }
 
-  // Format admin's configured redemption rates
-  const formatRate = (points: number, dollars: number): string => {
-    return `${points.toFixed(2)} pts / $${dollars.toFixed(2)}`
-  }
-
-  const bitcoinDisplayRate = rates
-    ? formatRate(rates.bitcoin_rate, 5)
+  const btcDisplay = rates
+    ? `${rates.bitcoin_rate.toFixed(2)} pts / $5.00`
     : "Loading..."
-
-  const giftCardDisplayRate = rates
-    ? formatRate(rates.gift_card_rate, 5)
+  const giftDisplay = rates
+    ? `${rates.gift_card_rate.toFixed(2)} pts / $5.00`
     : "Loading..."
 
   return (
@@ -135,12 +132,8 @@ export default function RedeemPointsForm({
               <SelectValue placeholder="Select redemption type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="bitcoin">
-                Bitcoin ({bitcoinDisplayRate})
-              </SelectItem>
-              <SelectItem value="gift_card">
-                Gift Card ({giftCardDisplayRate})
-              </SelectItem>
+              <SelectItem value="bitcoin">Bitcoin ({btcDisplay})</SelectItem>
+              <SelectItem value="gift_card">Gift Card ({giftDisplay})</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -163,7 +156,11 @@ export default function RedeemPointsForm({
           <Input
             id="redeemDestination"
             name="destination"
-            placeholder={redeemType === "bitcoin" ? "Wallet Address" : "Email for Gift Card"}
+            placeholder={
+              redeemType === "bitcoin"
+                ? "Wallet Address"
+                : "Email for Gift Card"
+            }
             required
             value={destination}
             onChange={(e) => setDestination(e.target.value)}
