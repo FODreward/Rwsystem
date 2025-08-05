@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -18,16 +18,34 @@ export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [deviceId, setDeviceId] = useState<string | null>(null)
   const { saveAuthData } = useAuth()
   const router = useRouter()
   const { toast } = useToast()
+
+  // 👇 Load FingerprintJS on component mount
+  useEffect(() => {
+    const loadFingerprint = async () => {
+      const FingerprintJS = await import("@fingerprintjs/fingerprintjs")
+      const fp = await FingerprintJS.load()
+      const result = await fp.get()
+      setDeviceId(result.visitorId)
+    }
+
+    loadFingerprint()
+  }, [])
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     setIsLoading(true)
 
     try {
-      const response = await apiCall("/auth/login", "POST", { email, password })
+      const response = await apiCall("/auth/login", "POST", {
+        email,
+        password,
+        device_id: deviceId, // 👈 send device ID to backend
+      })
+
       saveAuthData(response.access_token, response.user)
       toast({
         title: "Login Successful",
@@ -76,7 +94,7 @@ export default function LoginPage() {
                 disabled={isLoading}
               />
             </div>
-            <Button type="submit" className="w-full btn-primary" disabled={isLoading}>
+            <Button type="submit" className="w-full btn-primary" disabled={isLoading || !deviceId}>
               {isLoading ? "Logging in..." : "Login"}
             </Button>
           </form>
