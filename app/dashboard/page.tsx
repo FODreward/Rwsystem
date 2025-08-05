@@ -225,7 +225,7 @@ export default function DashboardPage() {
     </div>
     <CardTitle className="text-xl font-semibold text-gray-800 mb-1">Pending Points</CardTitle>
     <CardContent className="p-0 text-3xl font-bold text-primary-600">
-      {isLoadingStats ? "..." : `${dashboardStats?.pending_points || 0} pts`}
+      {isLoadingStats ? "..." : `${dashboardStats?.pending_points_balance || 0} pts`}
     </CardContent>
   </Card>
 
