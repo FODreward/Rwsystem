@@ -48,6 +48,7 @@ interface DashboardStats {
   completed_surveys: number
   pending_redemptions: number
   total_earned: number
+  pending_points_balance: number // Ensure this is present for the dashboard stats
 }
 
 interface ActivityItem {
@@ -207,62 +208,61 @@ export default function DashboardPage() {
             {/* Dashboard Stats Grid */}
 
             <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-  {/* Wallet Balance Card */}
-  <Card className="bg-background p-6 rounded-xl shadow-md flex flex-col items-center text-center">
-    <div className="bg-primary-100 p-3 rounded-full mb-3">
-      <DollarSign className="h-8 w-8 text-primary-600" />
-    </div>
-    <CardTitle className="text-xl font-semibold text-gray-800 mb-1">Wallet Balance</CardTitle>
-    <CardContent className="p-0 text-3xl font-bold text-primary-600">
-      {isLoadingStats ? "..." : `${dashboardStats?.points_balance || 0} pts`}
-    </CardContent>
-  </Card>
+              {/* Wallet Balance Card */}
+              <Card className="bg-background p-6 rounded-xl shadow-md flex flex-col items-center text-center">
+                <div className="bg-primary-100 p-3 rounded-full mb-3">
+                  <DollarSign className="h-8 w-8 text-primary-600" />
+                </div>
+                <CardTitle className="text-xl font-semibold text-gray-800 mb-1">Wallet Balance</CardTitle>
+                <CardContent className="p-0 text-3xl font-bold text-primary-600">
+                  {isLoadingStats ? "..." : `${dashboardStats?.points_balance || 0} pts`}
+                </CardContent>
+              </Card>
 
-  {/* Pending Points Card */}
-  <Card className="bg-background p-6 rounded-xl shadow-md flex flex-col items-center text-center">
-    <div className="bg-primary-100 p-3 rounded-full mb-3">
-      <Hourglass className="h-8 w-8 text-primary-600" />
-    </div>
-    <CardTitle className="text-xl font-semibold text-gray-800 mb-1">Pending Points</CardTitle>
-    <CardContent className="p-0 text-3xl font-bold text-primary-600">
-      {isLoadingStats ? "..." : `${dashboardStats?.pending_points_balance || 0} pts`}
-    </CardContent>
-  </Card>
+              {/* Pending Points Card */}
+              <Card className="bg-background p-6 rounded-xl shadow-md flex flex-col items-center text-center">
+                <div className="bg-primary-100 p-3 rounded-full mb-3">
+                  <Hourglass className="h-8 w-8 text-primary-600" />
+                </div>
+                <CardTitle className="text-xl font-semibold text-gray-800 mb-1">Pending Points</CardTitle>
+                <CardContent className="p-0 text-3xl font-bold text-primary-600">
+                  {isLoadingStats ? "..." : `${dashboardStats?.pending_points_balance || 0} pts`}
+                </CardContent>
+              </Card>
 
-  {/* Surveys Completed Card */}
-  <Card className="bg-background p-6 rounded-xl shadow-md flex flex-col items-center text-center">
-    <div className="bg-primary-100 p-3 rounded-full mb-3">
-      <CheckCircle className="h-8 w-8 text-primary-600" />
-    </div>
-    <CardTitle className="text-xl font-semibold text-gray-800 mb-1">Surveys Completed</CardTitle>
-    <CardContent className="p-0 text-3xl font-bold text-primary-600">
-      {isLoadingStats ? "..." : dashboardStats?.completed_surveys || 0}
-    </CardContent>
-  </Card>
+              {/* Surveys Completed Card */}
+              <Card className="bg-background p-6 rounded-xl shadow-md flex flex-col items-center text-center">
+                <div className="bg-primary-100 p-3 rounded-full mb-3">
+                  <CheckCircle className="h-8 w-8 text-primary-600" />
+                </div>
+                <CardTitle className="text-xl font-semibold text-gray-800 mb-1">Surveys Completed</CardTitle>
+                <CardContent className="p-0 text-3xl font-bold text-primary-600">
+                  {isLoadingStats ? "..." : dashboardStats?.completed_surveys || 0}
+                </CardContent>
+              </Card>
 
-  {/* Pending Redemptions Card */}
-  <Card className="bg-background p-6 rounded-xl shadow-md flex flex-col items-center text-center">
-    <div className="bg-primary-100 p-3 rounded-full mb-3">
-      <Hourglass className="h-8 w-8 text-primary-600" />
-    </div>
-    <CardTitle className="text-xl font-semibold text-gray-800 mb-1">Pending Redemptions</CardTitle>
-    <CardContent className="p-0 text-3xl font-bold text-primary-600">
-      {isLoadingStats ? "..." : dashboardStats?.pending_redemptions || 0}
-    </CardContent>
-  </Card>
+              {/* Pending Redemptions Card */}
+              <Card className="bg-background p-6 rounded-xl shadow-md flex flex-col items-center text-center">
+                <div className="bg-primary-100 p-3 rounded-full mb-3">
+                  <Hourglass className="h-8 w-8 text-primary-600" />
+                </div>
+                <CardTitle className="text-xl font-semibold text-gray-800 mb-1">Pending Redemptions</CardTitle>
+                <CardContent className="p-0 text-3xl font-bold text-primary-600">
+                  {isLoadingStats ? "..." : dashboardStats?.pending_redemptions || 0}
+                </CardContent>
+              </Card>
 
-  {/* Total Earned Card */}
-  <Card className="bg-background p-6 rounded-xl shadow-md flex flex-col items-center text-center">
-    <div className="bg-primary-100 p-3 rounded-full mb-3">
-      <TrendingUp className="h-8 w-8 text-primary-600" />
-    </div>
-    <CardTitle className="text-xl font-semibold text-gray-800 mb-1">Total Earned</CardTitle>
-    <CardContent className="p-0 text-3xl font-bold text-primary-600">
-      {isLoadingStats ? "..." : `${dashboardStats?.total_earned || 0} pts`}
-    </CardContent>
-  </Card>
-</section>
-            
+              {/* Total Earned Card */}
+              <Card className="bg-background p-6 rounded-xl shadow-md flex flex-col items-center text-center">
+                <div className="bg-primary-100 p-3 rounded-full mb-3">
+                  <TrendingUp className="h-8 w-8 text-primary-600" />
+                </div>
+                <CardTitle className="text-xl font-semibold text-gray-800 mb-1">Total Earned</CardTitle>
+                <CardContent className="p-0 text-3xl font-bold text-primary-600">
+                  {isLoadingStats ? "..." : `${dashboardStats?.total_earned || 0} pts`}
+                </CardContent>
+              </Card>
+            </section>
 
             {/* Available Surveys Section (on dashboard home - no extra wrapper) */}
             <AvailableSurveysSection onReturnToDashboard={handleReturnToDashboard} showReturnButton={false} />
