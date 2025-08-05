@@ -13,6 +13,8 @@ import { apiCall, getDeviceFingerprint, loadRecaptchaScript } from "@/lib/api"
 import { useAuth } from "@/hooks/use-auth"
 import { useToast } from "@/hooks/use-toast"
 
+const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+
 declare global {
   interface Window {
     grecaptcha: any
@@ -32,15 +34,26 @@ export default function LoginPage() {
   const recaptchaRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    if (!RECAPTCHA_SITE_KEY) {
+      console.error("Missing reCAPTCHA site key.")
+      toast({
+        title: "Configuration Error",
+        description: "reCAPTCHA site key is not configured.",
+        variant: "destructive",
+      })
+      return
+    }
+
     window.onloadCallback = () => {
       setRecaptchaReady(true)
       if (window.grecaptcha && recaptchaRef.current) {
         window.grecaptcha.render(recaptchaRef.current, {
-          sitekey: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY,
+          sitekey: RECAPTCHA_SITE_KEY,
           size: "invisible",
         })
       }
     }
+
     loadRecaptchaScript(window.onloadCallback)
   }, [])
 
@@ -51,7 +64,7 @@ export default function LoginPage() {
     if (!recaptchaReady) {
       toast({
         title: "Error",
-        description: "reCAPTCHA is not ready. Please try again in a moment.",
+        description: "reCAPTCHA is not ready. Please try again shortly.",
         variant: "destructive",
       })
       setIsLoading(false)
@@ -62,16 +75,12 @@ export default function LoginPage() {
       const deviceFingerprint = await getDeviceFingerprint()
       const userAgent = navigator.userAgent
 
-      // Execute reCAPTCHA
-      const recaptchaToken = await new Promise<string>((resolve, reject) => {
-        if (window.grecaptcha && window.grecaptcha.execute) {
-          window.grecaptcha
-            .execute(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY, { action: "login" })
-            .then(resolve)
-            .catch(reject)
-        } else {
-          reject(new Error("reCAPTCHA not available."))
-        }
+      if (!window.grecaptcha || !window.grecaptcha.execute) {
+        throw new Error("reCAPTCHA not loaded properly.")
+      }
+
+      const recaptchaToken = await window.grecaptcha.execute(RECAPTCHA_SITE_KEY, {
+        action: "login",
       })
 
       const response = await apiCall<{ access_token: string; token_type: string; user: any }>(
@@ -81,25 +90,27 @@ export default function LoginPage() {
           email,
           password,
           device_fingerprint: deviceFingerprint,
-          ip_address: "client_ip_placeholder", // Backend will get actual IP from request headers
+          ip_address: "client_ip_placeholder", // Backend extracts actual IP
           user_agent: userAgent,
           recaptcha_token: recaptchaToken,
         },
         false,
         {},
-        recaptchaToken, // Pass recaptchaToken
+        recaptchaToken
       )
 
       login(response.access_token, response.user)
+
       toast({
         title: "Login Successful",
         description: "You have been successfully logged in.",
       })
+
       router.push("/dashboard")
     } catch (error: any) {
       toast({
         title: "Login Failed",
-        description: error.message || "Invalid credentials.",
+        description: error.message || "An error occurred.",
         variant: "destructive",
       })
     } finally {
@@ -141,7 +152,6 @@ export default function LoginPage() {
             <Button type="submit" className="w-full btn-primary" disabled={isLoading || !recaptchaReady}>
               {isLoading ? "Logging In..." : "Login"}
             </Button>
-            {/* reCAPTCHA badge will be rendered here */}
             <div ref={recaptchaRef} className="grecaptcha-badge" />
           </form>
           <div className="mt-6 text-center">
