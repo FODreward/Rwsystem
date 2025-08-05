@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -10,8 +10,15 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PasswordInput } from "@/components/ui/password-input"
-import { apiCall, getDeviceFingerprint, getIpAddress } from "@/lib/api"
+import { apiCall, getDeviceFingerprint, loadRecaptchaScript } from "@/lib/api" // Import getDeviceFingerprint and loadRecaptchaScript
 import { useToast } from "@/hooks/use-toast"
+
+declare global {
+  interface Window {
+    grecaptcha: any
+    onloadCallback: () => void
+  }
+}
 
 export default function SignupPage() {
   const [name, setName] = useState("")
@@ -19,27 +26,69 @@ export default function SignupPage() {
   const [password, setPassword] = useState("")
   const [referralCode, setReferralCode] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [recaptchaReady, setRecaptchaReady] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
+
+  const recaptchaRef = useRef<HTMLDivElement>(null) // Ref for reCAPTCHA badge
+
+  useEffect(() => {
+    window.onloadCallback = () => {
+      setRecaptchaReady(true)
+      if (window.grecaptcha && recaptchaRef.current) {
+        window.grecaptcha.render(recaptchaRef.current, {
+          sitekey: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY,
+          size: "invisible",
+        })
+      }
+    }
+    loadRecaptchaScript(window.onloadCallback)
+  }, [])
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     setIsLoading(true)
 
-    const tempSignupData = {
-      name,
-      email,
-      password,
-      referral_code: referralCode,
-      device_fingerprint: getDeviceFingerprint(),
-      ip_address: getIpAddress(),
-      user_agent: navigator.userAgent,
+    if (!recaptchaReady) {
+      toast({
+        title: "Error",
+        description: "reCAPTCHA is not ready. Please try again in a moment.",
+        variant: "destructive",
+      })
+      setIsLoading(false)
+      return
     }
 
-    sessionStorage.setItem("tempSignupData", JSON.stringify(tempSignupData))
-
     try {
-      await apiCall("/auth/request-otp", "POST", { email, purpose: "signup" })
+      const deviceFingerprint = await getDeviceFingerprint()
+      const userAgent = navigator.userAgent
+
+      // Execute reCAPTCHA
+      const recaptchaToken = await new Promise<string>((resolve, reject) => {
+        if (window.grecaptcha && window.grecaptcha.execute) {
+          window.grecaptcha
+            .execute(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY, { action: "signup" })
+            .then(resolve)
+            .catch(reject)
+        } else {
+          reject(new Error("reCAPTCHA not available."))
+        }
+      })
+
+      const tempSignupData = {
+        name,
+        email,
+        password,
+        referral_code: referralCode,
+        device_fingerprint: deviceFingerprint,
+        ip_address: "client_ip_placeholder", // Backend will get actual IP from request headers
+        user_agent: userAgent,
+        recaptcha_token: recaptchaToken,
+      }
+
+      sessionStorage.setItem("tempSignupData", JSON.stringify(tempSignupData))
+
+      await apiCall("/auth/request-otp", "POST", { email, purpose: "signup" }, false, {}, recaptchaToken) // Pass recaptchaToken
       toast({
         title: "OTP Sent",
         description: "An OTP has been sent to your email. Redirecting to verification...",
@@ -112,9 +161,11 @@ export default function SignupPage() {
                 disabled={isLoading}
               />
             </div>
-            <Button type="submit" className="w-full btn-primary" disabled={isLoading}>
+            <Button type="submit" className="w-full btn-primary" disabled={isLoading || !recaptchaReady}>
               {isLoading ? "Registering..." : "Register"}
             </Button>
+            {/* reCAPTCHA badge will be rendered here */}
+            <div ref={recaptchaRef} className="grecaptcha-badge" />
           </form>
           <div className="mt-6 text-center">
             <Link href="/login" className="text-sm text-primary-600 hover:text-primary-800">
