@@ -1,177 +1,126 @@
 "use client"
 
-import type React from "react"
-import { useState, useEffect, useRef } from "react"
-import Link from "next/link"
+import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { PasswordInput } from "@/components/ui/password-input"
-import { apiCall, getDeviceFingerprint, getIpAddress, loadRecaptchaScript } from "@/lib/api"
-import { useAuth } from "@/hooks/use-auth"
+import { apiCall } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { Eye, EyeOff } from "lucide-react"
 
-// Ensure window.grecaptcha is typed for TypeScript
-declare global {
-  interface Window {
-    grecaptcha: any
-    onloadCallback: () => void
-  }
+const loadRecaptchaScript = (onLoad: () => void) => {
+  const script = document.createElement("script")
+  script.src = `https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit`
+  script.async = true
+  script.defer = true
+  script.onload = onLoad
+  document.body.appendChild(script)
 }
 
 export default function LoginPage() {
+  const router = useRouter()
+  const { toast } = useToast()
+  const recaptchaRef = useRef<HTMLDivElement>(null)
+  const widgetIdRef = useRef<number | null>(null)
+
+  const [recaptchaReady, setRecaptchaReady] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const [recaptchaReady, setRecaptchaReady] = useState(false)
-  const router = useRouter()
-  const { login } = useAuth()
-  const { toast } = useToast()
-
-  const recaptchaRef = useRef<HTMLDivElement>(null)
-  const ipAddressRef = useRef<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   useEffect(() => {
-    // Fetch IP address on component mount
-    getIpAddress().then(ip => {
-      ipAddressRef.current = ip;
-    }).catch(err => {
-      console.error("Failed to fetch IP address:", err);
-      ipAddressRef.current = "unknown";
-    });
-
-    // Initialize reCAPTCHA v2 Invisible
     window.onloadCallback = () => {
       setRecaptchaReady(true)
       if (window.grecaptcha && recaptchaRef.current) {
-        window.grecaptcha.render(recaptchaRef.current, {
-          sitekey: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!, // Use non-null assertion as it's required
+        widgetIdRef.current = window.grecaptcha.render(recaptchaRef.current, {
+          sitekey: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!,
           size: "invisible",
-          // Optional: if you want auto-submit on success, add a callback here
-          // callback: (token: string) => { console.log("reCAPTCHA resolved:", token); }
         })
       }
     }
     loadRecaptchaScript(window.onloadCallback)
   }, [])
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault()
-    setIsLoading(true)
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
 
-    if (!recaptchaReady) {
-      toast({
-        title: "Error",
-        description: "reCAPTCHA is not ready. Please try again in a moment.",
-        variant: "destructive",
-      })
-      setIsLoading(false)
+    if (!recaptchaReady || widgetIdRef.current === null) {
+      toast({ title: "reCAPTCHA not ready. Please try again." })
       return
     }
 
+    setLoading(true)
+
     try {
-      const deviceFingerprint = await getDeviceFingerprint()
-      const userAgent = navigator.userAgent
-      const ipAddress = ipAddressRef.current || "unknown"
+      const recaptchaToken = await window.grecaptcha.execute(widgetIdRef.current)
 
-      // Execute reCAPTCHA v2 Invisible without the 'action' parameter
-      const recaptchaToken = await new Promise<string>((resolve, reject) => {
-        if (window.grecaptcha && window.grecaptcha.execute) {
-          window.grecaptcha
-            .execute() // Corrected: No action parameter for v2 Invisible
-            .then((token: string) => {
-              window.grecaptcha.reset(); // Reset reCAPTCHA after execution
-              resolve(token);
-            })
-            .catch(reject)
-        } else {
-          reject(new Error("reCAPTCHA not available."))
-        }
+      if (!recaptchaToken || typeof recaptchaToken !== "string") {
+        throw new Error("Failed to retrieve reCAPTCHA token.")
+      }
+
+      const response = await apiCall("/auth/login", "POST", {
+        email,
+        password,
+        recaptcha_token: recaptchaToken,
       })
 
-      const response = await apiCall<{ access_token: string; token_type: string; user: any }>(
-        "/auth/login",
-        "POST",
-        {
-          email,
-          password,
-          device_fingerprint: deviceFingerprint,
-          ip_address: ipAddress,
-          user_agent: userAgent,
-          recaptcha_token: recaptchaToken,
-        },
-        false, // requiresAuth: false for login
-        {} // No recaptchaToken as a separate argument here
-      )
-
-      login(response.access_token, response.user)
-      toast({
-        title: "Login Successful",
-        description: "You have been successfully logged in.",
-      })
-      router.push("/dashboard")
+      if (response.success) {
+        sessionStorage.setItem("accessToken", response.access_token)
+        sessionStorage.setItem("currentUser", JSON.stringify(response.user))
+        router.push("/dashboard")
+      } else {
+        toast({ title: response.message || "Login failed", variant: "destructive" })
+      }
     } catch (error: any) {
-      toast({
-        title: "Login Failed",
-        description: error.message || "Invalid credentials.",
-        variant: "destructive",
-      })
+      toast({ title: "Error", description: error.message || "Login failed", variant: "destructive" })
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-3xl font-bold text-center text-gray-800 mb-6">Login to Your Account</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {/* reCAPTCHA badge will be rendered here by grecaptcha.render */}
-          <div ref={recaptchaRef} className="grecaptcha-badge" />
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <Label htmlFor="email">Email Address</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
-              />
-            </div>
-            <div>
-              <Label htmlFor="password">Password</Label>
-              <PasswordInput
-                id="password"
-                name="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading}
-              />
-            </div>
-            <Button type="submit" className="w-full btn-primary" disabled={isLoading || !recaptchaReady}>
-              {isLoading ? "Logging In..." : "Login"}
-            </Button>
-          </form>
-          <div className="mt-6 text-center">
-            <Link href="/signup" className="text-sm text-primary-600 hover:text-primary-800">
-              Don't have an account? Sign Up
-            </Link>
+    <div className="max-w-md mx-auto mt-10 p-6 border border-gray-200 rounded-lg shadow-md">
+      <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            required
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="password">Password</Label>
+          <div className="relative">
+            <Input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute inset-y-0 right-2 flex items-center"
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
           </div>
-          <div className="mt-4 text-center">
-            <Link href="/forgot-password" className="text-sm text-primary-600 hover:text-primary-800">
-              Forgot Password?
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+
+        <div ref={recaptchaRef} className="mt-4" />
+
+        <Button type="submit" disabled={loading} className="w-full">
+          {loading ? "Logging in..." : "Login"}
+        </Button>
+      </form>
     </div>
   )
 }
