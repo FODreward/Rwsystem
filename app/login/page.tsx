@@ -1,8 +1,7 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -21,13 +20,31 @@ export default function LoginPage() {
   const { saveAuthData } = useAuth()
   const router = useRouter()
   const { toast } = useToast()
+  const recaptchaRef = useRef(null)
+
+  useEffect(() => {
+    const script = document.createElement("script")
+    script.src = "https://www.google.com/recaptcha/api.js?render=explicit"
+    script.async = true
+    script.defer = true
+    document.body.appendChild(script)
+
+    window.onloadCallback = () => {
+      if (window.grecaptcha && recaptchaRef.current) {
+        window.grecaptcha.render(recaptchaRef.current, {
+          sitekey: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY,
+        })
+      }
+    }
+  }, [])
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     setIsLoading(true)
 
     try {
-      const response = await apiCall("/auth/login", "POST", { email, password })
+      const token = await window.grecaptcha.execute(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY, { action: "login" })
+      const response = await apiCall("/auth/login", "POST", { email, password, recaptcha_token: token })
       saveAuthData(response.access_token, response.user)
       toast({
         title: "Login Successful",
@@ -76,6 +93,7 @@ export default function LoginPage() {
                 disabled={isLoading}
               />
             </div>
+            <div ref={recaptchaRef}></div>
             <Button type="submit" className="w-full btn-primary" disabled={isLoading}>
               {isLoading ? "Logging in..." : "Login"}
             </Button>
@@ -87,7 +105,7 @@ export default function LoginPage() {
           </div>
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-700">
-              Don&apos;t have an account?{" "}
+              Don&apos;t have an account? {" "}
               <Link href="/signup" className="text-primary-600 hover:text-primary-800">
                 Create Account
               </Link>
