@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { PasswordInput } from "@/components/ui/password-input" // Assuming this is a custom component
+import { PasswordInput } from "@/components/ui/password-input"
 import { apiCall, getDeviceFingerprint, getIpAddress, loadRecaptchaScript } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 
@@ -47,8 +47,10 @@ export default function SignupPage() {
       setRecaptchaReady(true)
       if (window.grecaptcha && recaptchaRef.current) {
         window.grecaptcha.render(recaptchaRef.current, {
-          sitekey: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY,
+          sitekey: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!, // Use non-null assertion as it's required
           size: "invisible",
+          // Optional: if you want auto-submit on success, add a callback here
+          // callback: (token: string) => { console.log("reCAPTCHA resolved:", token); }
         })
       }
     }
@@ -83,11 +85,11 @@ export default function SignupPage() {
       const userAgent = navigator.userAgent
       const ipAddress = ipAddressRef.current || "unknown"
 
-      // Execute reCAPTCHA v2 Invisible
+      // Execute reCAPTCHA v2 Invisible without the 'action' parameter
       const recaptchaToken = await new Promise<string>((resolve, reject) => {
         if (window.grecaptcha && window.grecaptcha.execute) {
           window.grecaptcha
-            .execute(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY, { action: "signup" })
+            .execute() // Corrected: No action parameter for v2 Invisible
             .then((token: string) => {
               window.grecaptcha.reset(); // Reset reCAPTCHA after execution
               resolve(token);
@@ -101,11 +103,10 @@ export default function SignupPage() {
       // Request OTP first
       await apiCall("/auth/request-otp", "POST", { email, purpose: "signup" }, false)
 
-      // Then proceed with signup after OTP is sent (and reCAPTCHA token is obtained)
-      // The actual signup will happen on the /signup-otp page after OTP verification
-      // For now, we just need the reCAPTCHA token for the initial OTP request if your backend requires it.
-      // If your backend only requires reCAPTCHA on the final signup, you'd move the recaptcha execution there.
-      // Assuming for now it's needed for the OTP request.
+      // The actual signup will happen on the /signup-otp page after OTP verification.
+      // The recaptchaToken obtained here can be passed along if your backend requires it
+      // for the OTP request itself, or stored to be used in the final signup call.
+      // For now, I'm assuming the backend expects the token with the signup data.
 
       toast({
         title: "OTP Sent",
