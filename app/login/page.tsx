@@ -1,119 +1,173 @@
 "use client"
 
+import type React from "react"
 import { useState, useEffect, useRef } from "react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useGoogleReCaptcha } from "react-google-recaptcha-v3"
-import { api, getDeviceFingerprint } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { PasswordInput } from "@/components/ui/password-input" // Assuming this is a custom component
+import { apiCall, getDeviceFingerprint, getIpAddress, loadRecaptchaScript } from "@/lib/api"
+import { useAuth } from "@/hooks/use-auth" // Assuming this is a custom hook
+import { useToast } from "@/hooks/use-toast" // Assuming this is a custom hook
+
+// Ensure window.grecaptcha is typed for TypeScript
+declare global {
+  interface Window {
+    grecaptcha: any
+    onloadCallback: () => void
+  }
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [message, setMessage] = useState("")
-  const [error, setError] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const { executeRecaptcha } = useGoogleReCaptcha()
+  const [isLoading, setIsLoading] = useState(false)
+  const [recaptchaReady, setRecaptchaReady] = useState(false)
   const router = useRouter()
+  const { login } = useAuth()
+  const { toast } = useToast()
+
+  const recaptchaRef = useRef<HTMLDivElement>(null)
   const ipAddressRef = useRef<string | null>(null)
 
   useEffect(() => {
     // Fetch IP address on component mount
-    fetch("https://api.ipify.org?format=json")
-      .then((res) => res.json())
-      .then((data) => {
-        ipAddressRef.current = data.ip
-      })
-      .catch((err) => {
-        console.error("Failed to fetch IP address:", err)
-        ipAddressRef.current = "unknown"
-      })
+    getIpAddress().then(ip => {
+      ipAddressRef.current = ip;
+    }).catch(err => {
+      console.error("Failed to fetch IP address:", err);
+      ipAddressRef.current = "unknown";
+    });
+
+    // Initialize reCAPTCHA v2 Invisible
+    window.onloadCallback = () => {
+      setRecaptchaReady(true)
+      if (window.grecaptcha && recaptchaRef.current) {
+        window.grecaptcha.render(recaptchaRef.current, {
+          sitekey: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY,
+          size: "invisible",
+        })
+      }
+    }
+    loadRecaptchaScript(window.onloadCallback)
   }, [])
 
-  const handleLogin = async () => {
-    setError("")
-    setMessage("")
-    setIsSubmitting(true)
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault()
+    setIsLoading(true)
 
-    if (!executeRecaptcha) {
-      setError("reCAPTCHA not loaded. Please try again.")
-      setIsSubmitting(false)
+    if (!recaptchaReady) {
+      toast({
+        title: "Error",
+        description: "reCAPTCHA is not ready. Please try again in a moment.",
+        variant: "destructive",
+      })
+      setIsLoading(false)
       return
     }
 
     try {
-      const recaptchaToken = await executeRecaptcha("login")
       const deviceFingerprint = await getDeviceFingerprint()
       const userAgent = navigator.userAgent
       const ipAddress = ipAddressRef.current || "unknown"
 
-      const response = await api.auth.login({
-        email,
-        password,
-        device_fingerprint: deviceFingerprint,
-        ip_address: ipAddress,
-        user_agent: userAgent,
-        recaptcha_token: recaptchaToken,
+      // Execute reCAPTCHA v2 Invisible
+      const recaptchaToken = await new Promise<string>((resolve, reject) => {
+        if (window.grecaptcha && window.grecaptcha.execute) {
+          window.grecaptcha
+            .execute(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY, { action: "login" })
+            .then((token: string) => {
+              window.grecaptcha.reset(); // Reset reCAPTCHA after execution
+              resolve(token);
+            })
+            .catch(reject)
+        } else {
+          reject(new Error("reCAPTCHA not available."))
+        }
       })
-      setMessage("Login successful! Redirecting to dashboard...")
-      // Assuming the API returns a user object or similar to confirm login
-      if (response.user) {
-        router.push("/dashboard")
-      }
-    } catch (err: any) {
-      setError(err.message || "Login failed. Please check your credentials.")
+
+      const response = await apiCall<{ access_token: string; token_type: string; user: any }>(
+        "/auth/login",
+        "POST",
+        {
+          email,
+          password,
+          device_fingerprint: deviceFingerprint,
+          ip_address: ipAddress,
+          user_agent: userAgent,
+          recaptcha_token: recaptchaToken,
+        },
+        false, // requiresAuth: false for login
+        {},
+        recaptchaToken, // Pass recaptchaToken as the last argument for apiCall
+      )
+
+      login(response.access_token, response.user)
+      toast({
+        title: "Login Successful",
+        description: "You have been successfully logged in.",
+      })
+      router.push("/dashboard")
+    } catch (error: any) {
+      toast({
+        title: "Login Failed",
+        description: error.message || "Invalid credentials.",
+        variant: "destructive",
+      })
     } finally {
-      setIsSubmitting(false)
+      setIsLoading(false)
     }
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4 py-12 sm:px-6 lg:px-8">
+    <div className="flex items-center justify-center min-h-screen bg-gray-50">
       <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl text-center">Login</CardTitle>
+        <CardHeader>
+          <CardTitle className="text-3xl font-bold text-center text-gray-800 mb-6">Login to Your Account</CardTitle>
         </CardHeader>
         <CardContent>
-          {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-          {message && <p className="text-green-500 text-center mb-4">{message}</p>}
-          <div className="space-y-4">
+          {/* reCAPTCHA badge will be rendered here by grecaptcha.render */}
+          <div ref={recaptchaRef} className="grecaptcha-badge" />
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">Email Address</Label>
               <Input
                 id="email"
+                name="email"
                 type="email"
-                placeholder="m@example.com"
+                required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                required
+                disabled={isLoading}
               />
             </div>
             <div>
               <Label htmlFor="password">Password</Label>
-              <Input
+              <PasswordInput
                 id="password"
-                type="password"
+                name="password"
+                required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
+                disabled={isLoading}
               />
             </div>
-            <Button className="w-full" onClick={handleLogin} disabled={isSubmitting || !email || !password}>
-              {isSubmitting ? "Logging in..." : "Login"}
+            <Button type="submit" className="w-full btn-primary" disabled={isLoading || !recaptchaReady}>
+              {isLoading ? "Logging In..." : "Login"}
             </Button>
+          </form>
+          <div className="mt-6 text-center">
+            <Link href="/signup" className="text-sm text-primary-600 hover:text-primary-800">
+              Don't have an account? Sign Up
+            </Link>
           </div>
-          <div className="mt-4 text-center text-sm">
-            Don&apos;t have an account?{" "}
-            <a className="underline" href="/signup">
-              Sign Up
-            </a>
-          </div>
-          <div className="mt-2 text-center text-sm">
-            <a className="underline" href="/forgot-password">
+          <div className="mt-4 text-center">
+            <Link href="/forgot-password" className="text-sm text-primary-600 hover:text-primary-800">
               Forgot Password?
-            </a>
+            </Link>
           </div>
         </CardContent>
       </Card>
