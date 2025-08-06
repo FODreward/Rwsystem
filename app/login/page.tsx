@@ -103,8 +103,7 @@ export default function LoginPage() {
           recaptcha_token: recaptchaToken,
         },
         false, // requiresAuth: false for login
-        {},
-        recaptchaToken, // Pass recaptchaToken as the last argument for apiCall
+        {} // No recaptchaToken as a separate argument here
       )
 
       login(response.access_token, response.user)
