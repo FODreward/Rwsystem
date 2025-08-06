@@ -1,7 +1,7 @@
 import Cookies from "js-cookie"
 import FingerprintJS from "@fingerprintjs/fingerprintjs" // Corrected import for FingerprintJS
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:10000/api"
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://dansog-backend.onrender.com/api"
 
 // Function to get device fingerprint using FingerprintJS
 export async function getDeviceFingerprint(): Promise<string> {
