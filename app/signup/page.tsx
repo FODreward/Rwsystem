@@ -1,7 +1,8 @@
 "use client"
 
 import type React from "react"
-import { useEffect, useState } from "react"
+
+import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -21,41 +22,28 @@ export default function SignupPage() {
   const router = useRouter()
   const { toast } = useToast()
 
-  useEffect(() => {
-    // Load reCAPTCHA v2 invisible
-    const script = document.createElement("script")
-    script.src = `https://www.google.com/recaptcha/api.js?render=your_site_key`
-    script.async = true
-    document.body.appendChild(script)
-  }, [])
-
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     setIsLoading(true)
 
+    const tempSignupData = {
+      name,
+      email,
+      password,
+      referral_code: referralCode,
+      device_fingerprint: getDeviceFingerprint(),
+      ip_address: getIpAddress(),
+      user_agent: navigator.userAgent,
+    }
+
+    sessionStorage.setItem("tempSignupData", JSON.stringify(tempSignupData))
+
     try {
-      const token = await window.grecaptcha.execute("your_site_key", { action: "signup" })
-
-      const tempSignupData = {
-        name,
-        email,
-        password,
-        referral_code: referralCode,
-        device_fingerprint: getDeviceFingerprint(),
-        ip_address: getIpAddress(),
-        user_agent: navigator.userAgent,
-        recaptcha_token: token, // include reCAPTCHA token in request
-      }
-
-      sessionStorage.setItem("tempSignupData", JSON.stringify(tempSignupData))
-
-      await apiCall("/auth/request-otp", "POST", { email, purpose: "signup", recaptcha_token: token })
-
+      await apiCall("/auth/request-otp", "POST", { email, purpose: "signup" })
       toast({
         title: "OTP Sent",
         description: "An OTP has been sent to your email. Redirecting to verification...",
       })
-
       setTimeout(() => {
         router.push("/signup-otp")
       }, 1500)
