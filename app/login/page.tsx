@@ -23,20 +23,28 @@ export default function LoginPage() {
   const recaptchaRef = useRef(null)
 
   useEffect(() => {
-    const script = document.createElement("script")
-    script.src = "https://www.google.com/recaptcha/api.js?render=explicit"
-    script.async = true
-    script.defer = true
-    document.body.appendChild(script)
-
-    window.onloadCallback = () => {
-      if (window.grecaptcha && recaptchaRef.current) {
-        window.grecaptcha.render(recaptchaRef.current, {
-          sitekey: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY,
-        })
-      }
+  // Define the callback **before** adding the script
+  window.onloadCallback = () => {
+    if (window.grecaptcha && recaptchaRef.current) {
+      window.grecaptcha.render(recaptchaRef.current, {
+        sitekey: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY,
+      })
     }
-  }, [])
+  }
+
+  // Append the script with the correct onload param
+  const script = document.createElement("script")
+  script.src = "https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit"
+  script.async = true
+  script.defer = true
+  document.body.appendChild(script)
+
+  // Optional: cleanup to remove script when component unmounts
+  return () => {
+    document.body.removeChild(script)
+    delete window.onloadCallback
+  }
+}, [])
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
