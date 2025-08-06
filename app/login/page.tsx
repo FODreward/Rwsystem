@@ -13,6 +13,7 @@ import { apiCall, getDeviceFingerprint, getIpAddress, loadRecaptchaScript } from
 import { useAuth } from "@/hooks/use-auth"
 import { useToast } from "@/hooks/use-toast"
 
+// Ensure window.grecaptcha is typed for TypeScript
 declare global {
   interface Window {
     grecaptcha: any
@@ -29,21 +30,30 @@ export default function LoginPage() {
   const { login } = useAuth()
   const { toast } = useToast()
 
+  const recaptchaRef = useRef<HTMLDivElement>(null)
   const ipAddressRef = useRef<string | null>(null)
 
   useEffect(() => {
-    // Fetch IP address
+    // Fetch IP address on component mount
     getIpAddress().then(ip => {
-      ipAddressRef.current = ip
-    }).catch(() => {
-      ipAddressRef.current = "unknown"
-    })
+      ipAddressRef.current = ip;
+    }).catch(err => {
+      console.error("Failed to fetch IP address:", err);
+      ipAddressRef.current = "unknown";
+    });
 
-    // reCAPTCHA ready callback
+    // Initialize reCAPTCHA v2 Invisible
     window.onloadCallback = () => {
       setRecaptchaReady(true)
+      if (window.grecaptcha && recaptchaRef.current) {
+        window.grecaptcha.render(recaptchaRef.current, {
+          sitekey: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!, // Use non-null assertion as it's required
+          size: "invisible",
+          // Optional: if you want auto-submit on success, add a callback here
+          // callback: (token: string) => { console.log("reCAPTCHA resolved:", token); }
+        })
+      }
     }
-
     loadRecaptchaScript(window.onloadCallback)
   }, [])
 
@@ -54,7 +64,7 @@ export default function LoginPage() {
     if (!recaptchaReady) {
       toast({
         title: "Error",
-        description: "reCAPTCHA is not ready. Please try again shortly.",
+        description: "reCAPTCHA is not ready. Please try again in a moment.",
         variant: "destructive",
       })
       setIsLoading(false)
@@ -66,12 +76,14 @@ export default function LoginPage() {
       const userAgent = navigator.userAgent
       const ipAddress = ipAddressRef.current || "unknown"
 
+      // Execute reCAPTCHA v2 Invisible without the 'action' parameter
       const recaptchaToken = await new Promise<string>((resolve, reject) => {
-        if (window.grecaptcha?.execute) {
-          window.grecaptcha.execute(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY, { action: "login" })
+        if (window.grecaptcha && window.grecaptcha.execute) {
+          window.grecaptcha
+            .execute() // Corrected: No action parameter for v2 Invisible
             .then((token: string) => {
-              window.grecaptcha.reset()
-              resolve(token)
+              window.grecaptcha.reset(); // Reset reCAPTCHA after execution
+              resolve(token);
             })
             .catch(reject)
         } else {
@@ -90,9 +102,9 @@ export default function LoginPage() {
           user_agent: userAgent,
           recaptcha_token: recaptchaToken,
         },
-        false,
+        false, // requiresAuth: false for login
         {},
-        recaptchaToken,
+        recaptchaToken, // Pass recaptchaToken as the last argument for apiCall
       )
 
       login(response.access_token, response.user)
@@ -116,12 +128,11 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-3xl font-bold text-center text-gray-800 mb-6">
-            Login to Your Account
-          </CardTitle>
+          <CardTitle className="text-3xl font-bold text-center text-gray-800 mb-6">Login to Your Account</CardTitle>
         </CardHeader>
         <CardContent>
-          {/* reCAPTCHA badge is invisible and auto-loaded, no need to render manually */}
+          {/* reCAPTCHA badge will be rendered here by grecaptcha.render */}
+          <div ref={recaptchaRef} className="grecaptcha-badge" />
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <Label htmlFor="email">Email Address</Label>
