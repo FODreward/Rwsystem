@@ -13,6 +13,13 @@ import { apiCall } from "@/lib/api"
 import { useAuth } from "@/hooks/use-auth"
 import { useToast } from "@/hooks/use-toast"
 
+declare global {
+  interface Window {
+    grecaptcha: any
+    onloadCallback: () => void
+  }
+}
+
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -20,38 +27,58 @@ export default function LoginPage() {
   const { saveAuthData } = useAuth()
   const router = useRouter()
   const { toast } = useToast()
-  const recaptchaRef = useRef(null)
+  const recaptchaRef = useRef<HTMLDivElement>(null)
+  const widgetIdRef = useRef<number | null>(null)
 
   useEffect(() => {
-  // Define the callback **before** adding the script
-  window.onloadCallback = () => {
-    if (window.grecaptcha && recaptchaRef.current) {
-      window.grecaptcha.render(recaptchaRef.current, {
-        sitekey: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY,
-      })
+    // Define the global callback before loading script
+    window.onloadCallback = () => {
+      if (window.grecaptcha && recaptchaRef.current) {
+        // Render the invisible reCAPTCHA widget and save the widget ID
+        widgetIdRef.current = window.grecaptcha.render(recaptchaRef.current, {
+          sitekey: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY,
+          size: "invisible", // Invisible reCAPTCHA
+          badge: "bottomright", // optional, can be "inline" or "bottomright"
+          callback: (token: string) => {
+            // Optional: if you want to handle token here
+          },
+          "error-callback": () => {
+            toast({
+              title: "reCAPTCHA Error",
+              description: "Failed to execute reCAPTCHA, please try again.",
+              variant: "destructive",
+            })
+            setIsLoading(false)
+          },
+        })
+      }
     }
-  }
 
-  // Append the script with the correct onload param
-  const script = document.createElement("script")
-  script.src = "https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit"
-  script.async = true
-  script.defer = true
-  document.body.appendChild(script)
+    // Load the Google reCAPTCHA script
+    const script = document.createElement("script")
+    script.src = "https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit"
+    script.async = true
+    script.defer = true
+    document.body.appendChild(script)
 
-  // Optional: cleanup to remove script when component unmounts
-  return () => {
-    document.body.removeChild(script)
-    delete window.onloadCallback
-  }
-}, [])
+    // Cleanup on unmount
+    return () => {
+      document.body.removeChild(script)
+      delete window.onloadCallback
+    }
+  }, [toast])
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     setIsLoading(true)
 
     try {
-      const token = await window.grecaptcha.execute(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY, { action: "login" })
+      if (!widgetIdRef.current) {
+        throw new Error("reCAPTCHA not loaded")
+      }
+      // Execute the invisible reCAPTCHA and get the token
+      const token = await window.grecaptcha.execute(widgetIdRef.current)
+      // Call your API with email, password and recaptcha token
       const response = await apiCall("/auth/login", "POST", { email, password, recaptcha_token: token })
       saveAuthData(response.access_token, response.user)
       toast({
@@ -67,6 +94,10 @@ export default function LoginPage() {
       })
     } finally {
       setIsLoading(false)
+      if (widgetIdRef.current && window.grecaptcha) {
+        // Reset reCAPTCHA widget after submit (optional)
+        window.grecaptcha.reset(widgetIdRef.current)
+      }
     }
   }
 
@@ -101,7 +132,10 @@ export default function LoginPage() {
                 disabled={isLoading}
               />
             </div>
-            <div ref={recaptchaRef}></div>
+
+            {/* Invisible reCAPTCHA container */}
+            <div ref={recaptchaRef} />
+
             <Button type="submit" className="w-full btn-primary" disabled={isLoading}>
               {isLoading ? "Logging in..." : "Login"}
             </Button>
@@ -113,7 +147,7 @@ export default function LoginPage() {
           </div>
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-700">
-              Don&apos;t have an account? {" "}
+              Don&apos;t have an account?{" "}
               <Link href="/signup" className="text-primary-600 hover:text-primary-800">
                 Create Account
               </Link>
