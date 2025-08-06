@@ -1,160 +1,150 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useEffect, useState, useRef } from "react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { PasswordInput } from "@/components/ui/password-input"
-import { apiCall } from "@/lib/api"
-import { useAuth } from "@/hooks/use-auth"
-import { useToast } from "@/hooks/use-toast"
-
-declare global {
-  interface Window {
-    grecaptcha: any
-    onloadCallback: () => void
-  }
-}
+import { useEffect, useRef, useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { apiCall } from "@/lib/api";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const { saveAuthData } = useAuth()
-  const router = useRouter()
-  const { toast } = useToast()
-  const recaptchaRef = useRef<HTMLDivElement>(null)
-  const widgetIdRef = useRef<number | null>(null)
+  const { toast } = useToast();
+  const router = useRouter();
+
+  const recaptchaRef = useRef<HTMLDivElement>(null);
+  const widgetIdRef = useRef<number | null>(null);
+  const [isRecaptchaReady, setIsRecaptchaReady] = useState(false);
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // Define the global callback before loading script
     window.onloadCallback = () => {
       if (window.grecaptcha && recaptchaRef.current) {
-        // Render the invisible reCAPTCHA widget and save the widget ID
         widgetIdRef.current = window.grecaptcha.render(recaptchaRef.current, {
-          sitekey: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY,
-          size: "invisible", // Invisible reCAPTCHA
-          badge: "bottomright", // optional, can be "inline" or "bottomright"
-          callback: (token: string) => {
-            // Optional: if you want to handle token here
+          sitekey: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!,
+          size: "invisible",
+          badge: "bottomright",
+          callback: async (token: string) => {
+            await loginWithCaptcha(token);
           },
           "error-callback": () => {
             toast({
               title: "reCAPTCHA Error",
-              description: "Failed to execute reCAPTCHA, please try again.",
+              description: "Failed to verify reCAPTCHA. Please try again.",
               variant: "destructive",
-            })
-            setIsLoading(false)
+            });
+            setIsLoading(false);
           },
-        })
+        });
+        setIsRecaptchaReady(true);
       }
-    }
+    };
 
-    // Load the Google reCAPTCHA script
-    const script = document.createElement("script")
-    script.src = "https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit"
-    script.async = true
-    script.defer = true
-    document.body.appendChild(script)
+    const script = document.createElement("script");
+    script.src = "https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit";
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
 
-    // Cleanup on unmount
     return () => {
-      document.body.removeChild(script)
-      delete window.onloadCallback
-    }
-  }, [toast])
+      document.body.removeChild(script);
+      delete window.onloadCallback;
+    };
+  }, [toast]);
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault()
-    setIsLoading(true)
-
+  const loginWithCaptcha = async (token: string) => {
     try {
-      if (!widgetIdRef.current) {
-        throw new Error("reCAPTCHA not loaded")
+      const response = await apiCall("/auth/login", "POST", {
+        email,
+        password,
+        recaptchaToken: token,
+      });
+
+      if (response.success) {
+        sessionStorage.setItem("accessToken", response.accessToken);
+        sessionStorage.setItem("currentUser", JSON.stringify(response.user));
+        toast({ title: "Login successful" });
+        router.push("/dashboard");
+      } else {
+        toast({
+          title: "Login Failed",
+          description: response.message || "Invalid credentials or reCAPTCHA failed",
+          variant: "destructive",
+        });
       }
-      // Execute the invisible reCAPTCHA and get the token
-      const token = await window.grecaptcha.execute(widgetIdRef.current)
-      // Call your API with email, password and recaptcha token
-      const response = await apiCall("/auth/login", "POST", { email, password, recaptcha_token: token })
-      saveAuthData(response.access_token, response.user)
-      toast({
-        title: "Login Successful",
-        description: "Redirecting to PIN verification...",
-      })
-      router.push("/pin-verify-login")
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Login Failed",
-        description: error.message || "Please check your credentials.",
+        description: "An error occurred. Please try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
-      if (widgetIdRef.current && window.grecaptcha) {
-        // Reset reCAPTCHA widget after submit (optional)
-        window.grecaptcha.reset(widgetIdRef.current)
-      }
+      setIsLoading(false);
+      window.grecaptcha?.reset(widgetIdRef.current!);
     }
-  }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!isRecaptchaReady || !window.grecaptcha || widgetIdRef.current === null) {
+      toast({
+        title: "reCAPTCHA not ready",
+        description: "Please wait for reCAPTCHA to finish loading.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await window.grecaptcha.execute(widgetIdRef.current!);
+    } catch (error) {
+      toast({
+        title: "reCAPTCHA Execution Failed",
+        description: "Could not execute invisible reCAPTCHA.",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-3xl font-bold text-center text-gray-800 mb-6">Login to Your Account</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <Label htmlFor="email">Email Address</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
-              />
-            </div>
-            <div>
-              <Label htmlFor="password">Password</Label>
-              <PasswordInput
-                id="password"
-                name="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading}
-              />
-            </div>
+    <div className="max-w-md mx-auto mt-20 p-6 border rounded shadow bg-white">
+      <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <Label htmlFor="email">Email</Label>
+          <Input
+            type="email"
+            id="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <Label htmlFor="password">Password</Label>
+          <Input
+            type="password"
+            id="password"
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
 
-            {/* Invisible reCAPTCHA container */}
-            <div ref={recaptchaRef} />
+        <div ref={recaptchaRef} style={{ display: "none" }}></div>
 
-            <Button type="submit" className="w-full btn-primary" disabled={isLoading}>
-              {isLoading ? "Logging in..." : "Login"}
-            </Button>
-          </form>
-          <div className="mt-4 text-center">
-            <Link href="/forgot-password" className="text-sm text-primary-600 hover:text-primary-800">
-              Forgot Password?
-            </Link>
-          </div>
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-700">
-              Don&apos;t have an account?{" "}
-              <Link href="/signup" className="text-primary-600 hover:text-primary-800">
-                Create Account
-              </Link>
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading ? "Logging in..." : "Login"}
+        </Button>
+      </form>
     </div>
-  )
+  );
 }
