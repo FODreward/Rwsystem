@@ -8,12 +8,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { PasswordInput } from "@/components/ui/password-input" // Assuming this is a custom component
+import { PasswordInput } from "@/components/ui/password-input"
 import { apiCall, getDeviceFingerprint, getIpAddress, loadRecaptchaScript } from "@/lib/api"
-import { useAuth } from "@/hooks/use-auth" // Assuming this is a custom hook
-import { useToast } from "@/hooks/use-toast" // Assuming this is a custom hook
+import { useAuth } from "@/hooks/use-auth"
+import { useToast } from "@/hooks/use-toast"
 
-// Ensure window.grecaptcha is typed for TypeScript
 declare global {
   interface Window {
     grecaptcha: any
@@ -30,28 +29,21 @@ export default function LoginPage() {
   const { login } = useAuth()
   const { toast } = useToast()
 
-  const recaptchaRef = useRef<HTMLDivElement>(null)
   const ipAddressRef = useRef<string | null>(null)
 
   useEffect(() => {
-    // Fetch IP address on component mount
+    // Fetch IP address
     getIpAddress().then(ip => {
-      ipAddressRef.current = ip;
-    }).catch(err => {
-      console.error("Failed to fetch IP address:", err);
-      ipAddressRef.current = "unknown";
-    });
+      ipAddressRef.current = ip
+    }).catch(() => {
+      ipAddressRef.current = "unknown"
+    })
 
-    // Initialize reCAPTCHA v2 Invisible
+    // reCAPTCHA ready callback
     window.onloadCallback = () => {
       setRecaptchaReady(true)
-      if (window.grecaptcha && recaptchaRef.current) {
-        window.grecaptcha.render(recaptchaRef.current, {
-          sitekey: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY,
-          size: "invisible",
-        })
-      }
     }
+
     loadRecaptchaScript(window.onloadCallback)
   }, [])
 
@@ -62,7 +54,7 @@ export default function LoginPage() {
     if (!recaptchaReady) {
       toast({
         title: "Error",
-        description: "reCAPTCHA is not ready. Please try again in a moment.",
+        description: "reCAPTCHA is not ready. Please try again shortly.",
         variant: "destructive",
       })
       setIsLoading(false)
@@ -74,14 +66,12 @@ export default function LoginPage() {
       const userAgent = navigator.userAgent
       const ipAddress = ipAddressRef.current || "unknown"
 
-      // Execute reCAPTCHA v2 Invisible
       const recaptchaToken = await new Promise<string>((resolve, reject) => {
-        if (window.grecaptcha && window.grecaptcha.execute) {
-          window.grecaptcha
-            .execute(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY, { action: "login" })
+        if (window.grecaptcha?.execute) {
+          window.grecaptcha.execute(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY, { action: "login" })
             .then((token: string) => {
-              window.grecaptcha.reset(); // Reset reCAPTCHA after execution
-              resolve(token);
+              window.grecaptcha.reset()
+              resolve(token)
             })
             .catch(reject)
         } else {
@@ -100,9 +90,9 @@ export default function LoginPage() {
           user_agent: userAgent,
           recaptcha_token: recaptchaToken,
         },
-        false, // requiresAuth: false for login
+        false,
         {},
-        recaptchaToken, // Pass recaptchaToken as the last argument for apiCall
+        recaptchaToken,
       )
 
       login(response.access_token, response.user)
@@ -126,11 +116,12 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-3xl font-bold text-center text-gray-800 mb-6">Login to Your Account</CardTitle>
+          <CardTitle className="text-3xl font-bold text-center text-gray-800 mb-6">
+            Login to Your Account
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          {/* reCAPTCHA badge will be rendered here by grecaptcha.render */}
-          <div ref={recaptchaRef} className="grecaptcha-badge" />
+          {/* reCAPTCHA badge is invisible and auto-loaded, no need to render manually */}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <Label htmlFor="email">Email Address</Label>
