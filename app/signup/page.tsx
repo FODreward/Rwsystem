@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -9,10 +8,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { PasswordInput } from "@/components/ui/password-input"
-import { apiCall, getDeviceFingerprint, loadRecaptchaScript } from "@/lib/api" // Import getDeviceFingerprint and loadRecaptchaScript
+import { PasswordInput } from "@/components/ui/password-input" // Assuming this is a custom component
+import { apiCall, getDeviceFingerprint, getIpAddress, loadRecaptchaScript } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 
+// Ensure window.grecaptcha is typed for TypeScript
 declare global {
   interface Window {
     grecaptcha: any
@@ -30,9 +30,19 @@ export default function SignupPage() {
   const router = useRouter()
   const { toast } = useToast()
 
-  const recaptchaRef = useRef<HTMLDivElement>(null) // Ref for reCAPTCHA badge
+  const recaptchaRef = useRef<HTMLDivElement>(null)
+  const ipAddressRef = useRef<string | null>(null)
 
   useEffect(() => {
+    // Fetch IP address on component mount
+    getIpAddress().then(ip => {
+      ipAddressRef.current = ip;
+    }).catch(err => {
+      console.error("Failed to fetch IP address:", err);
+      ipAddressRef.current = "unknown";
+    });
+
+    // Initialize reCAPTCHA v2 Invisible
     window.onloadCallback = () => {
       setRecaptchaReady(true)
       if (window.grecaptcha && recaptchaRef.current) {
@@ -59,36 +69,44 @@ export default function SignupPage() {
       return
     }
 
+    const tempSignupData = {
+      name,
+      email,
+      password,
+      referral_code: referralCode,
+    }
+
+    sessionStorage.setItem("tempSignupData", JSON.stringify(tempSignupData))
+
     try {
       const deviceFingerprint = await getDeviceFingerprint()
       const userAgent = navigator.userAgent
+      const ipAddress = ipAddressRef.current || "unknown"
 
-      // Execute reCAPTCHA
+      // Execute reCAPTCHA v2 Invisible
       const recaptchaToken = await new Promise<string>((resolve, reject) => {
         if (window.grecaptcha && window.grecaptcha.execute) {
           window.grecaptcha
             .execute(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY, { action: "signup" })
-            .then(resolve)
+            .then((token: string) => {
+              window.grecaptcha.reset(); // Reset reCAPTCHA after execution
+              resolve(token);
+            })
             .catch(reject)
         } else {
           reject(new Error("reCAPTCHA not available."))
         }
       })
 
-      const tempSignupData = {
-        name,
-        email,
-        password,
-        referral_code: referralCode,
-        device_fingerprint: deviceFingerprint,
-        ip_address: "client_ip_placeholder", // Backend will get actual IP from request headers
-        user_agent: userAgent,
-        recaptcha_token: recaptchaToken,
-      }
+      // Request OTP first
+      await apiCall("/auth/request-otp", "POST", { email, purpose: "signup" }, false)
 
-      sessionStorage.setItem("tempSignupData", JSON.stringify(tempSignupData))
+      // Then proceed with signup after OTP is sent (and reCAPTCHA token is obtained)
+      // The actual signup will happen on the /signup-otp page after OTP verification
+      // For now, we just need the reCAPTCHA token for the initial OTP request if your backend requires it.
+      // If your backend only requires reCAPTCHA on the final signup, you'd move the recaptcha execution there.
+      // Assuming for now it's needed for the OTP request.
 
-      await apiCall("/auth/request-otp", "POST", { email, purpose: "signup" }, false, {}, recaptchaToken) // Pass recaptchaToken
       toast({
         title: "OTP Sent",
         description: "An OTP has been sent to your email. Redirecting to verification...",
@@ -114,6 +132,8 @@ export default function SignupPage() {
           <CardTitle className="text-3xl font-bold text-center text-gray-800 mb-6">Create Your Account</CardTitle>
         </CardHeader>
         <CardContent>
+          {/* reCAPTCHA badge will be rendered here by grecaptcha.render */}
+          <div ref={recaptchaRef} className="grecaptcha-badge" />
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <Label htmlFor="name">Full Name</Label>
@@ -164,8 +184,6 @@ export default function SignupPage() {
             <Button type="submit" className="w-full btn-primary" disabled={isLoading || !recaptchaReady}>
               {isLoading ? "Registering..." : "Register"}
             </Button>
-            {/* reCAPTCHA badge will be rendered here */}
-            <div ref={recaptchaRef} className="grecaptcha-badge" />
           </form>
           <div className="mt-6 text-center">
             <Link href="/login" className="text-sm text-primary-600 hover:text-primary-800">
