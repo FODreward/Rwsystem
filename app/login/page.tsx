@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PasswordInput } from "@/components/ui/password-input"
-import { apiCall, getDeviceFingerprint, getIpAddress } from "@/lib/api" // Import getDeviceFingerprint and getIpAddress
+import { apiCall, getDeviceFingerprint, getIpAddress } from "@/lib/api"
 import { useAuth } from "@/hooks/use-auth"
 import { useToast } from "@/hooks/use-toast"
 
@@ -26,13 +26,17 @@ export default function LoginPage() {
     event.preventDefault()
     setIsLoading(true)
 
+    // Await the async calls for IP and fingerprint
+    const deviceFingerprint = await getDeviceFingerprint()
+    const ipAddress = await getIpAddress()
+
     try {
       const response = await apiCall("/auth/login", "POST", {
         email,
         password,
-        device_fingerprint: getDeviceFingerprint(), // Include device fingerprint
-        ip_address: getIpAddress(), // Include IP address (placeholder)
-        user_agent: navigator.userAgent, // Include user agent
+        device_fingerprint: deviceFingerprint,
+        ip_address: ipAddress,
+        user_agent: navigator.userAgent,
       })
       saveAuthData(response.access_token, response.user)
       toast({
