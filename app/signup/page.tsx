@@ -12,12 +12,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PasswordInput } from "@/components/ui/password-input"
 import { apiCall, getDeviceFingerprint, getIpAddress } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
-import {FingerprintJS} from "@fingerprintjs/fingerprintjs"
 
 export default function SignupPage() {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [pin, setPin] = useState("") // Added PIN state
   const [referralCode, setReferralCode] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
@@ -31,6 +31,7 @@ export default function SignupPage() {
       name,
       email,
       password,
+      pin, // Include PIN in temporary data
       referral_code: referralCode,
       device_fingerprint: getDeviceFingerprint(),
       ip_address: getIpAddress(),
@@ -99,6 +100,24 @@ export default function SignupPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                disabled={isLoading}
+              />
+            </div>
+            <div>
+              <Label htmlFor="pin">4-Digit PIN</Label> {/* Added PIN input */}
+              <Input
+                id="pin"
+                name="pin"
+                type="password" // Use password type for PIN for masking
+                maxLength={4} // Assuming 4-digit PIN
+                required
+                value={pin}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (/^\d*$/.test(value) && value.length <= 4) { // Allow only digits and max 4 chars
+                    setPin(value);
+                  }
+                }}
                 disabled={isLoading}
               />
             </div>
