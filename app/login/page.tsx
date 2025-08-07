@@ -10,10 +10,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PasswordInput } from "@/components/ui/password-input"
-import { apiCall } from "@/lib/api"
+import { apiCall, getDeviceFingerprint, getIpAddress } from "@/lib/api" // Import getDeviceFingerprint and getIpAddress
 import { useAuth } from "@/hooks/use-auth"
 import { useToast } from "@/hooks/use-toast"
-import FingerprintJS from ,@fingerprintjs/fingerprintjs,
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -23,48 +22,34 @@ export default function LoginPage() {
   const router = useRouter()
   const { toast } = useToast()
 
-const handleSubmit = async (event: React.FormEvent) => {
-  event.preventDefault()
-  setIsLoading(true)
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault()
+    setIsLoading(true)
 
-  try {
-    // 1. Load FingerprintJS
-    const fp = await FingerprintJS.load()
-    const result = await fp.get()
-    const device_fingerprint = result.visitorId
-
-    // 2. Get IP address
-    const ipRes = await fetch("https://api.ipify.org?format=json")
-    const { ip: ip_address } = await ipRes.json()
-
-    // 3. Get user agent
-    const user_agent = navigator.userAgent
-
-    // 4. Login API call with device data
-    const response = await apiCall("/auth/login", "POST", {
-      email,
-      password,
-      device_fingerprint,
-      ip_address,
-      user_agent,
-    })
-
-    saveAuthData(response.access_token, response.user)
-    toast({
-      title: "Login Successful",
-      description: "Redirecting to PIN verification...",
-    })
-    router.push("/pin-verify-login")
-  } catch (error: any) {
-    toast({
-      title: "Login Failed",
-      description: error.message || "Please check your credentials.",
-      variant: "destructive",
-    })
-  } finally {
-    setIsLoading(false)
+    try {
+      const response = await apiCall("/auth/login", "POST", {
+        email,
+        password,
+        device_fingerprint: getDeviceFingerprint(), // Include device fingerprint
+        ip_address: getIpAddress(), // Include IP address (placeholder)
+        user_agent: navigator.userAgent, // Include user agent
+      })
+      saveAuthData(response.access_token, response.user)
+      toast({
+        title: "Login Successful",
+        description: "Redirecting to PIN verification...",
+      })
+      router.push("/pin-verify-login")
+    } catch (error: any) {
+      toast({
+        title: "Login Failed",
+        description: error.message || "Please check your credentials.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
-}
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
