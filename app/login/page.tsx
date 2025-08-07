@@ -13,7 +13,7 @@ import { PasswordInput } from "@/components/ui/password-input"
 import { apiCall } from "@/lib/api"
 import { useAuth } from "@/hooks/use-auth"
 import { useToast } from "@/hooks/use-toast"
-import {FingerprintJS} from "@fingerprintjs/fingerprintjs"
+import FingerprintJS from ,@fingerprintjs/fingerprintjs,
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
