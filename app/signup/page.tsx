@@ -1,108 +1,128 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import type React from "react"
+
+import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import FingerprintJS from "@fingerprintjs/fingerprintjs"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PasswordInput } from "@/components/ui/password-input"
+import { apiCall, getDeviceFingerprint, getIpAddress } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
-import { apiCall } from "@/lib/api"
 
-export default function SignupForm() {
+export default function SignupPage() {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [referralCode, setReferralCode] = useState("")
-  const [loading, setLoading] = useState(false)
-
+  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault()
+    setIsLoading(true)
+
+    const tempSignupData = {
+      name,
+      email,
+      password,
+      referral_code: referralCode,
+      device_fingerprint: getDeviceFingerprint(),
+      ip_address: getIpAddress(),
+      user_agent: navigator.userAgent,
+    }
+
+    sessionStorage.setItem("tempSignupData", JSON.stringify(tempSignupData))
 
     try {
-      // Get device fingerprint
-      const fpAgent = await FingerprintJS.load()
-      const fpResult = await fpAgent.get()
-      const device_fingerprint = fpResult.visitorId
-
-      // Get IP address
-      const ipRes = await fetch("https://api.ipify.org?format=json")
-      const ipData = await ipRes.json()
-      const ip_address = ipData.ip
-
-      // Get user agent
-      const user_agent = navigator.userAgent
-
-      // Construct payload
-      const tempSignupData = {
-        name,
-        email,
-        password,
-        referral_code: referralCode || null,
-        device_fingerprint,
-        ip_address,
-        user_agent,
-      }
-
-      // Save in sessionStorage for OTP step
-      sessionStorage.setItem("signupData", JSON.stringify(tempSignupData))
-
-      // Request OTP
-      const response = await apiCall("/auth/request-otp", "POST", { email })
-      if (response?.success) {
-        toast({ title: "OTP sent to your email." })
-        router.push("/verify-email") // Or your OTP verification route
-      } else {
-        toast({ title: "Failed to send OTP", variant: "destructive" })
-      }
-    } catch (error) {
-      toast({ title: "Signup failed", description: String(error), variant: "destructive" })
+      await apiCall("/auth/request-otp", "POST", { email, purpose: "signup" })
+      toast({
+        title: "OTP Sent",
+        description: "An OTP has been sent to your email. Redirecting to verification...",
+      })
+      setTimeout(() => {
+        router.push("/signup-otp")
+      }, 1500)
+    } catch (error: any) {
+      toast({
+        title: "Signup Failed",
+        description: error.message || "Failed to request OTP.",
+        variant: "destructive",
+      })
     } finally {
-      setLoading(false)
+      setIsLoading(false)
     }
   }
 
   return (
-    <Card className="mx-auto max-w-md mt-8">
-      <CardHeader>
-        <CardTitle className="text-center">Create an Account</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="name">Full Name</Label>
-            <Input id="name" value={name} onChange={e => setName(e.target.value)} required />
+    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle className="text-3xl font-bold text-center text-gray-800 mb-6">Create Your Account</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <Label htmlFor="name">Full Name</Label>
+              <Input
+                id="name"
+                name="name"
+                type="text"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                disabled={isLoading}
+              />
+            </div>
+            <div>
+              <Label htmlFor="email">Email Address</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={isLoading}
+              />
+            </div>
+            <div>
+              <Label htmlFor="password">Password</Label>
+              <PasswordInput
+                id="password"
+                name="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={isLoading}
+              />
+            </div>
+            <div>
+              <Label htmlFor="referralCode">Referral Code (Optional)</Label>
+              <Input
+                id="referralCode"
+                name="referralCode"
+                type="text"
+                value={referralCode}
+                onChange={(e) => setReferralCode(e.target.value)}
+                disabled={isLoading}
+              />
+            </div>
+            <Button type="submit" className="w-full btn-primary" disabled={isLoading}>
+              {isLoading ? "Registering..." : "Register"}
+            </Button>
+          </form>
+          <div className="mt-6 text-center">
+            <Link href="/login" className="text-sm text-primary-600 hover:text-primary-800">
+              Back to Login
+            </Link>
           </div>
-          <div>
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required />
-          </div>
-          <div>
-            <Label htmlFor="password">Password</Label>
-            <PasswordInput id="password" value={password} onChange={e => setPassword(e.target.value)} required />
-          </div>
-          <div>
-            <Label htmlFor="referral">Referral Code (optional)</Label>
-            <Input id="referral" value={referralCode} onChange={e => setReferralCode(e.target.value)} />
-          </div>
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Sending OTP..." : "Sign Up"}
-          </Button>
-        </form>
-        <p className="text-sm mt-4 text-center">
-          Already have an account?{" "}
-          <Link href="/login" className="underline">
-            Log in
-          </Link>
-        </p>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   )
 }
