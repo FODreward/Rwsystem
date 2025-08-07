@@ -1,83 +1,43 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import type React from "react"
+
+import { useState } from "react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import { useToast } from "@/hooks/use-toast"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { PasswordInput } from "@/components/ui/password-input"
 import { apiCall } from "@/lib/api"
-import PasswordInput from "@/components/shared/password-input"
-import getDeviceFingerprint from "@/lib/fingerprint"
-import getIpAddress from "@/lib/ip"
+import { useAuth } from "@/hooks/use-auth"
+import { useToast } from "@/hooks/use-toast"
 
-const LoginPage = () => {
-  const router = useRouter()
-  const { toast } = useToast()
-
+export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const { saveAuthData } = useAuth()
+  const router = useRouter()
+  const { toast } = useToast()
 
-  const [deviceFingerprint, setDeviceFingerprint] = useState("")
-  const [ipAddress, setIpAddress] = useState("")
-  const [userAgent, setUserAgent] = useState("")
-
-  useEffect(() => {
-    const fetchMetadata = async () => {
-      const fingerprint = await getDeviceFingerprint()
-      const ip = await getIpAddress()
-      setDeviceFingerprint(fingerprint)
-      setIpAddress(ip)
-      setUserAgent(navigator.userAgent || "")
-    }
-    fetchMetadata()
-  }, [])
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (isLoading) return
-
-    if (!email || !password) {
-      toast({
-        title: "Missing Fields",
-        description: "Please fill in both email and password.",
-        variant: "destructive",
-      })
-      return
-    }
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault()
+    setIsLoading(true)
 
     try {
-      setIsLoading(true)
-
-      const res = await apiCall("/auth/login", "POST", {
-        email,
-        password,
-        device_fingerprint: deviceFingerprint,
-        ip_address: ipAddress,
-        user_agent: userAgent,
+      const response = await apiCall("/auth/login", "POST", { email, password })
+      saveAuthData(response.access_token, response.user)
+      toast({
+        title: "Login Successful",
+        description: "Redirecting to PIN verification...",
       })
-
-      if (res.success && res.data?.access_token && res.data?.user) {
-        sessionStorage.setItem("accessToken", res.data.access_token)
-        sessionStorage.setItem("currentUser", JSON.stringify(res.data.user))
-
-        toast({
-          title: "Login Successful",
-          description: "Welcome back!",
-        })
-        router.push("/dashboard")
-      } else {
-        toast({
-          title: "Login Failed",
-          description: res.message || "Invalid email or password.",
-          variant: "destructive",
-        })
-      }
+      router.push("/pin-verify-login")
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error?.message || "Something went wrong.",
+        title: "Login Failed",
+        description: error.message || "Please check your credentials.",
         variant: "destructive",
       })
     } finally {
@@ -86,37 +46,55 @@ const LoginPage = () => {
   }
 
   return (
-    <div className="max-w-md mx-auto mt-16 p-6 bg-white rounded-lg shadow">
-      <h2 className="text-2xl font-bold mb-6 text-center">Login to Your Account</h2>
-      <form onSubmit={handleLogin} className="space-y-4">
-        <div>
-          <Label htmlFor="email">Email Address</Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="password">Password</Label>
-          <PasswordInput
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-
-        <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? "Logging in..." : "Login"}
-        </Button>
-      </form>
+    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle className="text-3xl font-bold text-center text-gray-800 mb-6">Login to Your Account</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <Label htmlFor="email">Email Address</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={isLoading}
+              />
+            </div>
+            <div>
+              <Label htmlFor="password">Password</Label>
+              <PasswordInput
+                id="password"
+                name="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={isLoading}
+              />
+            </div>
+            <Button type="submit" className="w-full btn-primary" disabled={isLoading}>
+              {isLoading ? "Logging in..." : "Login"}
+            </Button>
+          </form>
+          <div className="mt-4 text-center">
+            <Link href="/forgot-password" className="text-sm text-primary-600 hover:text-primary-800">
+              Forgot Password?
+            </Link>
+          </div>
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-700">
+              Don&apos;t have an account?{" "}
+              <Link href="/signup" className="text-primary-600 hover:text-primary-800">
+                Create Account
+              </Link>
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }
-
-export default LoginPage
