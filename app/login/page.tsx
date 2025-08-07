@@ -23,28 +23,48 @@ export default function LoginPage() {
   const router = useRouter()
   const { toast } = useToast()
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault()
-    setIsLoading(true)
+const handleSubmit = async (event: React.FormEvent) => {
+  event.preventDefault()
+  setIsLoading(true)
 
-    try {
-      const response = await apiCall("/auth/login", "POST", { email, password })
-      saveAuthData(response.access_token, response.user)
-      toast({
-        title: "Login Successful",
-        description: "Redirecting to PIN verification...",
-      })
-      router.push("/pin-verify-login")
-    } catch (error: any) {
-      toast({
-        title: "Login Failed",
-        description: error.message || "Please check your credentials.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
-    }
+  try {
+    // 1. Load FingerprintJS
+    const fp = await FingerprintJS.load()
+    const result = await fp.get()
+    const device_fingerprint = result.visitorId
+
+    // 2. Get IP address
+    const ipRes = await fetch("https://api.ipify.org?format=json")
+    const { ip: ip_address } = await ipRes.json()
+
+    // 3. Get user agent
+    const user_agent = navigator.userAgent
+
+    // 4. Login API call with device data
+    const response = await apiCall("/auth/login", "POST", {
+      email,
+      password,
+      device_fingerprint,
+      ip_address,
+      user_agent,
+    })
+
+    saveAuthData(response.access_token, response.user)
+    toast({
+      title: "Login Successful",
+      description: "Redirecting to PIN verification...",
+    })
+    router.push("/pin-verify-login")
+  } catch (error: any) {
+    toast({
+      title: "Login Failed",
+      description: error.message || "Please check your credentials.",
+      variant: "destructive",
+    })
+  } finally {
+    setIsLoading(false)
   }
+}
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
