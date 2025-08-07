@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PasswordInput } from "@/components/ui/password-input"
 import { apiCall, getDeviceFingerprint, getIpAddress } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
+import {FingerprintJS} from "@fingerprintjs/fingerprintjs"
 
 export default function SignupPage() {
   const [name, setName] = useState("")
