@@ -17,7 +17,7 @@ export default function SignupPage() {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [pin, setPin] = useState("") // Added PIN state
+  const [pin, setPin] = useState("")
   const [referralCode, setReferralCode] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
@@ -27,14 +27,18 @@ export default function SignupPage() {
     event.preventDefault()
     setIsLoading(true)
 
+    // Await the async calls for IP and fingerprint
+    const deviceFingerprint = await getDeviceFingerprint()
+    const ipAddress = await getIpAddress()
+
     const tempSignupData = {
       name,
       email,
       password,
-      pin, // Include PIN in temporary data
+      pin,
       referral_code: referralCode,
-      device_fingerprint: getDeviceFingerprint(),
-      ip_address: getIpAddress(),
+      device_fingerprint: deviceFingerprint,
+      ip_address: ipAddress,
       user_agent: navigator.userAgent,
     }
 
@@ -104,17 +108,17 @@ export default function SignupPage() {
               />
             </div>
             <div>
-              <Label htmlFor="pin">4-Digit PIN</Label> {/* Added PIN input */}
+              <Label htmlFor="pin">4-Digit PIN</Label>
               <Input
                 id="pin"
                 name="pin"
-                type="password" // Use password type for PIN for masking
-                maxLength={4} // Assuming 4-digit PIN
+                type="password"
+                maxLength={4}
                 required
                 value={pin}
                 onChange={(e) => {
                   const value = e.target.value;
-                  if (/^\d*$/.test(value) && value.length <= 4) { // Allow only digits and max 4 chars
+                  if (/^\d*$/.test(value) && value.length <= 4) {
                     setPin(value);
                   }
                 }}
