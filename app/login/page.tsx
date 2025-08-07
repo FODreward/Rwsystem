@@ -1,8 +1,7 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -13,21 +12,52 @@ import { PasswordInput } from "@/components/ui/password-input"
 import { apiCall } from "@/lib/api"
 import { useAuth } from "@/hooks/use-auth"
 import { useToast } from "@/hooks/use-toast"
+import FingerprintJS from "@fingerprintjs/fingerprintjs"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [deviceFingerprint, setDeviceFingerprint] = useState("")
+  const [ipAddress, setIpAddress] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+
   const { saveAuthData } = useAuth()
   const router = useRouter()
   const { toast } = useToast()
+
+  // Get fingerprint & IP on mount
+  useEffect(() => {
+    const loadDeviceInfo = async () => {
+      try {
+        const fp = await FingerprintJS.load()
+        const result = await fp.get()
+        setDeviceFingerprint(result.visitorId)
+
+        const ipRes = await fetch("https://api.ipify.org?format=json")
+        const ipData = await ipRes.json()
+        setIpAddress(ipData.ip)
+      } catch (error) {
+        console.error("Error loading fingerprint or IP:", error)
+      }
+    }
+
+    loadDeviceInfo()
+  }, [])
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     setIsLoading(true)
 
+    const payload = {
+      email,
+      password,
+      device_fingerprint: deviceFingerprint,
+      user_agent: navigator.userAgent,
+      ip_address: ipAddress,
+    }
+
     try {
-      const response = await apiCall("/auth/login", "POST", { email, password })
+      const response = await apiCall("/auth/login", "POST", payload)
       saveAuthData(response.access_token, response.user)
       toast({
         title: "Login Successful",
