@@ -1,4 +1,5 @@
-import { toast } from "@/hooks/use-toast" // Corrected import path
+import { toast } from "@/hooks/use-toast"
+import FingerprintJS from '@fingerprintjs/fingerprintjs' // Import FingerprintJS
 
 const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL || "https://dansog-backend.onrender.com/api"
 
@@ -7,7 +8,7 @@ export async function apiCall<T>(
   method: "GET" | "POST" | "PUT" | "DELETE" = "GET",
   data: any = null,
   requiresAuth = false,
-  queryParams: Record<string, string | number | boolean | undefined | null> = {}, // Added queryParams
+  queryParams: Record<string, string | number | boolean | undefined | null> = {},
 ): Promise<T> {
   let url = `${BASE_API_URL}${endpoint}`
   const options: RequestInit = {
@@ -17,19 +18,16 @@ export async function apiCall<T>(
     },
   }
 
-  // Handle query parameters for GET requests
   if (method === "GET" && Object.keys(queryParams).length > 0) {
     const params = new URLSearchParams()
     for (const key in queryParams) {
       const value = queryParams[key]
       if (value !== undefined && value !== null) {
-        // Only append if value is not undefined or null
         params.append(key, String(value))
       }
     }
     url = `${url}?${params.toString()}`
   } else if (data) {
-    // For non-GET requests with data, stringify body
     options.body = JSON.stringify(data)
   }
 
@@ -42,7 +40,6 @@ export async function apiCall<T>(
         description: "Please log in to access this feature.",
         variant: "destructive",
       })
-      // Redirect to login page and clear auth data
       sessionStorage.removeItem("accessToken")
       sessionStorage.removeItem("currentUser")
       window.location.href = "/login"
@@ -58,7 +55,6 @@ export async function apiCall<T>(
     if (!response.ok) {
       const errorMessage = responseData.detail || "An unknown error occurred."
 
-      // Handle 401 Unauthorized specifically for expired tokens
       if (response.status === 401 && requiresAuth) {
         console.log("Toast: Session Expired", "Your session has expired. Please log in again.")
         toast({
@@ -66,7 +62,6 @@ export async function apiCall<T>(
           description: "Your session has expired. Please log in again.",
           variant: "destructive",
         })
-        // Clear auth data and redirect to login page
         sessionStorage.removeItem("accessToken")
         sessionStorage.removeItem("currentUser")
         window.location.href = "/login"
@@ -84,7 +79,6 @@ export async function apiCall<T>(
     return responseData as T
   } catch (error: any) {
     console.error("API Call Error:", error)
-    // Only show generic network error if it's not an auth-related redirect
     if (!error.message.includes("No authentication token found") && !error.message.includes("Session expired")) {
       console.log("Toast: Network Error", error.message || "Could not connect to the server.")
       toast({
@@ -97,12 +91,36 @@ export async function apiCall<T>(
   }
 }
 
-// Utility for getting device fingerprint (simple version)
-export function getDeviceFingerprint(): string {
-  return btoa(navigator.userAgent + screen.width + screen.height)
+/**
+ * Fetches the user's public IP address from a third-party service.
+ * @returns {Promise<string>} The user's IP address or 'unknown'.
+ */
+export async function getIpAddress(): Promise<string> {
+  try {
+    const response = await fetch('https://api.ipify.org?format=json');
+    if (!response.ok) {
+      console.warn("Failed to fetch IP address from ipify.org, status:", response.status);
+      return 'unknown';
+    }
+    const data = await response.json();
+    return data.ip || 'unknown';
+  } catch (error) {
+    console.error("Error fetching IP address:", error);
+    return 'unknown';
+  }
 }
 
-// Utility for getting IP address (placeholder for client-side)
-export function getIpAddress(): string {
-  return "127.0.0.1" // Placeholder
+/**
+ * Generates a stable device fingerprint using FingerprintJS.
+ * @returns {Promise<string>} The device fingerprint.
+ */
+export async function getDeviceFingerprint(): Promise<string> {
+  try {
+    const fp = await FingerprintJS.load();
+    const result = await fp.get();
+    return result.visitorId;
+  } catch (error) {
+    console.error("Error generating device fingerprint:", error);
+    return 'unknown_fingerprint';
+  }
 }
