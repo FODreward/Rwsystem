@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PasswordInput } from "@/components/ui/password-input"
-import { apiCall } from "@/lib/api"
 import { useAuth } from "@/hooks/use-auth"
 import { useToast } from "@/hooks/use-toast"
 import FingerprintJS from "@fingerprintjs/fingerprintjs"
@@ -48,21 +47,33 @@ export default function LoginPage() {
     event.preventDefault()
     setIsLoading(true)
 
-    const payload = {
-      email,
-      password,
-      device_fingerprint: deviceFingerprint,
-      user_agent: navigator.userAgent,
-      ip_address: ipAddress,
-    }
-
     try {
-      const response = await apiCall("/auth/login", "POST", payload)
-      saveAuthData(response.access_token, response.user)
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Device-Fingerprint": deviceFingerprint,
+          "User-Agent": navigator.userAgent,
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.detail || "Login failed")
+      }
+
+      const data = await response.json()
+      saveAuthData(data.access_token, data.user)
+
       toast({
         title: "Login Successful",
         description: "Redirecting to PIN verification...",
       })
+
       router.push("/pin-verify-login")
     } catch (error: any) {
       toast({
