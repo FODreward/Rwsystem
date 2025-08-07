@@ -2,102 +2,121 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import FingerprintJS from "@fingerprintjs/fingerprintjs"
-import { apiCall } from "@/lib/api"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
+import { apiCall } from "@/lib/api"
+import PasswordInput from "@/components/shared/password-input"
+import getDeviceFingerprint from "@/lib/fingerprint"
+import getIpAddress from "@/lib/ip"
 
-export default function LoginForm() {
+const LoginPage = () => {
   const router = useRouter()
   const { toast } = useToast()
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+
   const [deviceFingerprint, setDeviceFingerprint] = useState("")
-  const [userAgent, setUserAgent] = useState("")
   const [ipAddress, setIpAddress] = useState("")
-  const [loading, setLoading] = useState(false)
+  const [userAgent, setUserAgent] = useState("")
 
-  // Load device fingerprint, IP, and user agent
   useEffect(() => {
-    const loadDeviceInfo = async () => {
-      try {
-        const fp = await FingerprintJS.load()
-        const result = await fp.get()
-        setDeviceFingerprint(result.visitorId)
-
-        const ipRes = await fetch("https://api.ipify.org?format=json")
-        const ipData = await ipRes.json()
-        setIpAddress(ipData.ip)
-
-        setUserAgent(navigator.userAgent)
-      } catch (error) {
-        console.error("Device info error:", error)
-      }
+    const fetchMetadata = async () => {
+      const fingerprint = await getDeviceFingerprint()
+      const ip = await getIpAddress()
+      setDeviceFingerprint(fingerprint)
+      setIpAddress(ip)
+      setUserAgent(navigator.userAgent || "")
     }
-
-    loadDeviceInfo()
+    fetchMetadata()
   }, [])
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (isLoading) return
 
-    if (!email || !password || !deviceFingerprint || !userAgent || !ipAddress) {
-      toast({ title: "Please wait for device info to load", variant: "destructive" })
+    if (!email || !password) {
+      toast({
+        title: "Missing Fields",
+        description: "Please fill in both email and password.",
+        variant: "destructive",
+      })
       return
     }
 
-    setLoading(true)
-
     try {
-      const response = await apiCall("/login", "POST", {
+      setIsLoading(true)
+
+      const res = await apiCall("/auth/login", "POST", {
         email,
         password,
         device_fingerprint: deviceFingerprint,
-        user_agent: userAgent,
         ip_address: ipAddress,
+        user_agent: userAgent,
       })
 
-      if (response.access_token) {
-        sessionStorage.setItem("accessToken", response.access_token)
-        sessionStorage.setItem("currentUser", JSON.stringify(response.user))
-        toast({ title: "Login successful" })
+      if (res.success && res.data?.access_token && res.data?.user) {
+        sessionStorage.setItem("accessToken", res.data.access_token)
+        sessionStorage.setItem("currentUser", JSON.stringify(res.data.user))
+
+        toast({
+          title: "Login Successful",
+          description: "Welcome back!",
+        })
         router.push("/dashboard")
       } else {
-        toast({ title: response.message || "Login failed", variant: "destructive" })
+        toast({
+          title: "Login Failed",
+          description: res.message || "Invalid email or password.",
+          variant: "destructive",
+        })
       }
-    } catch (error) {
-      console.error("Login error:", error)
-      toast({ title: "Login error", variant: "destructive" })
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error?.message || "Something went wrong.",
+        variant: "destructive",
+      })
     } finally {
-      setLoading(false)
+      setIsLoading(false)
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-md mx-auto mt-10">
-      <h2 className="text-2xl font-bold text-center">Login</h2>
+    <div className="max-w-md mx-auto mt-16 p-6 bg-white rounded-lg shadow">
+      <h2 className="text-2xl font-bold mb-6 text-center">Login to Your Account</h2>
+      <form onSubmit={handleLogin} className="space-y-4">
+        <div>
+          <Label htmlFor="email">Email Address</Label>
+          <Input
+            id="email"
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
 
-      <Input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
-      />
+        <div>
+          <Label htmlFor="password">Password</Label>
+          <PasswordInput
+            id="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
 
-      <Input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-      />
-
-      <Button type="submit" disabled={loading} className="w-full">
-        {loading ? "Logging in..." : "Login"}
-      </Button>
-    </form>
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading ? "Logging in..." : "Login"}
+        </Button>
+      </form>
+    </div>
   )
 }
+
+export default LoginPage
