@@ -134,6 +134,11 @@ export default function DashboardPage() {
     setIsLoadingStats(true)
     try {
       const data = await apiCall<DashboardStats>("/dashboard/stats", "GET", null, true)
+      
+      if (data?.is_flagged) {
+  alert("⚠️ Your account is temporarily restricted due to suspicious activity. Please contact support.")
+      }
+      
       setDashboardStats(data)
     } catch (error: any) {
       toast({
