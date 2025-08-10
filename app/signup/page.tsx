@@ -17,7 +17,6 @@ export default function SignupPage() {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [pin, setPin] = useState("")
   const [referralCode, setReferralCode] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
@@ -35,7 +34,6 @@ export default function SignupPage() {
       name,
       email,
       password,
-      pin,
       referral_code: referralCode,
       device_fingerprint: deviceFingerprint,
       ip_address: ipAddress,
@@ -104,24 +102,6 @@ export default function SignupPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading}
-              />
-            </div>
-            <div>
-              <Label htmlFor="pin">4-Digit PIN</Label>
-              <Input
-                id="pin"
-                name="pin"
-                type="password"
-                maxLength={4}
-                required
-                value={pin}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (/^\d*$/.test(value) && value.length <= 4) {
-                    setPin(value);
-                  }
-                }}
                 disabled={isLoading}
               />
             </div>
