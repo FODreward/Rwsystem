@@ -2,111 +2,64 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { apiCall } from "@/lib/api"
+import { PasswordInput } from "@/components/ui/password-input"
+import { apiCall, getDeviceFingerprint, getIpAddress } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 
-export default function SignupOtpPage() {
-  const [otpCode, setOtpCode] = useState("")
-  const [email, setEmail] = useState<string | null>(null)
+export default function SignupPage() {
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [pin, setPin] = useState("")
+  const [referralCode, setReferralCode] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const [isResending, setIsResending] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const tempSignupData = sessionStorage.getItem("tempSignupData")
-      if (tempSignupData) {
-        try {
-          const parsedData = JSON.parse(tempSignupData)
-          setEmail(parsedData.email)
-        } catch (e) {
-          console.error("Failed to parse tempSignupData:", e)
-          toast({
-            title: "Session Error",
-            description: "Signup session data is corrupted. Please start signup again.",
-            variant: "destructive",
-          })
-          router.push("/signup")
-        }
-      } else {
-        toast({
-          title: "Session Expired",
-          description: "No signup data found. Please start signup again.",
-          variant: "destructive",
-        })
-        router.push("/signup")
-      }
-    }
-  }, [router, toast])
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     setIsLoading(true)
 
-    if (!email) {
-      toast({
-        title: "Error",
-        description: "Email not found. Please go back to signup.",
-        variant: "destructive",
-      })
-      setIsLoading(false)
-      return
-    }
-
     try {
-      await apiCall("/auth/verify-otp", "POST", { email, otp_code: otpCode, purpose: "signup" })
+      const deviceFingerprint = await getDeviceFingerprint()
+      const ipAddress = await getIpAddress()
+
+      const tempSignupData = {
+        name,
+        email,
+        password,
+        pin,
+        referral_code: referralCode,
+        device_fingerprint: deviceFingerprint,
+        ip_address: ipAddress,
+        user_agent: navigator.userAgent,
+      }
+
+      sessionStorage.setItem("tempSignupData", JSON.stringify(tempSignupData))
+
+      await apiCall("/auth/request-otp", "POST", { email, purpose: "signup" })
       toast({
-        title: "OTP Verified",
-        description: "Redirecting to create your PIN...",
+        title: "OTP Sent",
+        description: "An OTP has been sent to your email. Redirecting to verification...",
       })
       setTimeout(() => {
-        router.push("/create-pin")
+        router.push("/signup-otp")
       }, 1500)
     } catch (error: any) {
       toast({
-        title: "Verification Failed",
-        description: error.message || "OTP verification failed.",
+        title: "Signup Failed",
+        description: error.message || "Failed to request OTP.",
         variant: "destructive",
       })
     } finally {
       setIsLoading(false)
-    }
-  }
-
-  const handleResendOtp = async () => {
-    setIsResending(true)
-    if (!email) {
-      toast({
-        title: "Error",
-        description: "Email not found for OTP resend. Please go back to signup.",
-        variant: "destructive",
-      })
-      setIsResending(false)
-      return
-    }
-
-    try {
-      await apiCall("/auth/request-otp", "POST", { email, purpose: "signup" })
-      toast({
-        title: "OTP Resent",
-        description: "A new OTP has been sent to your email.",
-      })
-    } catch (error: any) {
-      toast({
-        title: "Resend Failed",
-        description: error.message || "Failed to resend OTP.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsResending(false)
     }
   }
 
@@ -114,40 +67,81 @@ export default function SignupOtpPage() {
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-3xl font-bold text-center text-gray-800 mb-6">Verify Your Email</CardTitle>
+          <CardTitle className="text-3xl font-bold text-center text-gray-800 mb-6">Create Your Account</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-center text-gray-600 mb-4">An OTP has been sent to your email address.</p>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <Label htmlFor="otpCode">OTP Code</Label>
+              <Label htmlFor="name">Full Name</Label>
               <Input
-                id="otpCode"
-                name="otpCode"
+                id="name"
+                name="name"
                 type="text"
-                maxLength={6}
-                pattern="\d{6}"
                 required
-                value={otpCode}
-                onChange={(e) => setOtpCode(e.target.value)}
-                disabled={isLoading || isResending}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                disabled={isLoading}
               />
             </div>
-            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isLoading || isResending}>
-              {isLoading ? "Verifying..." : "Verify OTP"}
-            </Button>
-            <Button
-              type="button"
-              onClick={handleResendOtp}
-              className="w-full bg-gray-600 hover:bg-gray-700"
-              disabled={isLoading || isResending}
-            >
-              {isResending ? "Resending..." : "Resend OTP"}
+            <div>
+              <Label htmlFor="email">Email Address</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={isLoading}
+              />
+            </div>
+            <div>
+              <Label htmlFor="password">Password</Label>
+              <PasswordInput
+                id="password"
+                name="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={isLoading}
+              />
+            </div>
+            <div>
+              <Label htmlFor="pin">4-Digit PIN</Label>
+              <Input
+                id="pin"
+                name="pin"
+                type="password"
+                maxLength={4}
+                required
+                value={pin}
+                onChange={(e) => {
+                  const value = e.target.value
+                  if (/^\d*$/.test(value) && value.length <= 4) {
+                    setPin(value)
+                  }
+                }}
+                disabled={isLoading}
+              />
+            </div>
+            <div>
+              <Label htmlFor="referralCode">Referral Code (Optional)</Label>
+              <Input
+                id="referralCode"
+                name="referralCode"
+                type="text"
+                value={referralCode}
+                onChange={(e) => setReferralCode(e.target.value)}
+                disabled={isLoading}
+              />
+            </div>
+            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isLoading}>
+              {isLoading ? "Registering..." : "Register"}
             </Button>
           </form>
           <div className="mt-6 text-center">
-            <Link href="/signup" className="text-sm text-blue-600 hover:text-blue-800">
-              Back to Signup
+            <Link href="/login" className="text-sm text-blue-600 hover:text-blue-800">
+              Back to Login
             </Link>
           </div>
         </CardContent>
