@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { apiCall } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
-import { Bitcoin, Gift, DollarSign, AlertCircle, CheckCircle2, Wallet, Mail } from "lucide-react"
+import { Bitcoin, Gift, DollarSign, AlertCircle, CheckCircle2, Wallet, Mail, ArrowLeft, Info } from "lucide-react"
 
 interface RedemptionRates {
   bitcoin_rate: number
@@ -137,187 +137,203 @@ export default function RedeemPointsForm({
   const giftCardRateLabel = rates ? formatRate(rates.gift_card_rate) : "Loading..."
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg max-w-2xl mx-auto overflow-hidden">
-      <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-6 text-white">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-3">
-            <div className="bg-white/20 p-2 rounded-xl">
-              <DollarSign className="h-6 w-6" />
-            </div>
-            <div>
-              <h3 className="text-2xl font-bold">Redeem Points</h3>
-              <p className="text-green-100">Convert your points to real rewards</p>
-            </div>
+    <div className="min-h-screen bg-gray-50 p-4">
+      <div className="max-w-2xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-1">Redeem Points</h1>
+            <p className="text-gray-600">Convert your points to real rewards</p>
           </div>
-          <Button
-            onClick={onReturnToDashboard}
-            variant="outline"
-            className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-          >
-            Return to Dashboard
+          <Button onClick={onReturnToDashboard} variant="outline" className="bg-white">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Dashboard
           </Button>
         </div>
-      </div>
 
-      <div className="p-8">
-        {rates && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-            <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
-              <div className="flex items-center space-x-3">
-                <div className="bg-orange-100 p-2 rounded-lg">
-                  <Bitcoin className="h-5 w-5 text-orange-600" />
-                </div>
-                <div>
-                  <h4 className="font-semibold text-orange-900">Bitcoin Rate</h4>
-                  <p className="text-sm text-orange-700">{bitcoinRateLabel}</p>
-                </div>
+        {/* Main Form Card */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          {/* Header with gradient */}
+          <div className="bg-gradient-to-r from-purple-600 to-pink-500 p-6 text-white">
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                <DollarSign className="h-6 w-6 text-white" />
               </div>
-            </div>
-            <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
-              <div className="flex items-center space-x-3">
-                <div className="bg-purple-100 p-2 rounded-lg">
-                  <Gift className="h-5 w-5 text-purple-600" />
-                </div>
-                <div>
-                  <h4 className="font-semibold text-purple-900">Gift Card Rate</h4>
-                  <p className="text-sm text-purple-700">{giftCardRateLabel}</p>
-                </div>
+              <div>
+                <h2 className="text-xl font-bold">Point Redemption</h2>
+                <p className="text-purple-100 text-sm">Turn your points into rewards</p>
               </div>
             </div>
           </div>
-        )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <Label htmlFor="redeemType" className="text-base font-semibold text-gray-900">
-              Redemption Type
-            </Label>
-            <Select value={redeemType} onValueChange={setRedeemType} disabled={isLoading}>
-              <SelectTrigger id="redeemType" className="w-full mt-2 h-12">
-                <SelectValue placeholder="Select redemption type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="bitcoin">
-                  <div className="flex items-center space-x-2">
-                    <Bitcoin className="h-4 w-4 text-orange-500" />
-                    <span>Bitcoin ({bitcoinRateLabel})</span>
+          <div className="p-8">
+            {/* Rate Cards */}
+            {rates && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <div className="bg-white rounded-2xl p-4 border border-gray-100">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
+                        <Bitcoin className="h-5 w-5 text-orange-600" />
+                      </div>
+                      <span className="text-gray-600 font-medium">Bitcoin Rate</span>
+                    </div>
                   </div>
-                </SelectItem>
-                <SelectItem value="gift_card">
-                  <div className="flex items-center space-x-2">
-                    <Gift className="h-4 w-4 text-purple-500" />
-                    <span>Gift Card ({giftCardRateLabel})</span>
+                  <div>
+                    <p className="text-lg font-bold text-gray-900">{bitcoinRateLabel}</p>
                   </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label htmlFor="redeemAmount" className="text-base font-semibold text-gray-900">
-              Points to Redeem
-            </Label>
-            <div className="mt-2 relative">
-              <Input
-                id="redeemAmount"
-                name="amount"
-                type="number"
-                placeholder="e.g., 1000"
-                required
-                min={100}
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                disabled={isLoading}
-                className={`h-12 pr-20 ${validationErrors.amount ? "border-red-500 focus:border-red-500" : amount && !validationErrors.amount ? "border-green-500 focus:border-green-500" : ""}`}
-              />
-              {amount && !validationErrors.amount && (
-                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                  <CheckCircle2 className="h-5 w-5 text-green-500" />
                 </div>
-              )}
-              {validationErrors.amount && (
-                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                  <AlertCircle className="h-5 w-5 text-red-500" />
-                </div>
-              )}
-            </div>
-            {validationErrors.amount && (
-              <p className="text-red-600 text-sm mt-1 flex items-center">
-                <AlertCircle className="h-4 w-4 mr-1" />
-                {validationErrors.amount}
-              </p>
-            )}
-            {amount && !validationErrors.amount && (
-              <p className="text-green-600 text-sm mt-1 font-medium">{calculateValue(amount)}</p>
-            )}
-          </div>
 
-          <div>
-            <Label htmlFor="redeemDestination" className="text-base font-semibold text-gray-900">
-              {redeemType === "bitcoin" ? "Bitcoin Wallet Address" : "Email Address"}
-            </Label>
-            <div className="mt-2 relative">
-              <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
-                {redeemType === "bitcoin" ? (
-                  <Wallet className="h-5 w-5 text-gray-400" />
-                ) : (
-                  <Mail className="h-5 w-5 text-gray-400" />
+                <div className="bg-white rounded-2xl p-4 border border-gray-100">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
+                        <Gift className="h-5 w-5 text-purple-600" />
+                      </div>
+                      <span className="text-gray-600 font-medium">Gift Card Rate</span>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-lg font-bold text-gray-900">{giftCardRateLabel}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <Label htmlFor="redeemType" className="text-base font-bold text-gray-900">
+                  Redemption Type
+                </Label>
+                <Select value={redeemType} onValueChange={setRedeemType} disabled={isLoading}>
+                  <SelectTrigger id="redeemType" className="w-full mt-2 h-12">
+                    <SelectValue placeholder="Select redemption type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="bitcoin">
+                      <div className="flex items-center space-x-2">
+                        <Bitcoin className="h-4 w-4 text-orange-600" />
+                        <span>Bitcoin ({bitcoinRateLabel})</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="gift_card">
+                      <div className="flex items-center space-x-2">
+                        <Gift className="h-4 w-4 text-purple-600" />
+                        <span>Gift Card ({giftCardRateLabel})</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="redeemAmount" className="text-base font-bold text-gray-900">
+                  Points to Redeem
+                </Label>
+                <div className="mt-2 relative">
+                  <Input
+                    id="redeemAmount"
+                    name="amount"
+                    type="number"
+                    placeholder="e.g., 1000"
+                    required
+                    min={100}
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    disabled={isLoading}
+                    className={`h-12 pr-20 ${validationErrors.amount ? "border-red-500 focus:border-red-500" : amount && !validationErrors.amount ? "border-green-500 focus:border-green-500" : ""}`}
+                  />
+                  {amount && !validationErrors.amount && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                    </div>
+                  )}
+                  {validationErrors.amount && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      <AlertCircle className="h-5 w-5 text-red-500" />
+                    </div>
+                  )}
+                </div>
+                {validationErrors.amount && (
+                  <p className="text-red-600 text-sm mt-1 flex items-center">
+                    <AlertCircle className="h-4 w-4 mr-1" />
+                    {validationErrors.amount}
+                  </p>
+                )}
+                {amount && !validationErrors.amount && (
+                  <p className="text-green-600 text-sm mt-1 font-medium">{calculateValue(amount)}</p>
                 )}
               </div>
-              <Input
-                id="redeemDestination"
-                name="destination"
-                placeholder={
-                  redeemType === "bitcoin" ? "Enter your Bitcoin wallet address" : "Enter your email address"
-                }
-                required
-                value={destination}
-                onChange={(e) => setDestination(e.target.value)}
-                disabled={isLoading}
-                className={`h-12 pl-10 pr-10 ${validationErrors.destination ? "border-red-500 focus:border-red-500" : destination && !validationErrors.destination ? "border-green-500 focus:border-green-500" : ""}`}
-              />
-              {destination && !validationErrors.destination && (
-                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                  <CheckCircle2 className="h-5 w-5 text-green-500" />
-                </div>
-              )}
-              {validationErrors.destination && (
-                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                  <AlertCircle className="h-5 w-5 text-red-500" />
-                </div>
-              )}
-            </div>
-            {validationErrors.destination && (
-              <p className="text-red-600 text-sm mt-1 flex items-center">
-                <AlertCircle className="h-4 w-4 mr-1" />
-                {validationErrors.destination}
-              </p>
-            )}
-          </div>
 
-          <Button
-            type="submit"
-            className="w-full h-12 text-lg font-semibold bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
-            disabled={isLoading || Object.keys(validationErrors).length > 0}
-          >
-            {isLoading ? "Processing Redemption..." : "Submit Redemption Request"}
-          </Button>
-        </form>
+              <div>
+                <Label htmlFor="redeemDestination" className="text-base font-bold text-gray-900">
+                  {redeemType === "bitcoin" ? "Bitcoin Wallet Address" : "Email Address"}
+                </Label>
+                <div className="mt-2 relative">
+                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                    {redeemType === "bitcoin" ? (
+                      <Wallet className="h-5 w-5 text-gray-400" />
+                    ) : (
+                      <Mail className="h-5 w-5 text-gray-400" />
+                    )}
+                  </div>
+                  <Input
+                    id="redeemDestination"
+                    name="destination"
+                    placeholder={
+                      redeemType === "bitcoin" ? "Enter your Bitcoin wallet address" : "Enter your email address"
+                    }
+                    required
+                    value={destination}
+                    onChange={(e) => setDestination(e.target.value)}
+                    disabled={isLoading}
+                    className={`h-12 pl-10 pr-10 ${validationErrors.destination ? "border-red-500 focus:border-red-500" : destination && !validationErrors.destination ? "border-green-500 focus:border-green-500" : ""}`}
+                  />
+                  {destination && !validationErrors.destination && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                    </div>
+                  )}
+                  {validationErrors.destination && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      <AlertCircle className="h-5 w-5 text-red-500" />
+                    </div>
+                  )}
+                </div>
+                {validationErrors.destination && (
+                  <p className="text-red-600 text-sm mt-1 flex items-center">
+                    <AlertCircle className="h-4 w-4 mr-1" />
+                    {validationErrors.destination}
+                  </p>
+                )}
+              </div>
 
-        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-xl p-4">
-          <div className="flex items-start space-x-3">
-            <div className="bg-blue-100 p-2 rounded-lg mt-0.5">
-              <AlertCircle className="h-5 w-5 text-blue-600" />
-            </div>
-            <div>
-              <h4 className="font-semibold text-blue-900 mb-2">Important Information</h4>
-              <ul className="text-sm text-blue-800 space-y-1">
-                <li>• Minimum redemption amount is 100 points</li>
-                <li>• Bitcoin redemptions are processed within 24-48 hours</li>
-                <li>• Gift card redemptions are processed within 1-3 business days</li>
-                <li>• All redemptions are final and cannot be reversed</li>
-                <li>• Processing fees may apply based on redemption type</li>
-              </ul>
+              <Button
+                type="submit"
+                className="w-full h-12 text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600"
+                disabled={isLoading || Object.keys(validationErrors).length > 0}
+              >
+                {isLoading ? "Processing Redemption..." : "Submit Redemption Request"}
+              </Button>
+            </form>
+
+            {/* Important Information */}
+            <div className="mt-8 bg-blue-50 border border-blue-100 rounded-xl p-4">
+              <div className="flex items-start space-x-3">
+                <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mt-0.5">
+                  <Info className="h-5 w-5 text-blue-600" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-gray-900 mb-2">Important Information</h4>
+                  <ul className="text-sm text-gray-600 space-y-1">
+                    <li>• Minimum redemption amount is 100 points</li>
+                    <li>• Bitcoin redemptions are processed within 24-48 hours</li>
+                    <li>• Gift card redemptions are processed within 1-3 business days</li>
+                    <li>• All redemptions are final and cannot be reversed</li>
+                    <li>• Processing fees may apply based on redemption type</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         </div>
