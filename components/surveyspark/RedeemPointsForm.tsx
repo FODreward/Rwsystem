@@ -33,7 +33,7 @@ export default function RedeemPointsForm({
   useEffect(() => {
     const loadRates = async () => {
       try {
-        const data = await apiCall<RedemptionRates>("/api/redemption/rates", "GET", null, true)
+        const data = await apiCall<RedemptionRates>("/redemption/rates", "GET", null, true)
         setRates(data)
       } catch (error: any) {
         toast({
