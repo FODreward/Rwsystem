@@ -32,7 +32,7 @@ export default function ChangePasswordForm({ onReturnToDashboard }: { onReturnTo
 
     try {
       await apiCall(
-        "/api/users/change-password",
+        "/users/change-password",
         "POST",
         {
           current_password: currentPassword,
