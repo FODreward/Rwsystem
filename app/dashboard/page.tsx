@@ -1,31 +1,37 @@
-'use client' // This page needs to be a client component for interactive elements like buttons
+"use client"
 
-import Link from "next/link"
-import { useEffect, useState, useCallback, useRef } from "react"
+import type React from "react"
+
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Menu, User, History, Wallet, ReceiptText, ArrowRightLeft, KeyRound, Lock, ClipboardList, LogOut, DollarSign, CheckCircle, Hourglass, TrendingUp, Clock, Bell, Key } from 'lucide-react'
+import {
+  Menu,
+  X,
+  Target,
+  TrendingUp,
+  Wallet,
+  Clock,
+  CheckCircle,
+  Hourglass,
+  Trophy,
+  Gift,
+  MousePointer,
+  BarChart3,
+  VoteIcon as Poll,
+  History,
+  UserCircle,
+  Headphones,
+  LogOut,
+  User,
+  ArrowRightLeft,
+  Lock,
+  Bell,
+  Key,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { apiCall } from "@/lib/api"
 import { useAuth } from "@/hooks/use-auth"
 import { useToast } from "@/hooks/use-toast"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-
-// Import dashboard sections from your provided file
-import ProfileSection from "@/components/dashboard/profile-section"
-import TransferHistorySection from "@/components/dashboard/transfer-history-section"
-import RedeemPointsForm from "@/components/dashboard/redeem-points-form"
-import RedemptionHistorySection from "@/components/dashboard/redemption-history-section"
-import TransferPointsForm from "@/components/dashboard/transfer-points-form"
-import ChangePasswordForm from "@/components/dashboard/change-password-form"
-import ChangePinForm from "@/components/dashboard/change-pin-form"
-import AvailableSurveysSection from "@/components/dashboard/available-surveys-section"
 
 interface DashboardStats {
   points_balance: number
@@ -33,7 +39,7 @@ interface DashboardStats {
   pending_redemptions: number
   total_earned: number
   pending_points_balance: number
-  is_flagged?: boolean // Added based on apiCall usage
+  is_flagged?: boolean
 }
 
 interface ActivityItem {
@@ -45,11 +51,12 @@ interface ActivityItem {
 // Inactivity timeout duration (10 minutes)
 const INACTIVITY_TIMEOUT_MS = 10 * 60 * 1000
 
-export default function DashboardPage() {
+export default function SurveySpark() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const initialSection = searchParams.get("section") || "dashboardHome"
   const [activeSection, setActiveSection] = useState(initialSection)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null)
   const [activityFeed, setActivityFeed] = useState<ActivityItem[]>([])
   const [isLoadingStats, setIsLoadingStats] = useState(true)
@@ -66,8 +73,7 @@ export default function DashboardPage() {
       clearTimeout(inactivityTimerRef.current)
     }
     inactivityTimerRef.current = setTimeout(() => {
-      // Save current section before redirecting for PIN verification
-      sessionStorage.setItem("prePinVerifyPath", router.asPath || "/dashboard")
+      sessionStorage.setItem("prePinVerifyPath", window.location.pathname + window.location.search)
       toast({
         title: "Session Timeout",
         description: "You've been inactive. Please verify your PIN to continue.",
@@ -77,21 +83,18 @@ export default function DashboardPage() {
     }, INACTIVITY_TIMEOUT_MS)
   }, [router, toast])
 
-  // Set up and clean up inactivity timer on component mount/unmount and activity
   useEffect(() => {
     if (!isAuthLoading && sessionStorage.getItem("accessToken")) {
       resetInactivityTimer()
 
       const handleActivity = () => resetInactivityTimer()
 
-      // Add event listeners for user activity
       window.addEventListener("mousemove", handleActivity)
       window.addEventListener("keydown", handleActivity)
       window.addEventListener("click", handleActivity)
       window.addEventListener("scroll", handleActivity)
 
       return () => {
-        // Clean up event listeners and timer
         if (inactivityTimerRef.current) {
           clearTimeout(inactivityTimerRef.current)
         }
@@ -103,7 +106,6 @@ export default function DashboardPage() {
     }
   }, [isAuthLoading, resetInactivityTimer])
 
-  // Redirect if not authenticated
   useEffect(() => {
     if (!isAuthLoading && !sessionStorage.getItem("accessToken")) {
       toast({
@@ -119,11 +121,11 @@ export default function DashboardPage() {
     setIsLoadingStats(true)
     try {
       const data = await apiCall<DashboardStats>("/dashboard/stats", "GET", null, true)
-      
+
       if (data?.is_flagged) {
         alert("⚠️ Your account is temporarily restricted due to suspicious activity. Please contact support.")
       }
-      
+
       setDashboardStats(data)
     } catch (error: any) {
       toast({
@@ -163,15 +165,9 @@ export default function DashboardPage() {
 
   const handleMenuAction = (section: string) => {
     setActiveSection(section)
-    // Update URL query parameter to persist section on refresh
+    setSidebarOpen(false)
     router.replace(`/dashboard?section=${section}`, undefined, { shallow: true })
   }
-
-  // Callback to return to dashboard home
-  const handleReturnToDashboard = useCallback(() => {
-    setActiveSection("dashboardHome")
-    router.replace("/dashboard?section=dashboardHome", undefined, { shallow: true })
-  }, [router])
 
   const handleLogout = () => {
     clearAuthData()
@@ -182,153 +178,8 @@ export default function DashboardPage() {
     router.push("/login")
   }
 
-  const renderSection = () => {
-    switch (activeSection) {
-      case "dashboardHome":
-        return (
-          <>
-            {/* Welcome Message - From your provided file, styled to match approved design */}
-            <section className="text-center space-y-2 sm:space-y-4">
-              <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-gray-900 leading-tight">
-                Welcome back, {currentUser?.name || "User"}!
-              </h2>
-              <p className="text-lg sm:text-xl text-gray-600">Here&apos;s what&apos;s happening with your account today.</p>
-            </section>
-
-            {/* Available Surveys - Prominent Hero Section - Using your component, styled to match approved design */}
-            {/* The AvailableSurveysSection component itself is expected to handle the click and redirection */}
-            <div className="bg-gradient-to-br from-blue-600 to-blue-800 text-white p-6 sm:p-8 rounded-2xl shadow-xl text-center transform transition-transform duration-300 hover:scale-[1.01] cursor-pointer">
-              <CardHeader className="flex flex-row items-center justify-center gap-3 sm:gap-5 pb-3 sm:pb-5">
-                <span role="img" aria-label="party popper" className="text-4xl sm:text-5xl">{'🎉'}</span>
-                <CardTitle className="text-3xl sm:text-5xl font-extrabold leading-tight">New Surveys Available!</CardTitle>
-              </CardHeader>
-              <CardContent className="flex flex-col items-center justify-center p-0">
-                <p className="text-lg sm:text-2xl font-medium text-blue-100 mb-4 sm:mb-6">
-                  Exciting opportunities await! Click anywhere on this section to start earning more points.
-                </p>
-                {/* Your AvailableSurveysSection component, now directly integrated */}
-                <AvailableSurveysSection onReturnToDashboard={handleReturnToDashboard} showReturnButton={false} />
-              </CardContent>
-            </div>
-
-            {/* Dashboard Statistics - Redesigned as Compact Circular Data Points */}
-            <section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6 justify-items-center">
-              {/* Wallet Balance */}
-              <div className="bg-blue-50/80 backdrop-blur-sm rounded-full w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 flex flex-col items-center justify-center text-center shadow-lg transform transition-transform duration-200 hover:scale-[1.05] hover:shadow-xl">
-                <DollarSign className="h-8 w-8 sm:h-10 sm:w-10 text-blue-700 mb-1 sm:mb-2" />
-                <p className="text-xs sm:text-sm text-gray-700 uppercase tracking-wide font-medium">Wallet Balance</p>
-                <p className="text-xl sm:text-2xl md:text-3xl font-extrabold text-gray-900 mt-0.5 sm:mt-1">
-                  {isLoadingStats ? "..." : `${dashboardStats?.points_balance || 0} pts`}
-                </p>
-              </div>
-
-              {/* Pending Points */}
-              <div className="bg-orange-50/80 backdrop-blur-sm rounded-full w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 flex flex-col items-center justify-center text-center shadow-lg transform transition-transform duration-200 hover:scale-[1.05] hover:shadow-xl">
-                <Hourglass className="h-8 w-8 sm:h-10 sm:w-10 text-orange-700 mb-1 sm:mb-2" />
-                <p className="text-xs sm:text-sm text-gray-700 uppercase tracking-wide font-medium">Pending Points</p>
-                <p className="text-xl sm:text-2xl md:text-3xl font-extrabold text-gray-900 mt-0.5 sm:mt-1">
-                  {isLoadingStats ? "..." : `${dashboardStats?.pending_points_balance || 0} pts`}
-                </p>
-              </div>
-
-              {/* Surveys Completed */}
-              <div className="bg-green-50/80 backdrop-blur-sm rounded-full w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 flex flex-col items-center justify-center text-center shadow-lg transform transition-transform duration-200 hover:scale-[1.05] hover:shadow-xl">
-                <CheckCircle className="h-8 w-8 sm:h-10 sm:w-10 text-green-700 mb-1 sm:mb-2" />
-                <p className="text-xs sm:text-sm text-gray-700 uppercase tracking-wide font-medium">Surveys Completed</p>
-                <p className="text-xl sm:text-2xl md:text-3xl font-extrabold text-gray-900 mt-0.5 sm:mt-1">
-                  {isLoadingStats ? "..." : dashboardStats?.completed_surveys || 0}
-                </p>
-              </div>
-
-              {/* Pending Redemptions */}
-              <div className="bg-red-50/80 backdrop-blur-sm rounded-full w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 flex flex-col items-center justify-center text-center shadow-lg transform transition-transform duration-200 hover:scale-[1.05] hover:shadow-xl">
-                <Hourglass className="h-8 w-8 sm:h-10 sm:w-10 text-red-700 mb-1 sm:mb-2" /> {/* Using Hourglass for pending redemptions */}
-                <p className="text-xs sm:text-sm text-gray-700 uppercase tracking-wide font-medium">Pending Redemptions</p>
-                <p className="text-xl sm:text-2xl md:text-3xl font-extrabold text-gray-900 mt-0.5 sm:mt-1">
-                  {isLoadingStats ? "..." : dashboardStats?.pending_redemptions || 0}
-                </p>
-              </div>
-
-              {/* Total Earned */}
-              <div className="bg-purple-50/80 backdrop-blur-sm rounded-full w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 flex flex-col items-center justify-center text-center shadow-lg transform transition-transform duration-200 hover:scale-[1.05] hover:shadow-xl">
-                <TrendingUp className="h-8 w-8 sm:h-10 sm:w-10 text-purple-700 mb-1 sm:mb-2" />
-                <p className="text-xs sm:text-sm text-gray-700 uppercase tracking-wide font-medium">Total Earned</p>
-                <p className="text-xl sm:text-2xl md:text-3xl font-extrabold text-gray-900 mt-0.5 sm:mt-1">
-                  {isLoadingStats ? "..." : `${dashboardStats?.total_earned || 0} pts`}
-                </p>
-              </div>
-            </section>
-
-            {/* Activity Feed - Styled to match approved design */}
-            <Card className="rounded-2xl shadow-lg border border-gray-100 bg-white p-4 sm:p-6">
-              <CardHeader className="flex flex-row items-center gap-3 sm:gap-4 pb-3 sm:pb-5">
-                <Clock className="h-6 w-6 sm:h-7 sm:w-7 text-gray-600" />
-                <CardTitle className="text-xl sm:text-2xl font-semibold text-gray-800">Recent Activity</CardTitle>
-              </CardHeader>
-              <CardContent className="divide-y divide-gray-200 p-0">
-                {isLoadingActivity ? (
-                  <p className="text-gray-500 text-base sm:text-lg text-center py-6 sm:py-8">Loading your recent activities...</p>
-                ) : activityFeed.length === 0 ? (
-                  <p className="text-gray-500 text-base sm:text-lg text-center py-6 sm:py-8">No recent activity to display.</p>
-                ) : (
-                  <div className="max-h-[300px] overflow-y-auto pr-2">
-                    <ul className="space-y-3 sm:space-y-4">
-                      {activityFeed.map((item, index) => {
-                        let IconComponent: React.ElementType = Bell // Default icon
-                        let iconColorClass = "text-yellow-600"
-
-                        if (item.type === "SURVEY_COMPLETED") { IconComponent = CheckCircle; iconColorClass = "text-green-600"; }
-                        else if (item.type === "REDEMPTION_REQUEST") { IconComponent = Wallet; iconColorClass = "text-blue-600"; }
-                        else if (item.type === "POINTS_TRANSFER") { IconComponent = ArrowRightLeft; iconColorClass = "text-purple-600"; }
-                        else if (item.type === "USER_SIGNUP") { IconComponent = User; iconColorClass = "text-teal-600"; }
-                        else if (item.type === "PASSWORD_CHANGE" || item.type === "PIN_CHANGE") { IconComponent = Lock; iconColorClass = "text-gray-600"; }
-                        else if (item.type === "USER_LOGIN") { IconComponent = Key; iconColorClass = "text-indigo-600"; }
-
-                        return (
-                          <li key={index} className="bg-white p-3 sm:p-4 rounded-lg shadow-sm flex items-start space-x-2 sm:space-x-3">
-                            <IconComponent className={`h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0 mt-0.5 sm:mt-1 ${iconColorClass}`} />
-                            <div>
-                              <p className="text-sm sm:text-base font-medium text-gray-800">{item.message}</p>
-                              <span className="text-xs sm:text-sm text-gray-500">
-                                {new Date(item.timestamp).toLocaleString()}
-                              </span>
-                            </div>
-                          </li>
-                        )
-                      })}
-                    </ul>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </>
-        )
-      case "profile":
-        return <ProfileSection onReturnToDashboard={handleReturnToDashboard} />
-      case "history":
-        return <TransferHistorySection onReturnToDashboard={handleReturnToDashboard} />
-      case "redeem":
-        return <RedeemPointsForm onRedeemSuccess={loadDashboardStats} onReturnToDashboard={handleReturnToDashboard} />
-      case "redemptionHistory":
-        return <RedemptionHistorySection onReturnToDashboard={handleReturnToDashboard} />
-      case "transfer":
-        return (
-          <TransferPointsForm onTransferSuccess={loadDashboardStats} onReturnToDashboard={handleReturnToDashboard} />
-        )
-      case "password":
-        return <ChangePasswordForm onReturnToDashboard={handleReturnToDashboard} />
-      case "pin":
-        return <ChangePinForm onReturnToDashboard={handleReturnToDashboard} />
-      case "surveys":
-        return (
-          // When accessed from the menu, it should have the return button
-          <AvailableSurveysSection onReturnToDashboard={handleReturnToDashboard} showReturnButton={true} />
-        )
-      default:
-        return (
-          <p className="text-gray-500 text-base sm:text-lg text-center py-8">Select an option from the menu to get started!</p>
-        )
-    }
+  const handleSurveyClick = () => {
+    handleMenuAction("surveys")
   }
 
   if (isAuthLoading || (!sessionStorage.getItem("accessToken") && !isAuthLoading)) {
@@ -340,109 +191,418 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
-      {/* Header - From your provided file */}
-      <header className="bg-white shadow-md p-4 flex justify-between items-center sticky top-0 z-40">
-        <h1 className="text-xl sm:text-2xl font-extrabold text-gray-800">🎯 Survey Dashboard</h1>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              id="menuToggle"
-              className="px-3 py-1.5 sm:px-4 sm:py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75"
-            >
-              <span className="sr-only">Toggle Menu</span>
-              <Menu className="lucide lucide-menu h-5 w-5 sm:h-6 sm:w-6" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 sm:w-64 bg-white shadow-xl rounded-lg z-50">
-            <DropdownMenuItem
-              className="p-3 sm:p-4 hover:bg-gray-100 cursor-pointer flex items-center gap-2 sm:gap-3 text-base sm:text-lg font-medium text-gray-700 transition-colors duration-150"
-              onClick={() => handleMenuAction("profile")}
-            >
-              <User className="lucide lucide-user h-4 w-4 sm:h-5 sm:w-5" />
-              <span>View Profile</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="p-3 sm:p-4 hover:bg-gray-100 cursor-pointer flex items-center gap-2 sm:gap-3 text-base sm:text-lg font-medium text-gray-700 transition-colors duration-150"
-              onClick={() => handleMenuAction("history")}
-            >
-              <History className="lucide lucide-history h-4 w-4 sm:h-5 sm:w-5" />
-              <span>Transfer History</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="p-3 sm:p-4 hover:bg-gray-100 cursor-pointer flex items-center gap-2 sm:gap-3 text-base sm:text-lg font-medium text-gray-700 transition-colors duration-150"
-              onClick={() => handleMenuAction("redeem")}
-            >
-              <Wallet className="lucide lucide-wallet h-4 w-4 sm:h-5 sm:w-5" />
-              <span>Redeem Points</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="p-3 sm:p-4 hover:bg-gray-100 cursor-pointer flex items-center gap-2 sm:gap-3 text-base sm:text-lg font-medium text-gray-700 transition-colors duration-150"
-              onClick={() => handleMenuAction("redemptionHistory")}
-            >
-              <ReceiptText className="lucide lucide-receipt-text h-4 w-4 sm:h-5 sm:w-5" />
-              <span>Redemption History</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="p-3 sm:p-4 hover:bg-gray-100 cursor-pointer flex items-center gap-2 sm:gap-3 text-base sm:text-lg font-medium text-gray-700 transition-colors duration-150"
-              onClick={() => handleMenuAction("transfer")}
-            >
-              <ArrowRightLeft className="lucide lucide-arrow-right-left h-4 w-4 sm:h-5 sm:w-5" />
-              <span>Transfer Points</span>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator className="bg-gray-200" />
-            <DropdownMenuItem
-              className="p-3 sm:p-4 hover:bg-gray-100 cursor-pointer flex items-center gap-2 sm:gap-3 text-base sm:text-lg font-medium text-gray-700 transition-colors duration-150"
-              onClick={() => handleMenuAction("password")}
-            >
-              <KeyRound className="lucide lucide-key-round h-4 w-4 sm:h-5 sm:w-5" />
-              <span>Change Password</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="p-3 sm:p-4 hover:bg-gray-100 cursor-pointer flex items-center gap-2 sm:gap-3 text-base sm:text-lg font-medium text-gray-700 transition-colors duration-150"
-              onClick={() => handleMenuAction("pin")}
-            >
-              <Lock className="lucide lucide-lock h-4 w-4 sm:h-5 sm:w-5" />
-              <span>Change PIN</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="p-3 sm:p-4 hover:bg-gray-100 cursor-pointer flex items-center gap-2 sm:gap-3 text-base sm:text-lg font-medium text-gray-700 transition-colors duration-150"
-              onClick={() => handleMenuAction("surveys")}
-            >
-              <ClipboardList className="lucide lucide-clipboard-list h-4 w-4 sm:h-5 sm:w-5" />
-              <span>Available Surveys</span>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator className="bg-gray-200" />
-            <DropdownMenuItem
-              className="p-3 sm:p-4 hover:bg-red-100 cursor-pointer flex items-center gap-2 sm:gap-3 text-base sm:text-lg font-medium text-red-600 transition-colors duration-150"
-              onClick={handleLogout}
-            >
-              <LogOut className="lucide lucide-log-out h-4 w-4 sm:h-5 sm:w-5" />
-              <span>Logout</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+    <div className="bg-gray-50 min-h-screen">
+      {/* Sidebar Overlay */}
+      <div
+        className={`overlay-transition fixed inset-0 bg-black bg-opacity-50 z-40 ${sidebarOpen ? "active" : ""}`}
+        onClick={() => setSidebarOpen(false)}
+      />
+
+      {/* Sidebar */}
+      <div
+        className={`sidebar-transition fixed left-0 top-0 h-full w-80 glass-effect z-50 p-6 ${sidebarOpen ? "open" : ""}`}
+      >
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center">
+              <BarChart3 className="text-white text-lg" />
+            </div>
+            <div>
+              <h2 className="font-bold text-gray-900">SurveySpark</h2>
+              <span className="premium-badge text-xs px-2 py-1 rounded-full font-semibold">PRO</span>
+            </div>
+          </div>
+          <button onClick={() => setSidebarOpen(false)} className="p-2 hover:bg-gray-100 rounded-lg">
+            <X className="text-gray-600" />
+          </button>
+        </div>
+
+        <nav className="space-y-2">
+          <button
+            onClick={() => handleMenuAction("dashboardHome")}
+            className={`w-full flex items-center space-x-3 p-3 rounded-xl font-medium ${
+              activeSection === "dashboardHome" ? "bg-indigo-50 text-indigo-700" : "hover:bg-gray-100 text-gray-700"
+            }`}
+          >
+            <TrendingUp size={20} />
+            <span>Dashboard</span>
+          </button>
+          <button
+            onClick={() => handleMenuAction("surveys")}
+            className="w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-gray-100 text-gray-700"
+          >
+            <Poll size={20} />
+            <span>Available Surveys</span>
+          </button>
+          <button
+            onClick={() => handleMenuAction("wallet")}
+            className="w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-gray-100 text-gray-700"
+          >
+            <Wallet size={20} />
+            <span>Wallet & Rewards</span>
+          </button>
+          <button
+            onClick={() => handleMenuAction("history")}
+            className="w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-gray-100 text-gray-700"
+          >
+            <History size={20} />
+            <span>Survey History</span>
+          </button>
+          <button
+            onClick={() => handleMenuAction("profile")}
+            className="w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-gray-100 text-gray-700"
+          >
+            <UserCircle size={20} />
+            <span>Profile Settings</span>
+          </button>
+          <button
+            onClick={() => handleMenuAction("support")}
+            className="w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-gray-100 text-gray-700"
+          >
+            <Headphones size={20} />
+            <span>Support Center</span>
+          </button>
+          <div className="border-t border-gray-200 my-4"></div>
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-red-100 text-red-600"
+          >
+            <LogOut size={20} />
+            <span>Logout</span>
+          </button>
+        </nav>
+      </div>
+
+      {/* Header */}
+      <header className="glass-effect sticky top-0 z-30 border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+              >
+                <Menu className="text-gray-700 text-lg" />
+              </button>
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 gradient-bg rounded-lg flex items-center justify-center">
+                  <Target className="text-white" size={20} />
+                </div>
+                <h1 className="text-xl font-bold text-gray-900">Survey Dashboard</h1>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2 bg-green-50 px-3 py-2 rounded-full">
+                <div className="w-2 h-2 bg-green-500 rounded-full pulse-animation"></div>
+                <span className="text-sm font-medium text-green-700">Online</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 gradient-bg rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">{currentUser?.name?.charAt(0) || "U"}</span>
+                </div>
+                <span className="font-medium text-gray-900">{currentUser?.name || "User"}</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </header>
 
       {/* Main Content */}
-      <main id="mainContent" className="p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8 flex-1 max-w-7xl mx-auto">
-        {renderSection()}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {activeSection === "dashboardHome" && (
+          <>
+            {/* Welcome Section */}
+            <div className="mb-8">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                    Welcome back, {currentUser?.name || "User"}! 👋
+                  </h2>
+                  <p className="text-gray-600 text-lg">Here's your earning summary and latest opportunities</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-gray-500">Last login</p>
+                  <p className="font-semibold text-gray-900">Today, 1:15 AM</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Survey Opportunities Banner */}
+            <div
+              className="survey-banner card-hover rounded-2xl p-8 mb-8 text-white cursor-pointer relative z-10"
+              onClick={handleSurveyClick}
+            >
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-16 h-16 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center">
+                      <Gift size={48} />
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold mb-1">Premium Surveys Available!</h3>
+                      <p className="text-white text-opacity-90">High-value opportunities with bonus rewards</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="bg-white bg-opacity-20 rounded-xl px-4 py-2">
+                      <p className="text-sm opacity-90">Potential Earnings</p>
+                      <p className="text-2xl font-bold">+150 pts</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <MousePointer size={20} />
+                  <span className="text-white text-opacity-90">Click to explore premium surveys</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+              {/* Wallet Balance */}
+              <div className="metric-card card-hover rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center">
+                    <Wallet className="text-white text-lg" />
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">
+                      Active
+                    </span>
+                  </div>
+                </div>
+                <h4 className="text-sm font-medium text-gray-600 mb-1">Wallet Balance</h4>
+                <p className="text-2xl font-bold text-gray-900">
+                  {isLoadingStats ? "..." : dashboardStats?.points_balance || 0}
+                </p>
+                <p className="text-sm text-gray-500">points available</p>
+              </div>
+
+              {/* Pending Points */}
+              <div className="metric-card card-hover rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center">
+                    <Hourglass className="text-white text-lg" />
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full font-medium">
+                      Pending
+                    </span>
+                  </div>
+                </div>
+                <h4 className="text-sm font-medium text-gray-600 mb-1">Pending Points</h4>
+                <p className="text-2xl font-bold text-gray-900">
+                  {isLoadingStats ? "..." : dashboardStats?.pending_points_balance || 0}
+                </p>
+                <p className="text-sm text-gray-500">processing</p>
+              </div>
+
+              {/* Surveys Completed */}
+              <div className="metric-card card-hover rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center">
+                    <CheckCircle className="text-white text-lg" />
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">
+                      +1 Today
+                    </span>
+                  </div>
+                </div>
+                <h4 className="text-sm font-medium text-gray-600 mb-1">Completed</h4>
+                <p className="text-2xl font-bold text-gray-900">
+                  {isLoadingStats ? "..." : dashboardStats?.completed_surveys || 0}
+                </p>
+                <p className="text-sm text-gray-500">this month</p>
+              </div>
+
+              {/* Pending Redemptions */}
+              <div className="metric-card card-hover rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center">
+                    <Clock className="text-white text-lg" />
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full font-medium">None</span>
+                  </div>
+                </div>
+                <h4 className="text-sm font-medium text-gray-600 mb-1">Redemptions</h4>
+                <p className="text-2xl font-bold text-gray-900">
+                  {isLoadingStats ? "..." : dashboardStats?.pending_redemptions || 0}
+                </p>
+                <p className="text-sm text-gray-500">pending</p>
+              </div>
+
+              {/* Total Earned */}
+              <div className="metric-card card-hover rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-pink-400 to-red-500 rounded-xl flex items-center justify-center">
+                    <Trophy className="text-white text-lg" />
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs bg-pink-100 text-pink-700 px-2 py-1 rounded-full font-medium">
+                      Lifetime
+                    </span>
+                  </div>
+                </div>
+                <h4 className="text-sm font-medium text-gray-600 mb-1">Total Earned</h4>
+                <p className="text-2xl font-bold text-gray-900">
+                  {isLoadingStats ? "..." : dashboardStats?.total_earned || 0}
+                </p>
+                <p className="text-sm text-gray-500">points</p>
+              </div>
+            </div>
+
+            {/* Recent Activity */}
+            <div className="glass-effect rounded-2xl p-8 shadow-lg">
+              <div className="flex items-center justify-between mb-8">
+                <h3 className="text-xl font-bold text-gray-900">Recent Activity</h3>
+                <button className="text-indigo-600 hover:text-indigo-700 font-medium text-sm">View All</button>
+              </div>
+
+              <div className="activity-timeline">
+                {isLoadingActivity ? (
+                  <p className="text-gray-500 text-center py-8">Loading your recent activities...</p>
+                ) : activityFeed.length === 0 ? (
+                  <p className="text-gray-500 text-center py-8">No recent activity to display.</p>
+                ) : (
+                  activityFeed.map((activity, index) => {
+                    let IconComponent: React.ElementType = Bell
+                    let iconColorClass = "text-yellow-600"
+
+                    if (activity.type === "SURVEY_COMPLETED") {
+                      IconComponent = CheckCircle
+                      iconColorClass = "text-green-600"
+                    } else if (activity.type === "REDEMPTION_REQUEST") {
+                      IconComponent = Wallet
+                      iconColorClass = "text-blue-600"
+                    } else if (activity.type === "POINTS_TRANSFER") {
+                      IconComponent = ArrowRightLeft
+                      iconColorClass = "text-purple-600"
+                    } else if (activity.type === "USER_SIGNUP") {
+                      IconComponent = User
+                      iconColorClass = "text-teal-600"
+                    } else if (activity.type === "PASSWORD_CHANGE" || activity.type === "PIN_CHANGE") {
+                      IconComponent = Lock
+                      iconColorClass = "text-gray-600"
+                    } else if (activity.type === "USER_LOGIN") {
+                      IconComponent = Key
+                      iconColorClass = "text-indigo-600"
+                    }
+
+                    return (
+                      <div key={index} className="activity-item">
+                        <div className="activity-dot"></div>
+                        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                              <IconComponent className={`h-5 w-5 ${iconColorClass}`} />
+                              <div>
+                                <p className="font-semibold text-gray-900">{activity.message}</p>
+                                <span className="text-xs text-gray-500">
+                                  {new Date(activity.timestamp).toLocaleString()}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })
+                )}
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Other sections placeholder */}
+        {activeSection !== "dashboardHome" && (
+          <div className="glass-effect rounded-2xl p-8 shadow-lg text-center">
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">
+              {activeSection.charAt(0).toUpperCase() + activeSection.slice(1)} Section
+            </h3>
+            <p className="text-gray-600 mb-6">This section is under development.</p>
+            <Button onClick={() => handleMenuAction("dashboardHome")} className="gradient-bg text-white">
+              Return to Dashboard
+            </Button>
+          </div>
+        )}
       </main>
 
-      {/* Footer - From your provided file */}
-      <footer className="text-center text-xs sm:text-sm text-gray-500 p-4 sm:p-6 bg-white shadow-inner mt-6 sm:mt-8">
-        <p>&copy; {"2025 SurveySpark. All rights reserved."}</p>
-        <p className="mt-1 sm:mt-2 space-x-2 sm:space-x-4">
-          <Link href="#" className="text-blue-600 hover:underline transition-colors duration-150">
-            Support
-          </Link>
-          <Link href="#" className="text-blue-600 hover:underline transition-colors duration-150">
-            Terms
-          </Link>
-          <Link href="#" className="text-blue-600 hover:underline transition-colors duration-150">
-            Privacy
-          </Link>
-        </p>
+      {/* Footer */}
+      <footer className="bg-white border-t border-gray-200 mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="col-span-2">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center">
+                  <BarChart3 className="text-white" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-900 text-lg">SurveySpark</h3>
+                  <span className="premium-badge text-xs px-2 py-1 rounded-full font-semibold">PRO</span>
+                </div>
+              </div>
+              <p className="text-gray-600 mb-4">
+                Transform your opinions into rewards with our premium survey platform.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-4">Quick Links</h4>
+              <ul className="space-y-2">
+                <li>
+                  <a href="#" className="text-gray-600 hover:text-indigo-600 transition-colors">
+                    Available Surveys
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-600 hover:text-indigo-600 transition-colors">
+                    Rewards Center
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-600 hover:text-indigo-600 transition-colors">
+                    Profile Settings
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-600 hover:text-indigo-600 transition-colors">
+                    Help Center
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-4">Support</h4>
+              <ul className="space-y-2">
+                <li>
+                  <a href="#" className="text-gray-600 hover:text-indigo-600 transition-colors">
+                    Contact Us
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-600 hover:text-indigo-600 transition-colors">
+                    FAQ
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-600 hover:text-indigo-600 transition-colors">
+                    Privacy Policy
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-600 hover:text-indigo-600 transition-colors">
+                    Terms of Service
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-gray-200 mt-8 pt-8 text-center">
+            <p className="text-gray-500">&copy; 2025 SurveySpark Pro. All rights reserved.</p>
+          </div>
+        </div>
       </footer>
     </div>
   )
