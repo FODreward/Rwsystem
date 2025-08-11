@@ -1,4 +1,4 @@
-"use client" // Make this a client component
+"use client"
 
 import Link from "next/link"
 import Image from "next/image"
@@ -39,45 +39,56 @@ export default function LandingPage() {
       {/* Header */}
       <header className="bg-white shadow-sm py-4">
         <nav className="container mx-auto flex justify-between items-center px-4">
-          <Link href="#" className="text-2xl font-bold text-primary-600">
+          <Link href="#" className="text-2xl font-bold text-blue-600">
             Reward System
           </Link>
           <ul className="hidden md:flex space-x-6">
             <li>
-              <Link href="#features" className="text-gray-600 hover:text-primary-600 transition-colors">
+              <Link
+                href="#features"
+                className="text-gray-600 hover:text-blue-600 transition-colors relative after:content-[''] after:absolute after:w-0 after:h-0.5 after:bottom-[-5px] after:left-0 after:bg-blue-600 after:transition-all after:duration-300 hover:after:w-full"
+              >
                 Features
               </Link>
             </li>
             <li>
-              <Link href="#how-it-works" className="text-gray-600 hover:text-primary-600 transition-colors">
+              <Link
+                href="#how-it-works"
+                className="text-gray-600 hover:text-blue-600 transition-colors relative after:content-[''] after:absolute after:w-0 after:h-0.5 after:bottom-[-5px] after:left-0 after:bg-blue-600 after:transition-all after:duration-300 hover:after:w-full"
+              >
                 How It Works
               </Link>
             </li>
             <li>
-              <Link href="#testimonials" className="text-gray-600 hover:text-primary-600 transition-colors">
+              <Link
+                href="#testimonials"
+                className="text-gray-600 hover:text-blue-600 transition-colors relative after:content-[''] after:absolute after:w-0 after:h-0.5 after:bottom-[-5px] after:left-0 after:bg-blue-600 after:transition-all after:duration-300 hover:after:w-full"
+              >
                 Testimonials
               </Link>
             </li>
             <li>
-              <Link href="/contact-us" className="text-gray-600 hover:text-primary-600 transition-colors">
+              <Link
+                href="/contact-us"
+                className="text-gray-600 hover:text-blue-600 transition-colors relative after:content-[''] after:absolute after:w-0 after:h-0.5 after:bottom-[-5px] after:left-0 after:bg-blue-600 after:transition-all after:duration-300 hover:after:w-full"
+              >
                 Contact Us
               </Link>
             </li>
           </ul>
           <div className="space-x-4 hidden md:block">
-            <Link href="/login" className="btn btn-secondary">
-              Login
-            </Link>
-            <Link href="/signup" className="btn btn-primary">
-              Sign Up
-            </Link>
+            <Button asChild variant="outline">
+              <Link href="/login">Login</Link>
+            </Button>
+            <Button asChild>
+              <Link href="/signup">Sign Up</Link>
+            </Button>
           </div>
-          {/* Mobile menu button (hidden on desktop) */}
           <Button
             ref={buttonRef}
             variant="ghost"
             size="icon"
-            className="md:hidden text-gray-600 hover:text-primary-600 focus:outline-none"
+            className="md:hidden text-gray-600 hover:text-blue-600 focus:outline-none"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-expanded={isMobileMenuOpen}
             aria-controls="mobileMenu"
@@ -86,20 +97,18 @@ export default function LandingPage() {
             <span className="sr-only">Toggle Mobile Menu</span>
           </Button>
         </nav>
-        {/* Mobile menu (hidden by default, will be handled by JS/React state later) */}
         <div
           ref={menuRef}
           id="mobileMenu"
           className={`md:hidden bg-white py-2 px-4 border-t border-gray-200 transform transition-all duration-300 ease-in-out origin-top ${
-            isMobileMenuOpen ? "scale-y-100 opacity-100 data-[state=open]" : "scale-y-95 opacity-0 hidden"
+            isMobileMenuOpen ? "scale-y-100 opacity-100" : "scale-y-95 opacity-0 hidden"
           }`}
-          data-state={isMobileMenuOpen ? "open" : "closed"}
         >
           <ul className="flex flex-col space-y-2">
             <li>
               <Link
                 href="#features"
-                className="block py-2 text-gray-600 hover:text-primary-600 transition-colors"
+                className="block py-2 text-gray-600 hover:text-blue-600 transition-colors"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Features
@@ -108,7 +117,7 @@ export default function LandingPage() {
             <li>
               <Link
                 href="#how-it-works"
-                className="block py-2 text-gray-600 hover:text-primary-600 transition-colors"
+                className="block py-2 text-gray-600 hover:text-blue-600 transition-colors"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 How It Works
@@ -117,7 +126,7 @@ export default function LandingPage() {
             <li>
               <Link
                 href="#testimonials"
-                className="block py-2 text-gray-600 hover:text-primary-600 transition-colors"
+                className="block py-2 text-gray-600 hover:text-blue-600 transition-colors"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Testimonials
@@ -126,21 +135,26 @@ export default function LandingPage() {
             <li>
               <Link
                 href="/contact-us"
-                className="block py-2 text-gray-600 hover:text-primary-600 transition-colors"
+                className="block py-2 text-gray-600 hover:text-blue-600 transition-colors"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Contact Us
               </Link>
             </li>
             <li>
-              <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="btn btn-secondary w-full mt-2">
-                Login
-              </Link>
+              <Button
+                asChild
+                variant="outline"
+                className="w-full mt-2 bg-transparent"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <Link href="/login">Login</Link>
+              </Button>
             </li>
             <li>
-              <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)} className="btn btn-primary w-full mt-2">
-                Sign Up
-              </Link>
+              <Button asChild className="w-full mt-2" onClick={() => setIsMobileMenuOpen(false)}>
+                <Link href="/signup">Sign Up</Link>
+              </Button>
             </li>
           </ul>
         </div>
@@ -148,10 +162,7 @@ export default function LandingPage() {
 
       <main>
         {/* Hero Section */}
-        <section
-          id="hero"
-          className="bg-gradient-to-r from-primary-900 to-primary-400 text-white py-20 md:py-32 text-center"
-        >
+        <section id="hero" className="bg-gradient-to-r from-blue-900 to-blue-400 text-white py-20 md:py-32 text-center">
           <div className="container mx-auto px-4">
             <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
               Unlock Rewards, Earn Points, Live Better.
@@ -161,13 +172,12 @@ export default function LandingPage() {
               exciting rewards!
             </p>
             <div className="space-x-4 flex flex-col min-[400px]:flex-row justify-center items-center">
-              <Button asChild className="btn-light-primary mb-4 min-[400px]:mb-0">
+              <Button asChild className="bg-white text-blue-600 hover:bg-white/90 mb-4 min-[400px]:mb-0">
                 <Link href="/signup">Get Started Today</Link>
               </Button>
-              {/* Changed this from Button asChild to direct Link with button classes */}
-              <Link href="/login" className="btn btn-light-secondary bg-transparent">
-                Login
-              </Link>
+              <Button asChild variant="outline" className="border-white text-white hover:bg-white/10 bg-transparent">
+                <Link href="/login">Login</Link>
+              </Button>
             </div>
           </div>
         </section>
@@ -177,9 +187,9 @@ export default function LandingPage() {
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-12">Why Choose Our Reward System?</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="feature-card">
+              <div className="bg-white rounded-lg shadow-md p-8 transition-transform duration-300 ease-in-out hover:-translate-y-1 hover:shadow-lg">
                 <Image
-                  src="/placeholder.svg?height=64&width=64"
+                  src="/placeholder.svg?height=64&width=64&text=Earn"
                   alt="Earn Points Icon"
                   className="mx-auto mb-4"
                   width={64}
@@ -190,9 +200,9 @@ export default function LandingPage() {
                   Complete surveys, engage with content, and participate in activities to quickly accumulate points.
                 </p>
               </div>
-              <div className="feature-card">
+              <div className="bg-white rounded-lg shadow-md p-8 transition-transform duration-300 ease-in-out hover:-translate-y-1 hover:shadow-lg">
                 <Image
-                  src="/placeholder.svg?height=64&width=64"
+                  src="/placeholder.svg?height=64&width=64&text=Rewards"
                   alt="Redeem Rewards Icon"
                   className="mx-auto mb-4"
                   width={64}
@@ -203,9 +213,9 @@ export default function LandingPage() {
                   Redeem your hard-earned points for Bitcoin, gift cards, or other valuable incentives.
                 </p>
               </div>
-              <div className="feature-card">
+              <div className="bg-white rounded-lg shadow-md p-8 transition-transform duration-300 ease-in-out hover:-translate-y-1 hover:shadow-lg">
                 <Image
-                  src="/placeholder.svg?height=64&width=64"
+                  src="/placeholder.svg?height=64&width=64&text=Community"
                   alt="Community Icon"
                   className="mx-auto mb-4"
                   width={64}
@@ -223,20 +233,26 @@ export default function LandingPage() {
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-12">Simple Steps to Start Earning</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="step-card">
-                <div className="step-number">1</div>
+              <div className="bg-white rounded-lg shadow-md p-8 flex flex-col items-center text-center">
+                <div className="w-12 h-12 rounded-full bg-blue-600 text-white text-2xl font-bold flex items-center justify-center mb-4 flex-shrink-0">
+                  1
+                </div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">Sign Up</h3>
                 <p className="text-gray-600">Create your free account in minutes. It's quick and easy!</p>
               </div>
-              <div className="step-card">
-                <div className="step-number">2</div>
+              <div className="bg-white rounded-lg shadow-md p-8 flex flex-col items-center text-center">
+                <div className="w-12 h-12 rounded-full bg-blue-600 text-white text-2xl font-bold flex items-center justify-center mb-4 flex-shrink-0">
+                  2
+                </div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">Earn Points</h3>
                 <p className="text-gray-600">
                   Participate in surveys, daily tasks, and special offers to accumulate points.
                 </p>
               </div>
-              <div className="step-card">
-                <div className="step-number">3</div>
+              <div className="bg-white rounded-lg shadow-md p-8 flex flex-col items-center text-center">
+                <div className="w-12 h-12 rounded-full bg-blue-600 text-white text-2xl font-bold flex items-center justify-center mb-4 flex-shrink-0">
+                  3
+                </div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">Redeem Rewards</h3>
                 <p className="text-gray-600">
                   Exchange your points for Bitcoin, gift cards, or other exciting rewards.
@@ -251,16 +267,16 @@ export default function LandingPage() {
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-12">What Our Users Say</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="testimonial-card">
+              <div className="bg-white rounded-lg shadow-md p-8 text-center">
                 <p className="text-lg italic text-gray-700 mb-4">
                   &quot;This reward system is fantastic! I&apos;ve earned so many points just by doing simple tasks, and
                   redeeming them for gift cards is a breeze. Highly recommend!&quot;
                 </p>
                 <div className="flex items-center justify-center">
                   <Image
-                    src="/placeholder.svg?height=48&width=48"
+                    src="/placeholder.svg?height=48&width=48&text=Jane"
                     alt="User Avatar"
-                    className="w-12 h-12 rounded-full mr-4"
+                    className="w-12 h-12 rounded-full mr-4 border-2 border-blue-600"
                     width={48}
                     height={48}
                   />
@@ -270,16 +286,16 @@ export default function LandingPage() {
                   </div>
                 </div>
               </div>
-              <div className="testimonial-card">
+              <div className="bg-white rounded-lg shadow-md p-8 text-center">
                 <p className="text-lg italic text-gray-700 mb-4">
                   &quot;I was skeptical at first, but the points add up quickly, and the Bitcoin redemption option is a
                   game-changer. It&apos;s a legitimate way to earn extra value.&quot;
                 </p>
                 <div className="flex items-center justify-center">
                   <Image
-                    src="/placeholder.svg?height=48&width=48"
+                    src="/placeholder.svg?height=48&width=48&text=John"
                     alt="User Avatar"
-                    className="w-12 h-12 rounded-full mr-4"
+                    className="w-12 h-12 rounded-full mr-4 border-2 border-blue-600"
                     width={48}
                     height={48}
                   />
@@ -294,13 +310,13 @@ export default function LandingPage() {
         </section>
 
         {/* Call to Action Section */}
-        <section id="cta" className="bg-primary-600 text-white py-16 md:py-24 text-center">
+        <section id="cta" className="bg-blue-600 text-white py-16 md:py-24 text-center">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Start Earning?</h2>
             <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto">
               Join thousands of satisfied users who are already benefiting from our rewarding platform.
             </p>
-            <Button asChild className="btn-light-primary">
+            <Button asChild className="bg-white text-blue-600 hover:bg-white/90">
               <Link href="/signup">Sign Up Now</Link>
             </Button>
           </div>
@@ -318,32 +334,32 @@ export default function LandingPage() {
             <h3 className="text-xl font-bold text-white mb-4">Quick Links</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="#features" className="hover:text-primary-400 transition-colors">
+                <Link href="#features" className="hover:text-blue-400 transition-colors">
                   Features
                 </Link>
               </li>
               <li>
-                <Link href="#how-it-works" className="hover:text-primary-400 transition-colors">
+                <Link href="#how-it-works" className="hover:text-blue-400 transition-colors">
                   How It Works
                 </Link>
               </li>
               <li>
-                <Link href="#testimonials" className="hover:text-primary-400 transition-colors">
+                <Link href="#testimonials" className="hover:text-blue-400 transition-colors">
                   Testimonials
                 </Link>
               </li>
               <li>
-                <Link href="/about-us" className="hover:text-primary-400 transition-colors">
+                <Link href="/about-us" className="hover:text-blue-400 transition-colors">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href="/terms-and-conditions" className="hover:text-primary-400 transition-colors">
+                <Link href="/terms-and-conditions" className="hover:text-blue-400 transition-colors">
                   Terms and Conditions
                 </Link>
               </li>
               <li>
-                <Link href="/privacy-policy" className="hover:text-primary-400 transition-colors">
+                <Link href="/privacy-policy" className="hover:text-blue-400 transition-colors">
                   Privacy Policy
                 </Link>
               </li>
@@ -352,13 +368,13 @@ export default function LandingPage() {
           <div>
             <h3 className="text-xl font-bold text-white mb-4">Connect With Us</h3>
             <div className="flex justify-center md:justify-start space-x-4">
-              <Link href="#" className="text-gray-300 hover:text-emerald-400 transition-colors" aria-label="Twitter">
+              <Link href="#" className="text-gray-300 hover:text-blue-400 transition-colors" aria-label="Twitter">
                 <Twitter className="w-6 h-6" />
               </Link>
-              <Link href="#" className="text-gray-300 hover:text-emerald-400 transition-colors" aria-label="Facebook">
+              <Link href="#" className="text-gray-300 hover:text-blue-400 transition-colors" aria-label="Facebook">
                 <Facebook className="w-6 h-6" />
               </Link>
-              <Link href="#" className="text-gray-300 hover:text-emerald-400 transition-colors" aria-label="Instagram">
+              <Link href="#" className="text-gray-300 hover:text-blue-400 transition-colors" aria-label="Instagram">
                 <Instagram className="w-6 h-6" />
               </Link>
             </div>
