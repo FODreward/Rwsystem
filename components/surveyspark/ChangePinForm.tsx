@@ -120,32 +120,37 @@ export default function ChangePinForm({ onReturnToDashboard }: { onReturnToDashb
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="oldPin" className="text-base font-bold text-gray-900 flex items-center space-x-2">
+                <Label
+                  htmlFor="oldPin"
+                  className="text-base font-bold text-gray-900 flex items-center justify-center space-x-2"
+                >
                   <Lock className="h-4 w-4" />
                   <span>Current PIN</span>
                 </Label>
-                <div className="relative">
-                  <PinInput
-                    id="oldPin"
-                    name="old_pin"
-                    length={4}
-                    required
-                    value={oldPin}
-                    onChange={setOldPin}
-                    disabled={isLoading}
-                  />
-                  {oldPin.length > 0 && (
-                    <div className="absolute -right-8 top-1/2 transform -translate-y-1/2">
-                      {isOldPinValid ? (
-                        <CheckCircle className="h-5 w-5 text-green-600" />
-                      ) : (
-                        <AlertCircle className="h-5 w-5 text-red-500" />
-                      )}
-                    </div>
-                  )}
+                <div className="flex justify-center">
+                  <div className="relative">
+                    <PinInput
+                      id="oldPin"
+                      name="old_pin"
+                      length={4}
+                      required
+                      value={oldPin}
+                      onChange={setOldPin}
+                      disabled={isLoading}
+                    />
+                    {oldPin.length > 0 && (
+                      <div className="absolute -right-8 top-1/2 transform -translate-y-1/2">
+                        {isOldPinValid ? (
+                          <CheckCircle className="h-5 w-5 text-green-600" />
+                        ) : (
+                          <AlertCircle className="h-5 w-5 text-red-500" />
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
                 {oldPin.length > 0 && !isOldPinValid && (
-                  <p className="text-sm text-red-600 flex items-center space-x-1">
+                  <p className="text-sm text-red-600 flex items-center justify-center space-x-1">
                     <AlertCircle className="h-4 w-4" />
                     <span>PIN must be exactly 4 digits</span>
                   </p>
@@ -153,46 +158,51 @@ export default function ChangePinForm({ onReturnToDashboard }: { onReturnToDashb
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="newPin" className="text-base font-bold text-gray-900 flex items-center space-x-2">
+                <Label
+                  htmlFor="newPin"
+                  className="text-base font-bold text-gray-900 flex items-center justify-center space-x-2"
+                >
                   <Shield className="h-4 w-4" />
                   <span>New PIN</span>
                 </Label>
-                <div className="relative">
-                  <PinInput
-                    id="newPin"
-                    name="new_pin"
-                    length={4}
-                    required
-                    value={newPin}
-                    onChange={setNewPin}
-                    disabled={isLoading}
-                  />
-                  {newPin.length > 0 && (
-                    <div className="absolute -right-8 top-1/2 transform -translate-y-1/2">
-                      {isNewPinValid && oldPin !== newPin ? (
-                        <CheckCircle className="h-5 w-5 text-green-600" />
-                      ) : (
-                        <AlertCircle className="h-5 w-5 text-red-500" />
-                      )}
-                    </div>
-                  )}
+                <div className="flex justify-center">
+                  <div className="relative">
+                    <PinInput
+                      id="newPin"
+                      name="new_pin"
+                      length={4}
+                      required
+                      value={newPin}
+                      onChange={setNewPin}
+                      disabled={isLoading}
+                    />
+                    {newPin.length > 0 && (
+                      <div className="absolute -right-8 top-1/2 transform -translate-y-1/2">
+                        {isNewPinValid && oldPin !== newPin ? (
+                          <CheckCircle className="h-5 w-5 text-green-600" />
+                        ) : (
+                          <AlertCircle className="h-5 w-5 text-red-500" />
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
                 {newPin.length > 0 && (
                   <div className="space-y-1">
                     {!isNewPinValid && (
-                      <p className="text-sm text-red-600 flex items-center space-x-1">
+                      <p className="text-sm text-red-600 flex items-center justify-center space-x-1">
                         <AlertCircle className="h-4 w-4" />
                         <span>PIN must be exactly 4 digits</span>
                       </p>
                     )}
                     {isNewPinValid && oldPin === newPin && (
-                      <p className="text-sm text-red-600 flex items-center space-x-1">
+                      <p className="text-sm text-red-600 flex items-center justify-center space-x-1">
                         <AlertCircle className="h-4 w-4" />
                         <span>New PIN must be different from current PIN</span>
                       </p>
                     )}
                     {isNewPinValid && oldPin !== newPin && oldPin.length === 4 && (
-                      <p className="text-sm text-green-600 flex items-center space-x-1">
+                      <p className="text-sm text-green-600 flex items-center justify-center space-x-1">
                         <CheckCircle className="h-4 w-4" />
                         <span>New PIN looks good!</span>
                       </p>
