@@ -140,10 +140,10 @@ export default function ProfileSection({ onReturnToDashboard }: { onReturnToDash
                 </div>
               </div>
             </div>
-            <div className="text-right">
-              <p className="text-purple-200 text-sm">Points Balance</p>
-              <p className="text-3xl font-bold">{user.points_balance}</p>
-              <p className="text-purple-200 text-sm">points</p>
+            <div className="text-right min-w-0 flex-shrink-0 max-w-[200px]">
+              <p className="text-purple-200 text-sm whitespace-nowrap">Points Balance</p>
+              <p className="text-3xl font-bold break-all leading-tight">{user.points_balance.toLocaleString()}</p>
+              <p className="text-purple-200 text-sm whitespace-nowrap">points</p>
             </div>
           </div>
         </div>
@@ -283,11 +283,14 @@ export default function ProfileSection({ onReturnToDashboard }: { onReturnToDash
             </span>
           </div>
           <div className="text-center py-4">
-            <p className="text-4xl font-bold text-gray-900 mb-2">{user.points_balance}</p>
+            <p className="text-4xl font-bold text-gray-900 mb-2 break-all px-4">
+              {user.points_balance.toLocaleString()}
+            </p>
             <p className="text-gray-500">points available for redemption</p>
           </div>
         </div>
       </div>
     </div>
   )
-}
+                  }
+          
