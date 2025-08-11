@@ -88,7 +88,10 @@ export default function RedemptionHistorySection({ onReturnToDashboard }: { onRe
 
   const totalRedeemed = history
     .filter((item) => item.status === "approved")
-    .reduce((sum, item) => sum + item.points_amount, 0)
+    .reduce((sum, item) => {
+      const points = typeof item.points_amount === "number" ? item.points_amount : Number(item.points_amount) || 0
+      return sum + points
+    }, 0)
 
   const totalValue = history
     .filter((item) => item.status === "approved")
@@ -96,12 +99,13 @@ export default function RedemptionHistorySection({ onReturnToDashboard }: { onRe
       const value =
         typeof item.equivalent_value === "number"
           ? item.equivalent_value
-          : Number.parseFloat(item.equivalent_value) || 0
+          : Number.parseFloat(String(item.equivalent_value)) || 0
       return sum + value
     }, 0)
 
   const approvedCount = history.filter((item) => item.status === "approved").length
   const pendingCount = history.filter((item) => item.status === "pending").length
+  const rejectedCount = history.filter((item) => item.status === "rejected").length
 
   return (
     <div className="bg-gray-50 min-h-screen p-4">
@@ -199,15 +203,17 @@ export default function RedemptionHistorySection({ onReturnToDashboard }: { onRe
                       <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
                         <Gift className="h-5 w-5 text-green-600" />
                       </div>
-                      <span className="text-gray-600 font-medium">Approved Points</span>
+                      <span className="text-gray-600 font-medium">Total Approved Points</span>
                     </div>
                     <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-medium">
                       Redeemed
                     </span>
                   </div>
                   <div>
-                    <p className="text-3xl font-bold text-gray-900">{totalRedeemed}</p>
-                    <p className="text-gray-500 text-sm">points redeemed</p>
+                    <p className="text-3xl font-bold text-gray-900">
+                      {isNaN(totalRedeemed) ? "0" : totalRedeemed.toLocaleString()}
+                    </p>
+                    <p className="text-gray-500 text-sm">points successfully redeemed</p>
                   </div>
                 </div>
 
@@ -253,15 +259,17 @@ export default function RedemptionHistorySection({ onReturnToDashboard }: { onRe
                       <div className="w-10 h-10 bg-pink-100 rounded-xl flex items-center justify-center">
                         <span className="text-pink-600 font-bold text-sm">$</span>
                       </div>
-                      <span className="text-gray-600 font-medium">Total Value</span>
+                      <span className="text-gray-600 font-medium">Total Approved Value</span>
                     </div>
                     <span className="bg-pink-100 text-pink-700 text-xs px-2 py-1 rounded-full font-medium">
-                      Approved
+                      USD Value
                     </span>
                   </div>
                   <div>
-                    <p className="text-3xl font-bold text-gray-900">${totalValue.toFixed(2)}</p>
-                    <p className="text-gray-500 text-sm">approved value</p>
+                    <p className="text-3xl font-bold text-gray-900">
+                      ${isNaN(totalValue) ? "0.00" : totalValue.toFixed(2)}
+                    </p>
+                    <p className="text-gray-500 text-sm">total approved value</p>
                   </div>
                 </div>
               </div>
@@ -339,7 +347,7 @@ export default function RedemptionHistorySection({ onReturnToDashboard }: { onRe
                                 const value =
                                   typeof item.equivalent_value === "number"
                                     ? item.equivalent_value
-                                    : Number.parseFloat(item.equivalent_value) || 0
+                                    : Number.parseFloat(String(item.equivalent_value)) || 0
                                 return value.toFixed(2)
                               })()}
                             </p>
