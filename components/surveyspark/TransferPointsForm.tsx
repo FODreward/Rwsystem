@@ -38,7 +38,7 @@ export default function TransferPointsForm({
     }
 
     try {
-      await apiCall("/api/points/transfer", "POST", { to_email: receiverEmail, amount: transferAmount }, true)
+      await apiCall("/points/transfer", "POST", { to_email: receiverEmail, amount: transferAmount }, true)
       toast({
         title: "Transfer Successful",
         description: "Points transferred successfully!",
