@@ -119,15 +119,15 @@ export default function ProfileSection({ onReturnToDashboard }: { onReturnToDash
 
         {/* Profile Overview Card */}
         <div className="bg-gradient-to-r from-purple-600 to-pink-500 rounded-2xl p-6 text-white">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-center space-x-4 min-w-0 flex-1">
+              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center flex-shrink-0">
                 <User className="h-8 w-8 text-white" />
               </div>
-              <div>
-                <h2 className="text-2xl font-bold">{user.name || "User"}</h2>
-                <p className="text-purple-100">{user.email}</p>
-                <div className="flex items-center space-x-2 mt-2">
+              <div className="min-w-0 flex-1">
+                <h2 className="text-2xl font-bold truncate">{user.name || "User"}</h2>
+                <p className="text-purple-100 truncate">{user.email}</p>
+                <div className="flex items-center space-x-2 mt-2 flex-wrap">
                   <span className="bg-white bg-opacity-20 text-white text-xs px-2 py-1 rounded-full font-medium capitalize">
                     {user.status}
                   </span>
@@ -140,10 +140,12 @@ export default function ProfileSection({ onReturnToDashboard }: { onReturnToDash
                 </div>
               </div>
             </div>
-            <div className="text-right min-w-0 flex-shrink-0 max-w-[200px]">
-              <p className="text-purple-200 text-sm whitespace-nowrap">Points Balance</p>
-              <p className="text-3xl font-bold break-all leading-tight">{user.points_balance.toLocaleString()}</p>
-              <p className="text-purple-200 text-sm whitespace-nowrap">points</p>
+            <div className="text-right flex-shrink-0 min-w-0 w-auto max-w-[140px] sm:max-w-[200px]">
+              <p className="text-purple-200 text-xs sm:text-sm whitespace-nowrap">Points Balance</p>
+              <p className="text-xl sm:text-3xl font-bold break-all leading-tight overflow-hidden">
+                {user.points_balance.toLocaleString()}
+              </p>
+              <p className="text-purple-200 text-xs sm:text-sm whitespace-nowrap">points</p>
             </div>
           </div>
         </div>
@@ -292,5 +294,4 @@ export default function ProfileSection({ onReturnToDashboard }: { onReturnToDash
       </div>
     </div>
   )
-                  }
-          
+      }
