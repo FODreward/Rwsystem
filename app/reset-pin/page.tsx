@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -11,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { apiCall } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
+import { Mail, Shield, ArrowLeft, Loader2 } from "lucide-react"
 
 export default function ResetPinPage() {
   const [email, setEmail] = useState("")
@@ -45,32 +45,64 @@ export default function ResetPinPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-3xl font-bold text-center text-gray-800 mb-6">Reset Your PIN</CardTitle>
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-600 via-purple-500 to-pink-500 p-4">
+      <Card className="w-full max-w-md shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
+        <CardHeader className="text-center pb-2">
+          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-purple-600 to-pink-500 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
+            <Shield className="w-8 h-8 text-white" />
+          </div>
+          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent mb-2">
+            Reset Your PIN
+          </CardTitle>
+          <p className="text-gray-600 text-sm">Enter your email address to receive an OTP for PIN reset.</p>
         </CardHeader>
-        <CardContent>
-          <p className="text-center text-gray-600 mb-4">Enter your email address to receive an OTP for PIN reset.</p>
+        <CardContent className="pt-4">
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <Label htmlFor="email">Email Address</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
-              />
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                Email Address
+              </Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading}
+                  className="pl-10 h-12 border-gray-200 focus:border-purple-500 focus:ring-purple-500 rounded-lg"
+                  placeholder="Enter your email address"
+                />
+              </div>
             </div>
-            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isLoading}>
-              {isLoading ? "Requesting OTP..." : "Request PIN Reset OTP"}
+
+            <Button
+              type="submit"
+              className="w-full h-12 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Requesting OTP...
+                </>
+              ) : (
+                <>
+                  <Mail className="w-5 h-5 mr-2" />
+                  Request PIN Reset OTP
+                </>
+              )}
             </Button>
           </form>
+
           <div className="mt-6 text-center">
-            <Link href="/login" className="text-sm text-blue-600 hover:text-blue-800">
+            <Link
+              href="/login"
+              className="inline-flex items-center text-sm text-purple-600 hover:text-purple-800 font-medium transition-colors duration-200"
+            >
+              <ArrowLeft className="w-4 h-4 mr-1" />
               Back to Login
             </Link>
           </div>
