@@ -1,27 +1,29 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardTitle } from "@/components/ui/card"
 import { PasswordInput } from "@/components/ui/password-input"
 import { apiCall, getDeviceFingerprint, getIpAddress } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
+import { User, Mail, Lock, Users, Loader2 } from "lucide-react"
 
 export default function SignupPage() {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [pin, setPin] = useState("")
   const [referralCode, setReferralCode] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
+
+  const isPasswordValid = password.length >= 8
+  const isFormValid = name.trim() && email.trim() && isPasswordValid
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -63,67 +65,126 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-3xl font-bold text-center text-gray-800 mb-6">Create Your Account</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-purple-100 p-4">
+      <Card className="w-full max-w-md bg-white shadow-2xl border-0 overflow-hidden">
+        <div className="bg-gradient-to-r from-purple-600 to-pink-500 p-6 text-center">
+          <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <User className="w-8 h-8 text-white" />
+          </div>
+          <CardTitle className="text-2xl font-bold text-white mb-2">Join SurveyCTA</CardTitle>
+          <p className="text-purple-100 text-sm">Create your account and start earning</p>
+        </div>
+
+        <CardContent className="p-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <Label htmlFor="name">Full Name</Label>
-              <Input
-                id="name"
-                name="name"
-                type="text"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                disabled={isLoading}
-              />
+              <Label htmlFor="name" className="text-gray-700 font-medium">
+                Full Name
+              </Label>
+              <div className="relative mt-1">
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  id="name"
+                  name="name"
+                  type="text"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  disabled={isLoading}
+                  className="pl-10 border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                  placeholder="Enter your full name"
+                />
+              </div>
             </div>
+
             <div>
-              <Label htmlFor="email">Email Address</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
-              />
+              <Label htmlFor="email" className="text-gray-700 font-medium">
+                Email Address
+              </Label>
+              <div className="relative mt-1">
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading}
+                  className="pl-10 border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                  placeholder="Enter your email address"
+                />
+              </div>
             </div>
+
             <div>
-              <Label htmlFor="password">Password</Label>
-              <PasswordInput
-                id="password"
-                name="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading}
-              />
+              <Label htmlFor="password" className="text-gray-700 font-medium">
+                Password
+              </Label>
+              <div className="relative mt-1">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 z-10" />
+                <PasswordInput
+                  id="password"
+                  name="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
+                  className="pl-10 border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                  placeholder="Create a strong password"
+                />
+              </div>
+              {password && (
+                <div className="mt-1 text-xs">
+                  <span className={isPasswordValid ? "text-green-600" : "text-red-500"}>
+                    {isPasswordValid ? "✓ Password meets requirements" : "Password must be at least 8 characters"}
+                  </span>
+                </div>
+              )}
             </div>
+
             <div>
-              <Label htmlFor="referralCode">Referral Code (Optional)</Label>
-              <Input
-                id="referralCode"
-                name="referralCode"
-                type="text"
-                value={referralCode}
-                onChange={(e) => setReferralCode(e.target.value)}
-                disabled={isLoading}
-              />
+              <Label htmlFor="referralCode" className="text-gray-700 font-medium">
+                Referral Code (Optional)
+              </Label>
+              <div className="relative mt-1">
+                <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  id="referralCode"
+                  name="referralCode"
+                  type="text"
+                  value={referralCode}
+                  onChange={(e) => setReferralCode(e.target.value)}
+                  disabled={isLoading}
+                  className="pl-10 border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                  placeholder="Enter referral code (optional)"
+                />
+              </div>
             </div>
-            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isLoading}>
-              {isLoading ? "Registering..." : "Register"}
+
+            <Button
+              type="submit"
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white font-semibold py-3 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+              disabled={isLoading || !isFormValid}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Creating Account...
+                </>
+              ) : (
+                "Create Account"
+              )}
             </Button>
           </form>
+
           <div className="mt-6 text-center">
-            <Link href="/login" className="text-sm text-blue-600 hover:text-blue-800">
-              Back to Login
-            </Link>
+            <p className="text-sm text-gray-600">
+              Already have an account?{" "}
+              <Link href="/login" className="text-purple-600 hover:text-purple-700 font-medium transition-colors">
+                Sign In
+              </Link>
+            </p>
           </div>
         </CardContent>
       </Card>
