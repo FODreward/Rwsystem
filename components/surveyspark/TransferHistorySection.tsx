@@ -98,7 +98,7 @@ export default function TransferHistorySection({ onReturnToDashboard }: { onRetu
 
   return (
     <div className="bg-white rounded-2xl shadow-lg max-w-4xl mx-auto overflow-hidden">
-      <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-6 text-white">
+      <div className="bg-gradient-to-r from-purple-600 to-pink-500 p-6 text-white">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-3">
             <div className="bg-white/20 p-2 rounded-xl">
@@ -120,7 +120,7 @@ export default function TransferHistorySection({ onReturnToDashboard }: { onRetu
       </div>
 
       <div className="p-6">
-        <div className="bg-gray-50 p-4 rounded-xl mb-6">
+        <div className="bg-gray-50 p-4 rounded-xl mb-6 border border-gray-100">
           <div className="flex items-center space-x-2 mb-4">
             <Filter className="h-5 w-5 text-gray-600" />
             <h4 className="font-semibold text-gray-900">Filter Options</h4>
@@ -185,44 +185,47 @@ export default function TransferHistorySection({ onReturnToDashboard }: { onRetu
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-xl border border-green-200">
+              <div className="bg-white p-4 rounded-2xl border border-gray-100">
                 <div className="flex items-center space-x-3">
-                  <div className="bg-green-500 p-2 rounded-lg">
-                    <TrendingDown className="h-5 w-5 text-white" />
+                  <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                    <TrendingDown className="h-5 w-5 text-green-600" />
                   </div>
                   <div>
-                    <p className="text-sm text-green-600 font-medium">Total Received</p>
-                    <p className="text-2xl font-bold text-green-700">{history.total_received} pts</p>
+                    <p className="text-gray-600 font-medium">Total Received</p>
+                    <p className="text-3xl font-bold text-gray-900">{history.total_received}</p>
+                    <p className="text-gray-500 text-sm">points</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-gradient-to-r from-red-50 to-red-100 p-4 rounded-xl border border-red-200">
+              <div className="bg-white p-4 rounded-2xl border border-gray-100">
                 <div className="flex items-center space-x-3">
-                  <div className="bg-red-500 p-2 rounded-lg">
-                    <TrendingUp className="h-5 w-5 text-white" />
+                  <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
+                    <TrendingUp className="h-5 w-5 text-orange-600" />
                   </div>
                   <div>
-                    <p className="text-sm text-red-600 font-medium">Total Sent</p>
-                    <p className="text-2xl font-bold text-red-700">{history.total_sent} pts</p>
+                    <p className="text-gray-600 font-medium">Total Sent</p>
+                    <p className="text-3xl font-bold text-gray-900">{history.total_sent}</p>
+                    <p className="text-gray-500 text-sm">points</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-xl border border-blue-200">
+              <div className="bg-white p-4 rounded-2xl border border-gray-100">
                 <div className="flex items-center space-x-3">
-                  <div className="bg-blue-500 p-2 rounded-lg">
-                    <ArrowUpDown className="h-5 w-5 text-white" />
+                  <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                    <ArrowUpDown className="h-5 w-5 text-blue-600" />
                   </div>
                   <div>
-                    <p className="text-sm text-blue-600 font-medium">Total Transfers</p>
-                    <p className="text-2xl font-bold text-blue-700">{history.transfers.length}</p>
+                    <p className="text-gray-600 font-medium">Total Transfers</p>
+                    <p className="text-3xl font-bold text-gray-900">{history.transfers.length}</p>
+                    <p className="text-gray-500 text-sm">transactions</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-gray-50 rounded-xl p-4">
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
               <div className="flex items-center space-x-2 mb-4">
                 <Clock className="h-5 w-5 text-gray-600" />
                 <h4 className="font-semibold text-gray-900">Recent Transfers (Most Recent First)</h4>
@@ -236,7 +239,10 @@ export default function TransferHistorySection({ onReturnToDashboard }: { onRetu
                   const bgClass = isSender ? "bg-red-50 border-red-200" : "bg-green-50 border-green-200"
 
                   return (
-                    <div key={item.id} className={`${bgClass} p-4 rounded-xl border transition-all hover:shadow-md`}>
+                    <div
+                      key={item.id}
+                      className={`bg-white ${bgClass} p-4 rounded-xl border transition-all hover:shadow-md`}
+                    >
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
                           <div className="flex items-center space-x-2 mb-1">
