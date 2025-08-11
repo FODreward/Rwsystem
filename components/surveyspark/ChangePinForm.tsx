@@ -31,7 +31,7 @@ export default function ChangePinForm({ onReturnToDashboard }: { onReturnToDashb
 
     try {
       await apiCall(
-        "/api/users/change-pin",
+        "/users/change-pin",
         "POST",
         {
           current_pin: oldPin,
