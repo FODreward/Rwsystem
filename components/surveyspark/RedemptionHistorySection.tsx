@@ -60,7 +60,7 @@ export default function RedemptionHistorySection({ onReturnToDashboard }: { onRe
     }
 
     try {
-      const data = await apiCall<Redemption[]>("/api/redemption/history", "GET", null, true, {
+      const data = await apiCall<Redemption[]>("/redemption/history", "GET", null, true, {
         start_date: startDate,
         end_date: endDate,
         limit: limit,
