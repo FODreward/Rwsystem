@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -11,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { apiCall } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
+import { Mail, Shield, RefreshCw, ArrowLeft } from "lucide-react"
 
 export default function SignupOtpPage() {
   const [otpCode, setOtpCode] = useState("")
@@ -111,43 +111,100 @@ export default function SignupOtpPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-3xl font-bold text-center text-gray-800 mb-6">Verify Your Email</CardTitle>
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-600 via-purple-500 to-pink-500 p-4">
+      <Card className="w-full max-w-md bg-white shadow-2xl border-0">
+        <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-t-lg">
+          <div className="flex items-center justify-center mb-4">
+            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
+              <Mail className="w-8 h-8 text-white" />
+            </div>
+          </div>
+          <CardTitle className="text-2xl font-bold text-center text-white">Verify Your Email</CardTitle>
+          <p className="text-center text-purple-100 text-sm mt-2">We've sent a verification code to your email</p>
         </CardHeader>
-        <CardContent>
-          <p className="text-center text-gray-600 mb-4">An OTP has been sent to your email address.</p>
+        <CardContent className="p-6">
+          {email && (
+            <div className="bg-gray-50 rounded-lg p-3 mb-6 border border-gray-100">
+              <div className="flex items-center space-x-2">
+                <Mail className="w-4 h-4 text-gray-500" />
+                <span className="text-sm text-gray-600">Sent to:</span>
+                <span className="text-sm font-medium text-gray-900">{email}</span>
+              </div>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <Label htmlFor="otpCode">OTP Code</Label>
-              <Input
-                id="otpCode"
-                name="otpCode"
-                type="text"
-                maxLength={6}
-                pattern="\d{6}"
-                required
-                value={otpCode}
-                onChange={(e) => setOtpCode(e.target.value)}
-                disabled={isLoading || isResending}
-              />
+              <Label htmlFor="otpCode" className="text-gray-700 font-medium">
+                Verification Code
+              </Label>
+              <div className="relative mt-2">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Shield className="h-5 w-5 text-gray-400" />
+                </div>
+                <Input
+                  id="otpCode"
+                  name="otpCode"
+                  type="text"
+                  maxLength={6}
+                  pattern="\d{6}"
+                  required
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value)}
+                  disabled={isLoading || isResending}
+                  className="pl-10 text-center text-lg font-mono tracking-widest border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                  placeholder="000000"
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-1">Enter the 6-digit code sent to your email</p>
             </div>
-            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isLoading || isResending}>
-              {isLoading ? "Verifying..." : "Verify OTP"}
+
+            <Button
+              type="submit"
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white font-semibold py-3 rounded-lg transition-all duration-200 transform hover:scale-[1.02]"
+              disabled={isLoading || isResending}
+            >
+              {isLoading ? (
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Verifying...</span>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-2">
+                  <Shield className="w-4 h-4" />
+                  <span>Verify Code</span>
+                </div>
+              )}
             </Button>
+
             <Button
               type="button"
               onClick={handleResendOtp}
-              className="w-full bg-gray-600 hover:bg-gray-700"
+              variant="outline"
+              className="w-full border-gray-200 text-gray-700 hover:bg-gray-50 py-3 rounded-lg transition-all duration-200 bg-transparent"
               disabled={isLoading || isResending}
             >
-              {isResending ? "Resending..." : "Resend OTP"}
+              {isResending ? (
+                <div className="flex items-center space-x-2">
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <span>Resending...</span>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-2">
+                  <RefreshCw className="w-4 h-4" />
+                  <span>Resend Code</span>
+                </div>
+              )}
             </Button>
           </form>
+
           <div className="mt-6 text-center">
-            <Link href="/signup" className="text-sm text-blue-600 hover:text-blue-800">
-              Back to Signup
+            <Link
+              href="/signup"
+              className="inline-flex items-center space-x-1 text-sm text-purple-600 hover:text-purple-800 transition-colors duration-200"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Signup</span>
             </Link>
           </div>
         </CardContent>
