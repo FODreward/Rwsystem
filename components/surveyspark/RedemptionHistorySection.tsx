@@ -14,7 +14,7 @@ interface Redemption {
   id: string
   type: string
   points_amount: number
-  equivalent_value: number
+  equivalent_value: string | number
   status: "pending" | "approved" | "rejected"
   created_at: string
 }
@@ -87,7 +87,11 @@ export default function RedemptionHistorySection({ onReturnToDashboard }: { onRe
   }, [loadHistory])
 
   const totalRedeemed = history.reduce((sum, item) => sum + item.points_amount, 0)
-  const totalValue = history.reduce((sum, item) => sum + (item.equivalent_value || 0), 0)
+  const totalValue = history.reduce((sum, item) => {
+    const value =
+      typeof item.equivalent_value === "number" ? item.equivalent_value : Number.parseFloat(item.equivalent_value) || 0
+    return sum + value
+  }, 0)
   const approvedCount = history.filter((item) => item.status === "approved").length
   const pendingCount = history.filter((item) => item.status === "pending").length
 
@@ -293,7 +297,13 @@ export default function RedemptionHistorySection({ onReturnToDashboard }: { onRe
                         <div>
                           <p className="text-sm text-gray-500">Equivalent Value</p>
                           <p className="font-semibold text-gray-900">
-                            ${Number(item.equivalent_value || 0).toFixed(2)}
+                            ${(() => {
+                              const value =
+                                typeof item.equivalent_value === "number"
+                                  ? item.equivalent_value
+                                  : Number.parseFloat(item.equivalent_value) || 0
+                              return value.toFixed(2)
+                            })()}
                           </p>
                         </div>
                       </div>
