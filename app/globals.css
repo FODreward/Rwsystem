@@ -75,8 +75,7 @@
 }
 
 @theme inline {
-  --font-sans: var(--font-inter);
-  --font-poppins: var(--font-poppins);
+  /* optional: --font-sans, --font-serif, --font-mono if they are applied in the layout.tsx */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -115,142 +114,158 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer base {
+  :root {
+    /* Custom Colors (Blue) */
+    --color-primary-50: #e0f2fe; /* Lightest blue */
+    --color-primary-100: #bfdbfe; /* Lighter blue for backgrounds */
+    --color-primary-200: #93c5fd;
+    --color-primary-300: #60a5fa;
+    --color-primary-400: #3b82f6; /* Medium blue, similar to image button */
+    --color-primary-500: #2563eb; /* Base vibrant blue */
+    --color-primary-600: #1d4ed8; /* Darker blue for buttons/accents */
+    --color-primary-700: #1e40af;
+    --color-primary-800: #1e3a8a;
+    --color-primary-900: #172554; /* Deep blue for gradients */
+
+    /* Gray Colors */
+    --color-gray-50: #f9fafb; /* Lightest background */
+    --color-gray-100: #f3f4f6;
+    --color-gray-200: #e5e7eb; /* Light borders/secondary backgrounds */
+    --color-gray-300: #d1d5db;
+    --color-gray-400: #9ca3af;
+    --color-gray-500: #6b7280;
+    --color-gray-600: #4b5563;
+    --color-gray-700: #374151; /* Default text color */
+    --color-gray-800: #1f2937; /* Darker text/headings */
+    --color-gray-900: #111827; /* Very dark for footers/strong elements */
+
+    /* Status Colors */
+    --color-success: #22c55e; /* Green */
+    --color-error: #ef4444; /* Red */
+    --color-warning: #f59e0b; /* Amber */
+    --color-info: var(--primary); /* Blue */
+
+    /* General Backgrounds & Text */
+    --background-color: var(--color-gray-50);
+    --surface-color: var(--color-primary-50); /* For cards, forms, etc. */
+    --text-color-default: var(--color-gray-700);
+    --text-color-heading: var(--color-gray-800);
+    --text-color-light: var(--color-gray-500);
+    --color-light-text: #ffffff; /* For dark backgrounds */
+
+    /* Borders & Shadows */
+    --border-color-light: var(--color-gray-200);
+    --border-color-dark: var(--color-gray-300);
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  .dark {
+    /* Sidebar specific dark variables */
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
+    font-family: "Inter", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
-/* Custom styles for SurveySpark dashboard */
-.glass-effect {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.gradient-bg {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.card-hover {
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.card-hover:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-}
-
-.metric-card {
-  background: linear-gradient(145deg, #ffffff, #f8fafc);
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  transition: all 0.3s ease;
-}
-
-.metric-card:hover {
-  border-color: #667eea;
-  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.1);
-}
-
-.survey-banner {
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%);
-  position: relative;
-  overflow: hidden;
-}
-
-.survey-banner::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-}
-
-.activity-timeline {
-  position: relative;
-}
-
-.activity-timeline::before {
-  content: "";
-  position: absolute;
-  left: 20px;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: linear-gradient(to bottom, #667eea, #764ba2);
-}
-
-.activity-item {
-  position: relative;
-  padding-left: 50px;
-  margin-bottom: 20px;
-}
-
-.activity-dot {
-  position: absolute;
-  left: 12px;
-  top: 8px;
-  width: 16px;
-  height: 16px;
-  background: #667eea;
-  border: 3px solid white;
-  border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-}
-
-.pulse-animation {
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
-  }
-  70% {
-    box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
-  }
-}
-
-.premium-badge {
-  background: linear-gradient(45deg, #ffd700, #ffed4e);
-  color: #92400e;
-  animation: shimmer 2s infinite;
-  background-size: 200% 100%;
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -200% center;
-  }
-  100% {
-    background-position: 200% center;
-  }
-}
-
-.sidebar-transition {
-  transform: translateX(-100%);
-  transition: transform 0.3s ease;
-}
-
-.sidebar-transition.open {
-  transform: translateX(0);
-}
-
-.overlay-transition {
+/* Custom styles for mobile menu transition (from dashboard.html) */
+#sideMenu.hidden {
+  transform: scale(0.95);
   opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
+  pointer-events: none;
 }
 
-.overlay-transition.active {
+#sideMenu[data-state="open"] {
+  transform: scale(1);
   opacity: 1;
-  visibility: visible;
+  pointer-events: auto;
+}
+
+/* Custom button styles from landing-page.css, adapted to Tailwind */
+.btn {
+  @apply inline-flex items-center justify-center px-6 py-3 rounded-md font-semibold cursor-pointer transition-colors duration-200 ease-in-out border-none text-base;
+}
+
+.btn-primary {
+  @apply bg-primary-600 text-white hover:bg-primary-700;
+}
+
+.btn-secondary {
+  @apply bg-secondary-200 text-secondary-800 hover:bg-secondary-300;
+}
+
+.btn-light-primary {
+  @apply bg-white text-primary-600 hover:bg-white/90;
+}
+
+.btn-light-secondary {
+  @apply bg-transparent text-white border-2 border-white hover:bg-white/10;
+}
+
+/* Header Navigation underline effect from landing-page.css */
+header nav ul li a {
+  position: relative;
+}
+
+header nav ul li a::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -5px;
+  left: 0;
+  background-color: hsl(var(--primary-600)); /* Use Tailwind color variable */
+  transition: width 0.3s ease-in-out;
+}
+
+header nav ul li a:hover::after {
+  width: 100%;
+}
+
+/* Feature Card from landing-page.css */
+.feature-card {
+  @apply bg-white rounded-lg shadow-md p-8 transition-transform duration-300 ease-in-out hover:translate-y-[-5px] hover:shadow-lg;
+}
+
+/* Step Card from landing-page.css */
+.step-card {
+  @apply bg-white rounded-lg shadow-md p-8 flex flex-col items-center text-center;
+}
+
+.step-number {
+  @apply w-12 h-12 rounded-full bg-primary-600 text-white text-2xl font-bold flex items-center justify-center mb-4 flex-shrink-0;
+}
+
+/* Testimonial Card from landing-page.css */
+.testimonial-card {
+  @apply bg-white rounded-lg shadow-md p-8 text-center;
+}
+
+.testimonial-card img {
+  @apply border-2 border-primary-600;
 }
