@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { PinInput } from "@/components/ui/pin-input" // Import the new PinInput component
+import { PinInput } from "@/components/ui/pin-input"
 import { apiCall } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 
@@ -75,7 +75,7 @@ export default function CreatePinPage() {
         description: "Signup session expired. Please start again.",
         variant: "destructive",
       })
-      router.push("/signup") // Updated line
+      router.push("/signup")
       setIsLoading(false)
       return
     }
@@ -92,7 +92,7 @@ export default function CreatePinPage() {
         description: "Account created and PIN set successfully! Redirecting to login...",
       })
       sessionStorage.removeItem("tempSignupData")
-      router.push("/login") // Updated line
+      router.push("/login")
     } catch (error: any) {
       toast({
         title: "Signup Failed",
@@ -115,7 +115,7 @@ export default function CreatePinPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <Label htmlFor="newPin">New PIN</Label>
-              <PinInput // Replace the first PasswordInput with PinInput and adjust props
+              <PinInput
                 id="newPin"
                 name="newPin"
                 length={4}
@@ -127,7 +127,7 @@ export default function CreatePinPage() {
             </div>
             <div>
               <Label htmlFor="confirmNewPin">Confirm New PIN</Label>
-              <PinInput // Replace the second PasswordInput with PinInput and adjust props
+              <PinInput
                 id="confirmNewPin"
                 name="confirmNewPin"
                 length={4}
@@ -137,12 +137,12 @@ export default function CreatePinPage() {
                 disabled={isLoading}
               />
             </div>
-            <Button type="submit" className="w-full btn-primary" disabled={isLoading}>
+            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isLoading}>
               {isLoading ? "Creating PIN..." : "Create PIN"}
             </Button>
           </form>
           <div className="mt-6 text-center">
-            <Link href="/login" className="text-sm text-primary-600 hover:text-primary-800">
+            <Link href="/login" className="text-sm text-blue-600 hover:text-blue-800">
               Back to Login
             </Link>
           </div>
