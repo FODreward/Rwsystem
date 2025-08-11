@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -11,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PinInput } from "@/components/ui/pin-input"
 import { apiCall } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
+import { Shield, Lock, CheckCircle, XCircle } from "lucide-react"
 
 export default function SetNewPinPage() {
   const [newPin, setNewPin] = useState("")
@@ -98,43 +98,100 @@ export default function SetNewPinPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-3xl font-bold text-center text-gray-800 mb-6">Set Your New PIN</CardTitle>
+    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-700 to-pink-500 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
+        <CardHeader className="text-center pb-2">
+          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-purple-600 to-pink-500 rounded-2xl flex items-center justify-center mb-4">
+            <Shield className="w-8 h-8 text-white" />
+          </div>
+          <CardTitle className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent">
+            Set Your New PIN
+          </CardTitle>
+          <p className="text-gray-600 text-sm mt-2">Create a secure 4-digit PIN for your account</p>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-6">
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <Label htmlFor="newPin">New PIN</Label>
-              <PinInput
-                id="newPin"
-                name="newPin"
-                length={4}
-                required
-                value={newPin}
-                onChange={setNewPin}
-                disabled={isLoading}
-              />
+            <div className="space-y-2">
+              <Label htmlFor="newPin" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                <Lock className="w-4 h-4" />
+                New PIN
+              </Label>
+              <div className="flex justify-center">
+                <PinInput
+                  id="newPin"
+                  name="newPin"
+                  length={4}
+                  required
+                  value={newPin}
+                  onChange={setNewPin}
+                  disabled={isLoading}
+                />
+              </div>
+              {newPin.length === 4 && /^\d{4}$/.test(newPin) && (
+                <div className="flex items-center gap-2 text-green-600 text-sm justify-center">
+                  <CheckCircle className="w-4 h-4" />
+                  Valid PIN format
+                </div>
+              )}
             </div>
-            <div>
-              <Label htmlFor="confirmNewPin">Confirm New PIN</Label>
-              <PinInput
-                id="confirmNewPin"
-                name="confirmNewPin"
-                length={4}
-                required
-                value={confirmNewPin}
-                onChange={setConfirmNewPin}
-                disabled={isLoading}
-              />
+
+            <div className="space-y-2">
+              <Label htmlFor="confirmNewPin" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                <Lock className="w-4 h-4" />
+                Confirm New PIN
+              </Label>
+              <div className="flex justify-center">
+                <PinInput
+                  id="confirmNewPin"
+                  name="confirmNewPin"
+                  length={4}
+                  required
+                  value={confirmNewPin}
+                  onChange={setConfirmNewPin}
+                  disabled={isLoading}
+                />
+              </div>
+              {confirmNewPin.length === 4 && (
+                <div className="flex items-center gap-2 text-sm justify-center">
+                  {newPin === confirmNewPin ? (
+                    <>
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <span className="text-green-600">PINs match</span>
+                    </>
+                  ) : (
+                    <>
+                      <XCircle className="w-4 h-4 text-red-500" />
+                      <span className="text-red-500">PINs don't match</span>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
-            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isLoading}>
-              {isLoading ? "Setting PIN..." : "Set New PIN"}
+
+            <Button
+              type="submit"
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white font-semibold py-3 rounded-xl shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
+              disabled={isLoading || newPin !== confirmNewPin || newPin.length !== 4}
+            >
+              {isLoading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Setting PIN...
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Shield className="w-4 h-4" />
+                  Set New PIN
+                </div>
+              )}
             </Button>
           </form>
-          <div className="mt-6 text-center">
-            <Link href="/login" className="text-sm text-blue-600 hover:text-blue-800">
+
+          <div className="text-center pt-4 border-t border-gray-100">
+            <Link
+              href="/login"
+              className="text-sm text-purple-600 hover:text-purple-800 font-medium transition-colors duration-200"
+            >
               Back to Login
             </Link>
           </div>
