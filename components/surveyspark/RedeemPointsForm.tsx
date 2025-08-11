@@ -120,15 +120,16 @@ export default function RedeemPointsForm({
   }
 
   const formatRate = (rate: number): string => {
-    if (!rates) return "Loading..."
+    if (!rates || typeof rates.base_dollar !== "number" || typeof rate !== "number") return "Loading..."
     const points = rates.base_dollar / rate
     return `${points.toFixed(0)} pts = $${rates.base_dollar.toFixed(2)}`
   }
 
   const calculateValue = (points: string): string => {
-    if (!rates || !points || isNaN(Number.parseFloat(points))) return ""
+    if (!rates || !points || isNaN(Number.parseFloat(points)) || typeof rates.base_dollar !== "number") return ""
     const pointsAmount = Number.parseFloat(points)
     const rate = redeemType === "bitcoin" ? rates.bitcoin_rate : rates.gift_card_rate
+    if (typeof rate !== "number") return ""
     const dollarValue = (pointsAmount * rate) / rates.base_dollar
     return `≈ $${dollarValue.toFixed(2)}`
   }
@@ -340,4 +341,4 @@ export default function RedeemPointsForm({
       </div>
     </div>
   )
-}
+                    }
