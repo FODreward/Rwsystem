@@ -25,15 +25,14 @@ export default function PinVerifyLoginPage() {
     setIsLoading(true)
 
     try {
-      await apiCall("/auth/verify-pin", "POST", { pin }, true) // Requires auth token
+      await apiCall("/auth/verify-pin", "POST", { pin }, true)
       toast({
         title: "PIN Verified",
         description: "Accessing dashboard...",
       })
 
-      // Retrieve the path to redirect to after successful PIN verification
       const redirectToPath = sessionStorage.getItem("prePinVerifyPath") || "/dashboard"
-      sessionStorage.removeItem("prePinVerifyPath") // Clean up the stored path
+      sessionStorage.removeItem("prePinVerifyPath")
       router.push(redirectToPath)
     } catch (error: any) {
       toast({
@@ -66,29 +65,17 @@ export default function PinVerifyLoginPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <Label htmlFor="pin">PIN</Label>
-              <PinInput
-                id="pin"
-                name="pin"
-                length={4} // Explicitly set length to 4
-                required
-                value={pin}
-                onChange={setPin}
-                disabled={isLoading}
-              />
+              <PinInput id="pin" name="pin" length={4} required value={pin} onChange={setPin} disabled={isLoading} />
             </div>
-            <Button type="submit" className="w-full btn-primary" disabled={isLoading}>
+            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isLoading}>
               {isLoading ? "Verifying PIN..." : "Verify PIN"}
             </Button>
           </form>
           <div className="mt-6 flex justify-between items-center">
-            <Button
-              type="button"
-              onClick={handleLogout}
-              className="btn-secondary bg-red-500 hover:bg-red-600 text-white"
-            >
+            <Button type="button" onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white">
               Logout
             </Button>
-            <Link href="/reset-pin" className="text-sm text-primary-600 hover:text-primary-800">
+            <Link href="/reset-pin" className="text-sm text-blue-600 hover:text-blue-800">
               Reset PIN
             </Link>
           </div>
