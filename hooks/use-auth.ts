@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react"
 
 interface User {
+  id: string
   email: string
   name?: string
   status: string
@@ -36,7 +37,7 @@ export function useAuth() {
           setCurrentUser(JSON.parse(storedUser))
         } catch (e) {
           console.error("Failed to parse stored user data:", e)
-          clearAuthData() // Clear corrupted data
+          clearAuthData()
         }
       }
       setIsLoading(false)
@@ -57,5 +58,22 @@ export function useAuth() {
     setCurrentUser(null)
   }, [])
 
-  return { accessToken, currentUser, saveAuthData, clearAuthData, isLoading }
+  const login = async (email: string, password: string) => {
+    // Mock login for demo
+    return Promise.resolve()
+  }
+
+  const logout = async () => {
+    clearAuthData()
+  }
+
+  return {
+    accessToken,
+    currentUser,
+    saveAuthData,
+    clearAuthData,
+    isLoading,
+    login,
+    logout,
+  }
 }
