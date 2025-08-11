@@ -26,11 +26,10 @@ export default function LoginPage() {
     event.preventDefault()
     setIsLoading(true)
 
-    // Await the async calls for IP and fingerprint
-    const deviceFingerprint = await getDeviceFingerprint()
-    const ipAddress = await getIpAddress()
-
     try {
+      const deviceFingerprint = await getDeviceFingerprint()
+      const ipAddress = await getIpAddress()
+
       const response = await apiCall("/auth/login", "POST", {
         email,
         password,
@@ -38,6 +37,7 @@ export default function LoginPage() {
         ip_address: ipAddress,
         user_agent: navigator.userAgent,
       })
+
       saveAuthData(response.access_token, response.user)
       toast({
         title: "Login Successful",
@@ -86,19 +86,19 @@ export default function LoginPage() {
                 disabled={isLoading}
               />
             </div>
-            <Button type="submit" className="w-full btn-primary" disabled={isLoading}>
+            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isLoading}>
               {isLoading ? "Logging in..." : "Login"}
             </Button>
           </form>
           <div className="mt-4 text-center">
-            <Link href="/forgot-password" className="text-sm text-primary-600 hover:text-primary-800">
+            <Link href="/forgot-password" className="text-sm text-blue-600 hover:text-blue-800">
               Forgot Password?
             </Link>
           </div>
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-700">
               Don&apos;t have an account?{" "}
-              <Link href="/signup" className="text-primary-600 hover:text-primary-800">
+              <Link href="/signup" className="text-blue-600 hover:text-blue-800">
                 Create Account
               </Link>
             </p>
