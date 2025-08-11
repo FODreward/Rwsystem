@@ -8,7 +8,18 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { apiCall } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
-import { Bitcoin, Gift, DollarSign, AlertCircle, CheckCircle2, Wallet, Mail, ArrowLeft, Info } from "lucide-react"
+import {
+  Bitcoin,
+  Gift,
+  DollarSign,
+  AlertCircle,
+  CheckCircle2,
+  Wallet,
+  Mail,
+  ArrowLeft,
+  Info,
+  Loader2,
+} from "lucide-react"
 
 interface RedemptionRates {
   bitcoin_rate: number
@@ -27,21 +38,52 @@ export default function RedeemPointsForm({
   const [amount, setAmount] = useState("")
   const [destination, setDestination] = useState("")
   const [rates, setRates] = useState<RedemptionRates | null>(null)
+  const [isLoadingRates, setIsLoadingRates] = useState(true) // Added separate loading state for rates
   const [isLoading, setIsLoading] = useState(false)
   const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({})
   const { toast } = useToast()
 
   useEffect(() => {
     const loadRates = async () => {
+      setIsLoadingRates(true) // Set loading state
       try {
-        const data = await apiCall<RedemptionRates>("/redemption/rates", "GET", null, true)
-        setRates(data)
+        let data: RedemptionRates
+        try {
+          data = await apiCall<RedemptionRates>("/redemption/rates", "GET", null, true)
+        } catch (error) {
+          // Try alternative endpoint if first fails
+          data = await apiCall<RedemptionRates>("/api/redemption/rates", "GET", null, true)
+        }
+
+        if (data && typeof data === "object") {
+          // Convert string numbers to actual numbers if needed
+          const processedRates: RedemptionRates = {
+            bitcoin_rate: Number(data.bitcoin_rate) || 0.001,
+            gift_card_rate: Number(data.gift_card_rate) || 0.01,
+            base_dollar: Number(data.base_dollar) || 1,
+          }
+          setRates(processedRates)
+        } else {
+          setRates({
+            bitcoin_rate: 0.001,
+            gift_card_rate: 0.01,
+            base_dollar: 1,
+          })
+        }
       } catch (error: any) {
-        toast({
-          title: "Error",
-          description: error.message || "Failed to load redemption rates.",
-          variant: "destructive",
+        console.error("Failed to load rates:", error)
+        setRates({
+          bitcoin_rate: 0.001,
+          gift_card_rate: 0.01,
+          base_dollar: 1,
         })
+        toast({
+          title: "Using Default Rates",
+          description: "Could not load current rates. Using default values.",
+          variant: "default",
+        })
+      } finally {
+        setIsLoadingRates(false) // Clear loading state
       }
     }
     loadRates()
@@ -99,7 +141,12 @@ export default function RedeemPointsForm({
     }
 
     try {
-      await apiCall("/redemption/request", "POST", payload, true)
+      try {
+        await apiCall("/redemption/request", "POST", payload, true)
+      } catch (error) {
+        await apiCall("/api/redemption/request", "POST", payload, true)
+      }
+
       toast({
         title: "Redemption Submitted",
         description: "Redemption request submitted successfully!",
@@ -120,22 +167,27 @@ export default function RedeemPointsForm({
   }
 
   const formatRate = (rate: number): string => {
-    if (!rates || typeof rates.base_dollar !== "number" || typeof rate !== "number") return "Loading..."
+    if (isLoadingRates) return "Loading..."
+    if (!rates || typeof rate !== "number" || rate <= 0) return "Rate unavailable"
+
     const points = rates.base_dollar / rate
-    return `${points.toFixed(0)} pts = $${rates.base_dollar.toFixed(2)}`
+    return `${Math.round(points)} pts = $${rates.base_dollar.toFixed(2)}`
   }
 
   const calculateValue = (points: string): string => {
-    if (!rates || !points || isNaN(Number.parseFloat(points)) || typeof rates.base_dollar !== "number") return ""
+    if (isLoadingRates || !rates || !points || isNaN(Number.parseFloat(points))) return ""
+
     const pointsAmount = Number.parseFloat(points)
     const rate = redeemType === "bitcoin" ? rates.bitcoin_rate : rates.gift_card_rate
-    if (typeof rate !== "number") return ""
+
+    if (typeof rate !== "number" || rate <= 0) return ""
+
     const dollarValue = (pointsAmount * rate) / rates.base_dollar
     return `≈ $${dollarValue.toFixed(2)}`
   }
 
-  const bitcoinRateLabel = rates ? formatRate(rates.bitcoin_rate) : "Loading..."
-  const giftCardRateLabel = rates ? formatRate(rates.gift_card_rate) : "Loading..."
+  const bitcoinRateLabel = formatRate(rates?.bitcoin_rate || 0)
+  const giftCardRateLabel = formatRate(rates?.gift_card_rate || 0)
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
@@ -169,44 +221,44 @@ export default function RedeemPointsForm({
 
           <div className="p-8">
             {/* Rate Cards */}
-            {rates && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                <div className="bg-white rounded-2xl p-4 border border-gray-100">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
-                        <Bitcoin className="h-5 w-5 text-orange-600" />
-                      </div>
-                      <span className="text-gray-600 font-medium">Bitcoin Rate</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              <div className="bg-white rounded-2xl p-4 border border-gray-100">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
+                      <Bitcoin className="h-5 w-5 text-orange-600" />
                     </div>
+                    <span className="text-gray-600 font-medium">Bitcoin Rate</span>
                   </div>
-                  <div>
-                    <p className="text-lg font-bold text-gray-900">{bitcoinRateLabel}</p>
-                  </div>
+                  {isLoadingRates && <Loader2 className="h-4 w-4 animate-spin text-gray-400" />}
                 </div>
-
-                <div className="bg-white rounded-2xl p-4 border border-gray-100">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
-                        <Gift className="h-5 w-5 text-purple-600" />
-                      </div>
-                      <span className="text-gray-600 font-medium">Gift Card Rate</span>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-lg font-bold text-gray-900">{giftCardRateLabel}</p>
-                  </div>
+                <div>
+                  <p className="text-lg font-bold text-gray-900">{bitcoinRateLabel}</p>
                 </div>
               </div>
-            )}
+
+              <div className="bg-white rounded-2xl p-4 border border-gray-100">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
+                      <Gift className="h-5 w-5 text-purple-600" />
+                    </div>
+                    <span className="text-gray-600 font-medium">Gift Card Rate</span>
+                  </div>
+                  {isLoadingRates && <Loader2 className="h-4 w-4 animate-spin text-gray-400" />}
+                </div>
+                <div>
+                  <p className="text-lg font-bold text-gray-900">{giftCardRateLabel}</p>
+                </div>
+              </div>
+            </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <Label htmlFor="redeemType" className="text-base font-bold text-gray-900">
                   Redemption Type
                 </Label>
-                <Select value={redeemType} onValueChange={setRedeemType} disabled={isLoading}>
+                <Select value={redeemType} onValueChange={setRedeemType} disabled={isLoading || isLoadingRates}>
                   <SelectTrigger id="redeemType" className="w-full mt-2 h-12">
                     <SelectValue placeholder="Select redemption type" />
                   </SelectTrigger>
@@ -241,7 +293,7 @@ export default function RedeemPointsForm({
                     min={100}
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    disabled={isLoading}
+                    disabled={isLoading || isLoadingRates}
                     className={`h-12 pr-20 ${validationErrors.amount ? "border-red-500 focus:border-red-500" : amount && !validationErrors.amount ? "border-green-500 focus:border-green-500" : ""}`}
                   />
                   {amount && !validationErrors.amount && (
@@ -261,7 +313,7 @@ export default function RedeemPointsForm({
                     {validationErrors.amount}
                   </p>
                 )}
-                {amount && !validationErrors.amount && (
+                {amount && !validationErrors.amount && !isLoadingRates && (
                   <p className="text-green-600 text-sm mt-1 font-medium">{calculateValue(amount)}</p>
                 )}
               </div>
@@ -312,9 +364,13 @@ export default function RedeemPointsForm({
               <Button
                 type="submit"
                 className="w-full h-12 text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600"
-                disabled={isLoading || Object.keys(validationErrors).length > 0}
+                disabled={isLoading || isLoadingRates || Object.keys(validationErrors).length > 0}
               >
-                {isLoading ? "Processing Redemption..." : "Submit Redemption Request"}
+                {isLoading
+                  ? "Processing Redemption..."
+                  : isLoadingRates
+                    ? "Loading Rates..."
+                    : "Submit Redemption Request"}
               </Button>
             </form>
 
@@ -341,4 +397,4 @@ export default function RedeemPointsForm({
       </div>
     </div>
   )
-                    }
+}
