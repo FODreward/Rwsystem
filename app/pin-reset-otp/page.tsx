@@ -123,20 +123,20 @@ export default function PinResetOtpPage() {
                 disabled={isLoading || isResending}
               />
             </div>
-            <Button type="submit" className="w-full btn-primary" disabled={isLoading || isResending}>
+            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isLoading || isResending}>
               {isLoading ? "Verifying..." : "Verify OTP"}
             </Button>
             <Button
               type="button"
               onClick={handleResendOtp}
-              className="w-full btn-secondary"
+              className="w-full bg-gray-600 hover:bg-gray-700"
               disabled={isLoading || isResending}
             >
               {isResending ? "Resending..." : "Resend OTP"}
             </Button>
           </form>
           <div className="mt-6 text-center">
-            <Link href="/reset-pin" className="text-sm text-primary-600 hover:text-primary-800">
+            <Link href="/reset-pin" className="text-sm text-blue-600 hover:text-blue-800">
               Back to PIN Reset
             </Link>
           </div>
