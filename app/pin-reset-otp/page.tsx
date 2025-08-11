@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -11,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { apiCall } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
+import { Mail, Shield, ArrowLeft, RefreshCw } from "lucide-react"
 
 export default function PinResetOtpPage() {
   const [otpCode, setOtpCode] = useState("")
@@ -101,16 +101,32 @@ export default function PinResetOtpPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-3xl font-bold text-center text-gray-800 mb-6">Verify PIN Reset OTP</CardTitle>
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-purple-100">
+      <Card className="w-full max-w-md shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
+        <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-t-lg">
+          <div className="flex items-center justify-center mb-4">
+            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
+              <Shield className="w-8 h-8 text-white" />
+            </div>
+          </div>
+          <CardTitle className="text-2xl font-bold text-center text-white">Verify PIN Reset OTP</CardTitle>
         </CardHeader>
-        <CardContent>
-          <p className="text-center text-gray-600 mb-4">An OTP has been sent to your email address for PIN reset.</p>
+        <CardContent className="p-8">
+          <div className="text-center mb-6">
+            <div className="flex items-center justify-center mb-3">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                <Mail className="w-6 h-6 text-blue-600" />
+              </div>
+            </div>
+            <p className="text-gray-600">An OTP has been sent to your email address for PIN reset.</p>
+            {email && <p className="text-sm text-purple-600 font-medium mt-2">{email}</p>}
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <Label htmlFor="otpCode">OTP Code</Label>
+              <Label htmlFor="otpCode" className="text-gray-700 font-medium">
+                OTP Code
+              </Label>
               <Input
                 id="otpCode"
                 name="otpCode"
@@ -121,22 +137,52 @@ export default function PinResetOtpPage() {
                 value={otpCode}
                 onChange={(e) => setOtpCode(e.target.value)}
                 disabled={isLoading || isResending}
+                className="mt-2 h-12 text-center text-lg font-mono tracking-widest border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                placeholder="000000"
               />
             </div>
-            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isLoading || isResending}>
-              {isLoading ? "Verifying..." : "Verify OTP"}
+
+            <Button
+              type="submit"
+              className="w-full h-12 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white font-semibold rounded-lg shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
+              disabled={isLoading || isResending}
+            >
+              {isLoading ? (
+                <div className="flex items-center justify-center">
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  Verifying...
+                </div>
+              ) : (
+                "Verify OTP"
+              )}
             </Button>
+
             <Button
               type="button"
               onClick={handleResendOtp}
-              className="w-full bg-gray-600 hover:bg-gray-700"
+              className="w-full h-12 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg border border-gray-200 transition-all duration-200"
               disabled={isLoading || isResending}
             >
-              {isResending ? "Resending..." : "Resend OTP"}
+              {isResending ? (
+                <div className="flex items-center justify-center">
+                  <RefreshCw className="w-4 h-4 animate-spin mr-2" />
+                  Resending...
+                </div>
+              ) : (
+                <div className="flex items-center justify-center">
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Resend OTP
+                </div>
+              )}
             </Button>
           </form>
-          <div className="mt-6 text-center">
-            <Link href="/reset-pin" className="text-sm text-blue-600 hover:text-blue-800">
+
+          <div className="mt-8 text-center">
+            <Link
+              href="/reset-pin"
+              className="inline-flex items-center text-purple-600 hover:text-purple-800 font-medium transition-colors duration-200"
+            >
+              <ArrowLeft className="w-4 h-4 mr-1" />
               Back to PIN Reset
             </Link>
           </div>
