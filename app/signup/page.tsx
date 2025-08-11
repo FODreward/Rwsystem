@@ -2,59 +2,78 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { PasswordInput } from "@/components/ui/password-input"
-import { apiCall, getDeviceFingerprint, getIpAddress } from "@/lib/api"
+import { apiCall } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 
-export default function SignupPage() {
-  const [name, setName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [referralCode, setReferralCode] = useState("")
+export default function SignupOtpPage() {
+  const [otpCode, setOtpCode] = useState("")
+  const [email, setEmail] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [isResending, setIsResending] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const tempSignupData = sessionStorage.getItem("tempSignupData")
+      if (tempSignupData) {
+        try {
+          const parsedData = JSON.parse(tempSignupData)
+          setEmail(parsedData.email)
+        } catch (e) {
+          console.error("Failed to parse tempSignupData:", e)
+          toast({
+            title: "Session Error",
+            description: "Signup session data is corrupted. Please start signup again.",
+            variant: "destructive",
+          })
+          router.push("/signup")
+        }
+      } else {
+        toast({
+          title: "Session Expired",
+          description: "No signup data found. Please start signup again.",
+          variant: "destructive",
+        })
+        router.push("/signup")
+      }
+    }
+  }, [router, toast])
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     setIsLoading(true)
 
-    // Await the async calls for IP and fingerprint
-    const deviceFingerprint = await getDeviceFingerprint()
-    const ipAddress = await getIpAddress()
-
-    const tempSignupData = {
-      name,
-      email,
-      password,
-      referral_code: referralCode,
-      device_fingerprint: deviceFingerprint,
-      ip_address: ipAddress,
-      user_agent: navigator.userAgent,
+    if (!email) {
+      toast({
+        title: "Error",
+        description: "Email not found. Please go back to signup.",
+        variant: "destructive",
+      })
+      setIsLoading(false)
+      return
     }
 
-    sessionStorage.setItem("tempSignupData", JSON.stringify(tempSignupData))
-
     try {
-      await apiCall("/auth/request-otp", "POST", { email, purpose: "signup" })
+      await apiCall("/auth/verify-otp", "POST", { email, otp_code: otpCode, purpose: "signup" })
       toast({
-        title: "OTP Sent",
-        description: "An OTP has been sent to your email. Redirecting to verification...",
+        title: "OTP Verified",
+        description: "Redirecting to create your PIN...",
       })
       setTimeout(() => {
-        router.push("/signup-otp")
+        router.push("/create-pin")
       }, 1500)
     } catch (error: any) {
       toast({
-        title: "Signup Failed",
-        description: error.message || "Failed to request OTP.",
+        title: "Verification Failed",
+        description: error.message || "OTP verification failed.",
         variant: "destructive",
       })
     } finally {
@@ -62,67 +81,73 @@ export default function SignupPage() {
     }
   }
 
+  const handleResendOtp = async () => {
+    setIsResending(true)
+    if (!email) {
+      toast({
+        title: "Error",
+        description: "Email not found for OTP resend. Please go back to signup.",
+        variant: "destructive",
+      })
+      setIsResending(false)
+      return
+    }
+
+    try {
+      await apiCall("/auth/request-otp", "POST", { email, purpose: "signup" })
+      toast({
+        title: "OTP Resent",
+        description: "A new OTP has been sent to your email.",
+      })
+    } catch (error: any) {
+      toast({
+        title: "Resend Failed",
+        description: error.message || "Failed to resend OTP.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsResending(false)
+    }
+  }
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-3xl font-bold text-center text-gray-800 mb-6">Create Your Account</CardTitle>
+          <CardTitle className="text-3xl font-bold text-center text-gray-800 mb-6">Verify Your Email</CardTitle>
         </CardHeader>
         <CardContent>
+          <p className="text-center text-gray-600 mb-4">An OTP has been sent to your email address.</p>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <Label htmlFor="name">Full Name</Label>
+              <Label htmlFor="otpCode">OTP Code</Label>
               <Input
-                id="name"
-                name="name"
+                id="otpCode"
+                name="otpCode"
                 type="text"
+                maxLength={6}
+                pattern="\d{6}"
                 required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                disabled={isLoading}
+                value={otpCode}
+                onChange={(e) => setOtpCode(e.target.value)}
+                disabled={isLoading || isResending}
               />
             </div>
-            <div>
-              <Label htmlFor="email">Email Address</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
-              />
-            </div>
-            <div>
-              <Label htmlFor="password">Password</Label>
-              <PasswordInput
-                id="password"
-                name="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading}
-              />
-            </div>
-            <div>
-              <Label htmlFor="referralCode">Referral Code (Optional)</Label>
-              <Input
-                id="referralCode"
-                name="referralCode"
-                type="text"
-                value={referralCode}
-                onChange={(e) => setReferralCode(e.target.value)}
-                disabled={isLoading}
-              />
-            </div>
-            <Button type="submit" className="w-full btn-primary" disabled={isLoading}>
-              {isLoading ? "Registering..." : "Register"}
+            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isLoading || isResending}>
+              {isLoading ? "Verifying..." : "Verify OTP"}
+            </Button>
+            <Button
+              type="button"
+              onClick={handleResendOtp}
+              className="w-full bg-gray-600 hover:bg-gray-700"
+              disabled={isLoading || isResending}
+            >
+              {isResending ? "Resending..." : "Resend OTP"}
             </Button>
           </form>
           <div className="mt-6 text-center">
-            <Link href="/login" className="text-sm text-primary-600 hover:text-primary-800">
-              Back to Login
+            <Link href="/signup" className="text-sm text-blue-600 hover:text-blue-800">
+              Back to Signup
             </Link>
           </div>
         </CardContent>
