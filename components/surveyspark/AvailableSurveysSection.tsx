@@ -30,7 +30,7 @@ export default function AvailableSurveysSection({
     const loadSurveys = async () => {
       setIsLoading(true)
       try {
-        const data = await apiCall<Survey[]>("/api/surveys/available", "GET", null, true)
+        const data = await apiCall<Survey[]>("/surveys/available", "GET", null, true)
         setSurveys(data)
       } catch (error: any) {
         toast({
