@@ -67,7 +67,7 @@ export default function TransferHistorySection({ onReturnToDashboard }: { onRetu
     }
 
     try {
-      const data = await apiCall<TransferHistoryData>("/api/points/history", "GET", null, true, {
+      const data = await apiCall<TransferHistoryData>("/points/history", "GET", null, true, {
         start_date: startDate,
         end_date: endDate,
         limit: limit,
