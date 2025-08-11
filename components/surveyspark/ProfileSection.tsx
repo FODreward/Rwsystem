@@ -26,7 +26,7 @@ export default function ProfileSection({ onReturnToDashboard }: { onReturnToDash
     const loadProfile = async () => {
       setIsLoading(true)
       try {
-        const data = await apiCall<UserProfile>("/api/users/me", "GET", null, true)
+        const data = await apiCall<UserProfile>("/users/me", "GET", null, true)
         setUser(data)
       } catch (error: any) {
         toast({
