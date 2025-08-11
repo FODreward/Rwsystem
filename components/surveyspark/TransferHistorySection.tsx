@@ -1,8 +1,9 @@
 "use client"
 
 import { useEffect, useState, useCallback } from "react"
-import { Calendar, Filter, Gift, Clock, CheckCircle, XCircle, AlertCircle } from "lucide-react"
+import { Calendar, Filter, ArrowUpDown, TrendingUp, TrendingDown, Clock } from "lucide-react"
 import { apiCall } from "@/lib/api"
+import { useAuth } from "@/hooks/use-auth"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,18 +11,24 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { formatDateForInput, getPastDate } from "@/lib/utils"
 
-interface Redemption {
+interface Transfer {
   id: string
-  type: string
-  points_amount: number
-  equivalent_value: number
-  status: "pending" | "approved" | "rejected"
+  from_user: { email: string; name: string }
+  to_user: { email: string; name: string }
+  amount: number
   created_at: string
 }
 
-export default function RedemptionHistorySection({ onReturnToDashboard }: { onReturnToDashboard: () => void }) {
-  const [history, setHistory] = useState<Redemption[]>([])
+interface TransferHistoryData {
+  transfers: Transfer[]
+  total_sent: number
+  total_received: number
+}
+
+export default function TransferHistorySection({ onReturnToDashboard }: { onReturnToDashboard: () => void }) {
+  const [history, setHistory] = useState<TransferHistoryData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const { currentUser } = useAuth()
   const { toast } = useToast()
 
   const defaultEndDate = new Date()
@@ -61,20 +68,23 @@ export default function RedemptionHistorySection({ onReturnToDashboard }: { onRe
     }
 
     try {
-      const data = await apiCall<Redemption[]>("/redemption/history", "GET", null, true, {
+      const data = await apiCall<TransferHistoryData>("/points/history", "GET", null, true, {
         start_date: startDate,
         end_date: endDate,
         limit: limit,
       })
-      setHistory(
-        Array.isArray(data)
-          ? data.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-          : [],
-      )
+
+      if (data && data.transfers) {
+        data.transfers = data.transfers.sort(
+          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+        )
+      }
+
+      setHistory(data)
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message || "Failed to load redemption history.",
+        description: error.message || "Failed to load transfer history.",
         variant: "destructive",
       })
     } finally {
@@ -86,22 +96,17 @@ export default function RedemptionHistorySection({ onReturnToDashboard }: { onRe
     loadHistory()
   }, [loadHistory])
 
-  const totalRedeemed = history.reduce((sum, item) => sum + item.points_amount, 0)
-  const totalValue = history.reduce((sum, item) => sum + (item.equivalent_value || 0), 0)
-  const approvedCount = history.filter((item) => item.status === "approved").length
-  const pendingCount = history.filter((item) => item.status === "pending").length
-
   return (
     <div className="bg-white rounded-2xl shadow-lg max-w-4xl mx-auto overflow-hidden">
-      <div className="bg-gradient-to-r from-orange-600 to-pink-600 p-6 text-white">
+      <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-6 text-white">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-3">
             <div className="bg-white/20 p-2 rounded-xl">
-              <Gift className="h-6 w-6" />
+              <ArrowUpDown className="h-6 w-6" />
             </div>
             <div>
-              <h3 className="text-2xl font-bold">Redemption History</h3>
-              <p className="text-orange-100">Track your point redemptions</p>
+              <h3 className="text-2xl font-bold">Transfer History</h3>
+              <p className="text-purple-100">Track your point transfers</p>
             </div>
           </div>
           <Button
@@ -166,64 +171,52 @@ export default function RedemptionHistorySection({ onReturnToDashboard }: { onRe
 
         {isLoading ? (
           <div className="flex flex-col items-center justify-center min-h-[300px] text-gray-500">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mb-4"></div>
-            <p className="text-lg">Loading redemption history...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mb-4"></div>
+            <p className="text-lg">Loading transfer history...</p>
           </div>
-        ) : history.length === 0 ? (
+        ) : !history || history.transfers.length === 0 ? (
           <div className="text-center py-12">
             <div className="bg-gray-100 rounded-full p-4 w-16 h-16 mx-auto mb-4">
-              <Gift className="h-8 w-8 text-gray-400" />
+              <ArrowUpDown className="h-8 w-8 text-gray-400" />
             </div>
-            <p className="text-gray-500 text-lg">No redemption history found</p>
+            <p className="text-gray-500 text-lg">No transfer history found</p>
             <p className="text-gray-400 text-sm">Try adjusting your filter criteria</p>
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-              <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-xl border border-blue-200">
-                <div className="flex items-center space-x-3">
-                  <div className="bg-blue-500 p-2 rounded-lg">
-                    <Gift className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-blue-600 font-medium">Total Points</p>
-                    <p className="text-xl font-bold text-blue-700">{totalRedeemed}</p>
-                  </div>
-                </div>
-              </div>
-
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-xl border border-green-200">
                 <div className="flex items-center space-x-3">
                   <div className="bg-green-500 p-2 rounded-lg">
-                    <CheckCircle className="h-5 w-5 text-white" />
+                    <TrendingDown className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <p className="text-sm text-green-600 font-medium">Approved</p>
-                    <p className="text-xl font-bold text-green-700">{approvedCount}</p>
+                    <p className="text-sm text-green-600 font-medium">Total Received</p>
+                    <p className="text-2xl font-bold text-green-700">{history.total_received} pts</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-gradient-to-r from-yellow-50 to-yellow-100 p-4 rounded-xl border border-yellow-200">
+              <div className="bg-gradient-to-r from-red-50 to-red-100 p-4 rounded-xl border border-red-200">
                 <div className="flex items-center space-x-3">
-                  <div className="bg-yellow-500 p-2 rounded-lg">
-                    <AlertCircle className="h-5 w-5 text-white" />
+                  <div className="bg-red-500 p-2 rounded-lg">
+                    <TrendingUp className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <p className="text-sm text-yellow-600 font-medium">Pending</p>
-                    <p className="text-xl font-bold text-yellow-700">{pendingCount}</p>
+                    <p className="text-sm text-red-600 font-medium">Total Sent</p>
+                    <p className="text-2xl font-bold text-red-700">{history.total_sent} pts</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-xl border border-purple-200">
+              <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-xl border border-blue-200">
                 <div className="flex items-center space-x-3">
-                  <div className="bg-purple-500 p-2 rounded-lg">
-                    <span className="text-white font-bold text-sm">$</span>
+                  <div className="bg-blue-500 p-2 rounded-lg">
+                    <ArrowUpDown className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <p className="text-sm text-purple-600 font-medium">Total Value</p>
-                    <p className="text-xl font-bold text-purple-700">${totalValue.toFixed(2)}</p>
+                    <p className="text-sm text-blue-600 font-medium">Total Transfers</p>
+                    <p className="text-2xl font-bold text-blue-700">{history.transfers.length}</p>
                   </div>
                 </div>
               </div>
@@ -232,68 +225,36 @@ export default function RedemptionHistorySection({ onReturnToDashboard }: { onRe
             <div className="bg-gray-50 rounded-xl p-4">
               <div className="flex items-center space-x-2 mb-4">
                 <Clock className="h-5 w-5 text-gray-600" />
-                <h4 className="font-semibold text-gray-900">Recent Redemptions (Most Recent First)</h4>
+                <h4 className="font-semibold text-gray-900">Recent Transfers (Most Recent First)</h4>
               </div>
               <div className="max-h-[500px] overflow-y-auto pr-2 space-y-3">
-                {history.map((item) => {
-                  let statusConfig = {
-                    icon: CheckCircle,
-                    bgClass: "bg-green-50 border-green-200",
-                    badgeClass: "bg-green-100 text-green-800",
-                    iconColor: "text-green-600",
-                  }
-
-                  if (item.status === "pending") {
-                    statusConfig = {
-                      icon: AlertCircle,
-                      bgClass: "bg-yellow-50 border-yellow-200",
-                      badgeClass: "bg-yellow-100 text-yellow-800",
-                      iconColor: "text-yellow-600",
-                    }
-                  } else if (item.status === "rejected") {
-                    statusConfig = {
-                      icon: XCircle,
-                      bgClass: "bg-red-50 border-red-200",
-                      badgeClass: "bg-red-100 text-red-800",
-                      iconColor: "text-red-600",
-                    }
-                  }
-
-                  const StatusIcon = statusConfig.icon
+                {history.transfers.map((item) => {
+                  const isSender = currentUser && item.from_user.email === currentUser.email
+                  const direction = isSender ? "to" : "from"
+                  const otherParty = isSender ? item.to_user : item.from_user
+                  const amountClass = isSender ? "text-red-600" : "text-green-600"
+                  const bgClass = isSender ? "bg-red-50 border-red-200" : "bg-green-50 border-green-200"
 
                   return (
-                    <div
-                      key={item.id}
-                      className={`${statusConfig.bgClass} p-4 rounded-xl border transition-all hover:shadow-md`}
-                    >
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center space-x-3">
-                          <div className={`p-2 rounded-lg bg-white/50`}>
-                            <StatusIcon className={`h-5 w-5 ${statusConfig.iconColor}`} />
+                    <div key={item.id} className={`${bgClass} p-4 rounded-xl border transition-all hover:shadow-md`}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-1">
+                            <div className={`p-1 rounded-full ${isSender ? "bg-red-100" : "bg-green-100"}`}>
+                              {isSender ? (
+                                <TrendingUp className="h-4 w-4 text-red-600" />
+                              ) : (
+                                <TrendingDown className="h-4 w-4 text-green-600" />
+                              )}
+                            </div>
+                            <p className="font-semibold text-gray-900">
+                              <span className={`${amountClass} font-bold`}>{item.amount} pts</span> {direction}{" "}
+                              {otherParty.name}
+                            </p>
                           </div>
-                          <div>
-                            <h4 className="font-semibold text-gray-900 capitalize text-lg">
-                              {item.type.replace("_", " ")}
-                            </h4>
-                            <p className="text-sm text-gray-600">{new Date(item.created_at).toLocaleString()}</p>
-                          </div>
-                        </div>
-                        <span
-                          className={`px-3 py-1 text-sm font-medium rounded-full capitalize ${statusConfig.badgeClass}`}
-                        >
-                          {item.status}
-                        </span>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4 ml-11">
-                        <div>
-                          <p className="text-sm text-gray-500">Points Used</p>
-                          <p className="font-semibold text-gray-900">{item.points_amount} pts</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-500">Equivalent Value</p>
-                          <p className="font-semibold text-gray-900">
-                            ${Number(item.equivalent_value || 0).toFixed(2)}
+                          <p className="text-sm text-gray-600 ml-6">{otherParty.email}</p>
+                          <p className="text-xs text-gray-500 ml-6 mt-1">
+                            {new Date(item.created_at).toLocaleString()}
                           </p>
                         </div>
                       </div>
