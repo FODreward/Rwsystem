@@ -129,12 +129,12 @@ export default function SetNewPinPage() {
                 disabled={isLoading}
               />
             </div>
-            <Button type="submit" className="w-full btn-primary" disabled={isLoading}>
+            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isLoading}>
               {isLoading ? "Setting PIN..." : "Set New PIN"}
             </Button>
           </form>
           <div className="mt-6 text-center">
-            <Link href="/login" className="text-sm text-primary-600 hover:text-primary-800">
+            <Link href="/login" className="text-sm text-blue-600 hover:text-blue-800">
               Back to Login
             </Link>
           </div>
