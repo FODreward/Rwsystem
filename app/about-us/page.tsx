@@ -28,17 +28,13 @@ export default function AboutUsPage() {
           </p>
         </div>
         <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4">
-          <Button asChild className="btn-primary">
+          <Button asChild className="bg-blue-600 hover:bg-blue-700">
             <Link href="/signup">Sign Up Now</Link>
           </Button>
-          <Button asChild variant="secondary" className="btn-secondary">
+          <Button asChild variant="secondary" className="bg-gray-600 hover:bg-gray-700">
             <Link href="/login">Login</Link>
           </Button>
-          <Button
-            asChild
-            variant="outline"
-            className="btn-light-secondary bg-transparent text-primary-600 border-primary-600 hover:bg-primary-50"
-          >
+          <Button asChild variant="outline" className="bg-transparent text-blue-600 border-blue-600 hover:bg-blue-50">
             <Link href="/">Return to Landing Page</Link>
           </Button>
         </div>
