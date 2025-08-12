@@ -170,20 +170,34 @@ export default function HelpCenter() {
 
         {/* Contact Support */}
         <div className="bg-gradient-to-r from-purple-600 to-pink-500 rounded-2xl p-8 text-white text-center">
-          <h2 className="text-2xl font-bold mb-4">Still Need Help?</h2>
-          <p className="text-purple-100 mb-8 max-w-2xl mx-auto">
-            Can't find what you're looking for? Our support team is here to help you with any questions or issues.
-          </p>
+  <h2 className="text-2xl font-bold mb-4">Still Need Help?</h2>
+  <p className="text-purple-100 mb-8 max-w-2xl mx-auto">
+    Can't find what you're looking for? Our support team is here to help you with any questions or issues.
+  </p>
 
-          <div className="grid md:grid-cols-3 gap-6 max-w-3xl mx-auto mb-8">
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
-              <MessageCircle className="w-8 h-8 mx-auto mb-3" />
-              <h3 className="font-semibold mb-2">Live Chat</h3>
-              <p className="text-sm text-purple-100 mb-4">Get instant help from our support team</p>
-              <Button variant="secondary" size="sm" className="bg-white text-purple-600 hover:bg-gray-100">
-                Start Chat
-              </Button>
-            </div>
+  <div className="grid md:grid-cols-3 gap-6 max-w-3xl mx-auto mb-8">
+    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
+      <MessageCircle className="w-8 h-8 mx-auto mb-3" />
+      <h3 className="font-semibold mb-2">Live Chat</h3>
+      <p className="text-sm text-purple-100 mb-4">Get instant help from our support team</p>
+
+      <Button
+        variant="secondary"
+        size="sm"
+        className="bg-white text-purple-600 hover:bg-gray-100"
+        onClick={() => {
+          if (window.jivo_api) {
+            window.jivo_api.open();
+          } else {
+            alert("Chat widget not loaded yet. Please try again in a moment.");
+          }
+        }}
+      >
+        Start Chat
+      </Button>
+    </div>
+  </div>
+</div>
 
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
   <Mail className="w-8 h-8 mx-auto mb-3" />
