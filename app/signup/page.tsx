@@ -71,7 +71,7 @@ export default function SignupPage() {
           <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <User className="w-8 h-8 text-white" />
           </div>
-          <CardTitle className="text-2xl font-bold text-white mb-2">Join SurveyCTA</CardTitle>
+          <CardTitle className="text-2xl font-bold text-white mb-2">Join Survecta</CardTitle>
           <p className="text-purple-100 text-sm">Create your account and start earning</p>
         </div>
 
