@@ -97,8 +97,8 @@ export default function RedeemPointsForm({
       errors.amount = "Amount is required"
     } else if (isNaN(pointsAmount) || pointsAmount <= 0) {
       errors.amount = "Amount must be greater than zero"
-    } else if (pointsAmount < 100) {
-      errors.amount = "Minimum redemption is 100 points"
+    } else if (pointsAmount < 500) {
+      errors.amount = "Minimum redemption is 500 points"
     }
 
     if (!destination.trim()) {
