@@ -548,22 +548,22 @@ export default function CookiesPolicyPage() {
                 <div className="flex items-center text-gray-700">
                   <strong className="w-20">Email:</strong>
                   <a href="mailto:info@survecta.com" className="text-purple-600 hover:text-purple-700 font-medium">
-                    privacy@survecta.com
+                    info@survecta.com
                   </a>
                 </div>
                 <div className="flex items-center text-gray-700">
                   <strong className="w-20">Support:</strong>
                   <a href="mailto:info@survecta.com@survecta.com" className="text-purple-600 hover:text-purple-700 font-medium">
-                    support@survecta.com
+                    info@survecta.com
                   </a>
                 </div>
                 <div className="flex items-center text-gray-700">
                   <strong className="w-20">Address:</strong>
-                  <span>Survecta, Nigeria</span>
+                  <span>Survecta, Port Harcourt,Nigeria</span>
                 </div>
                 <div className="flex items-center text-gray-700">
                   <strong className="w-20">Phone:</strong>
-                  <span>+234</span>
+                  <span>+234 (Survecta)</span>
                 </div>
               </div>
             </div>
