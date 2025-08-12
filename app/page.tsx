@@ -477,17 +477,17 @@ export default function HomePage() {
               <h4 className="font-semibold mb-4">Platform</h4>
               <ul className="space-y-2 text-gray-400">
                 <li>
-                  <Link href="/surveys" className="hover:text-white transition-colors">
+                  <Link href="/signup" className="hover:text-white transition-colors">
                     Available Surveys
                   </Link>
                 </li>
                 <li>
-                  <Link href="/rewards" className="hover:text-white transition-colors">
+                  <Link href="/terms-and-conditions" className="hover:text-white transition-colors">
                     Rewards
                   </Link>
                 </li>
                 <li>
-                  <Link href="/referrals" className="hover:text-white transition-colors">
+                  <Link href="/signup" className="hover:text-white transition-colors">
                     Referral Program
                   </Link>
                 </li>
@@ -503,7 +503,7 @@ export default function HomePage() {
                 </li>
                 <li>
                   <a href="mailto:info@survecta.com" className="hover:text-white transition-colors">
-                    Contact Us
+                    Email Us
                   </a>
                 </li>
                 <li>
