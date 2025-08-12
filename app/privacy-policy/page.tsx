@@ -503,7 +503,7 @@ export default function PrivacyPolicyPage() {
                 </div>
                 <h3 className="font-semibold mb-2">Privacy Email</h3>
                 <a href="mailto:info@survecta.com" className="text-purple-200 hover:text-white transition-colors">
-                  privacy@survecta.com
+                  info@survecta.com
                 </a>
               </div>
 
@@ -512,7 +512,7 @@ export default function PrivacyPolicyPage() {
                   <Phone className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="font-semibold mb-2">Privacy Hotline</h3>
-                <p className="text-purple-200">+234 Survecta</p>
+                <p className="text-purple-200">+234 (Survecta)</p>
                 <p className="text-xs text-purple-300">Mon-Fri, 9AM-6PM EST</p>
               </div>
 
@@ -526,7 +526,7 @@ export default function PrivacyPolicyPage() {
                   <br />
                   Survecta
                   <br />
-                  Nigeria
+                  Port Harcourt, Nigeria
                 </p>
               </div>
 
