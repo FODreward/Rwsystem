@@ -10,8 +10,8 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 
 export const metadata: Metadata = {
   title: {
-    default: "SURVECTA REWARD",
-    template: "%s | SURVECTA REWARD",
+    default: "SURVECTA",
+    template: "%s | SURVECTA",
   },
   description:
     "Unlock Rewards, Earn Points, Live Better. Join Survecta's reward system and start earning points for completing surveys and activities.",
@@ -32,22 +32,22 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://survecta.com",
-    title: "SURVECTA REWARD - Unlock Rewards, Earn Points, Live Better",
+    title: "SURVECTA - Unlock Rewards, Earn Points, Live Better",
     description:
       "Join Survecta's reward system and start earning points for completing surveys and activities. Turn your opinions into rewards.",
-    siteName: "SURVECTA REWARD",
+    siteName: "SURVECTA",
     images: [
       {
         url: "https://survecta.com/favicon.png",
         width: 1200,
         height: 630,
-        alt: "SURVECTA REWARD - Unlock Rewards, Earn Points, Live Better",
+        alt: "SURVECTA - Unlock Rewards, Earn Points, Live Better",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "SURVECTA REWARD - Unlock Rewards, Earn Points, Live Better",
+    title: "SURVECTA - Unlock Rewards, Earn Points, Live Better",
     description: "Join Survecta's reward system and start earning points for completing surveys and activities.",
     images: ["https://survecta.com/favicon.png"],
     creator: "@survecta",
