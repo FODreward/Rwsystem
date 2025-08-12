@@ -502,11 +502,11 @@ export default function TermsAndConditionsPage() {
                 </div>
                 <div className="flex items-center text-gray-700">
                   <strong className="w-20">Address:</strong>
-                  <span>Survecta, Nigeria</span>
+                  <span>Survecta, Port Harcourt, Nigeria</span>
                 </div>
                 <div className="flex items-center text-gray-700">
                   <strong className="w-20">Phone:</strong>
-                  <span>(+234)-Survecta</span>
+                  <span>+234-(Survecta)</span>
                 </div>
               </div>
             </div>
