@@ -466,7 +466,8 @@ export default function PrivacyPolicyPage() {
               <h2 className="text-3xl font-bold text-gray-900">Children's Privacy</h2>
             </div>
             <p>
-              Our services are not directed to individuals under the legal age of majority in their country of residence (which is typically 18 years old, but may vary). We do not knowingly collect personal information from anyone under this age.
+              Our services are not directed to individuals under the legal age of majority in their country of residence 
+              (which is typically 18 years old, but may vary). We do not knowingly collect personal information from anyone under this age.
             </p>
           </div>
 
