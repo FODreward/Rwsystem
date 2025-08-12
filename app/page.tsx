@@ -206,7 +206,7 @@ export default function HomePage() {
               <div className="relative">
                 <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-8 shadow-2xl border border-gray-200 hover:shadow-3xl transition-all">
                   <Image
-                    src="/placeholder.svg?height=400&width=500&text=Dashboard+Preview"
+                    src="/dash.png?height=400&width=500&text=Dashboard+Preview"
                     alt="Dashboard Preview"
                     className="w-full h-auto rounded-lg"
                     width={500}
@@ -318,7 +318,7 @@ export default function HomePage() {
               </div>
               <div className="bg-gray-50 rounded-2xl p-8">
                 <Image
-                  src="/placeholder.svg?height=300&width=400&text=Survey+Interface"
+                  src="/dash1.png?height=300&width=400&text=Survey+Interface"
                   alt="Survey Interface"
                   className="w-full h-auto rounded-lg"
                   width={400}
@@ -330,7 +330,7 @@ export default function HomePage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div className="bg-gray-50 rounded-2xl p-8 order-2 lg:order-1">
                 <Image
-                  src="/placeholder.svg?height=300&width=400&text=Earning+Activities"
+                  src="/dash2.png?height=300&width=400&text=Earning+Activities"
                   alt="Various Earning Activities"
                   className="w-full h-auto rounded-lg"
                   width={400}
