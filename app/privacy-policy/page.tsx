@@ -33,7 +33,7 @@ export default function PrivacyPolicyPage() {
           </div>
           <h1 className="text-5xl font-bold mb-4">Privacy Policy</h1>
           <p className="text-xl text-purple-100 mb-2">Your privacy and data security are our top priorities</p>
-          <p className="text-purple-200">Last updated: January 15, 2025</p>
+          <p className="text-purple-200">Last updated: August 10, 2025</p>
         </div>
       </div>
 
@@ -449,7 +449,7 @@ export default function PrivacyPolicyPage() {
             <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl">
               <p className="text-gray-700">
                 <strong>Exercise Your Rights:</strong> To exercise any of these rights, please contact us at
-                <a href="mailto:privacy@survecta.com" className="text-purple-600 hover:text-purple-700 ml-1">
+                <a href="mailto:info@survecta.com" className="text-purple-600 hover:text-purple-700 ml-1">
                   privacy@survecta.com
                 </a>
                 . We will respond to your request within 30 days as required by law.
@@ -466,8 +466,7 @@ export default function PrivacyPolicyPage() {
               <h2 className="text-3xl font-bold text-gray-900">Children's Privacy</h2>
             </div>
             <p>
-              Our services are not intended for individuals under 18 years of age. We do not knowingly collect personal
-              information from children under 18.
+              Our services are not directed to individuals under the legal age of majority in their country of residence (which is typically 18 years old, but may vary). We do not knowingly collect personal information from anyone under this age.
             </p>
           </div>
 
@@ -502,7 +501,7 @@ export default function PrivacyPolicyPage() {
                   <Mail className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="font-semibold mb-2">Privacy Email</h3>
-                <a href="mailto:privacy@survecta.com" className="text-purple-200 hover:text-white transition-colors">
+                <a href="mailto:info@survecta.com" className="text-purple-200 hover:text-white transition-colors">
                   privacy@survecta.com
                 </a>
               </div>
@@ -512,7 +511,7 @@ export default function PrivacyPolicyPage() {
                   <Phone className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="font-semibold mb-2">Privacy Hotline</h3>
-                <p className="text-purple-200">+1 (555) 123-4567</p>
+                <p className="text-purple-200">+234 Survecta</p>
                 <p className="text-xs text-purple-300">Mon-Fri, 9AM-6PM EST</p>
               </div>
 
@@ -524,9 +523,9 @@ export default function PrivacyPolicyPage() {
                 <p className="text-purple-200 text-sm">
                   Privacy Officer
                   <br />
-                  123 Survey Street
+                  Survecta
                   <br />
-                  Data City, DC 12345
+                  Nigeria
                 </p>
               </div>
 
