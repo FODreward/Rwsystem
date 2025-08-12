@@ -228,7 +228,7 @@ ${message}
                   </div>
                   <div>
                     <h3 className="font-semibold text-white text-lg">Phone Support</h3>
-                    <p className="text-white/90 text-lg">+1 (555) 123-4567</p>
+                    <p className="text-white/90 text-lg">+234 (Survecta)</p>
                     <p className="text-white/70 text-sm">Mon-Fri, 9AM-6PM EST</p>
                   </div>
                 </div>
@@ -240,11 +240,11 @@ ${message}
                   <div>
                     <h3 className="font-semibold text-white text-lg">Office Address</h3>
                     <p className="text-white/90">
-                      123 Survey Street
+                      Survecta
                       <br />
-                      Business District
+                      PH City
                       <br />
-                      New York, NY 10001
+                      Port Harcourt, Nigeria
                     </p>
                   </div>
                 </div>
@@ -385,7 +385,7 @@ ${message}
               </div>
               <h3 className="font-bold text-gray-900 mb-4 text-lg">How do I contact support?</h3>
               <p className="text-gray-600 leading-relaxed">
-                You can reach us via email at info@survecta.com, phone at +1 (555) 123-4567, or use the contact form on
+                You can reach us via email at info@survecta.com, phone at +234 (Survecta), or use the contact form on
                 this page. We respond to all inquiries within 24 hours.
               </p>
             </div>
@@ -429,7 +429,7 @@ ${message}
               </div>
               <h3 className="font-bold text-gray-900 mb-4 text-lg">Do you offer phone support?</h3>
               <p className="text-gray-600 leading-relaxed">
-                Yes, phone support is available at +1 (555) 123-4567 during business hours. For complex issues, we may
+                Yes, phone support is available at +234 (Survecta) during business hours. For complex issues, we may
                 schedule a callback at your convenience.
               </p>
             </div>
