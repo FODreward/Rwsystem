@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -11,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { apiCall } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
+import { Shield, Mail, RefreshCw, ArrowLeft } from "lucide-react"
 
 export default function ForgotPasswordOtpPage() {
   const [otpCode, setOtpCode] = useState("")
@@ -101,44 +101,84 @@ export default function ForgotPasswordOtpPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-3xl font-bold text-center text-gray-800 mb-6">Verify Password Reset OTP</CardTitle>
+    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-500 to-pink-500 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md bg-white shadow-2xl border-0">
+        <CardHeader className="text-center space-y-4 pb-6">
+          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-purple-600 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg">
+            <Shield className="w-8 h-8 text-white" />
+          </div>
+          <CardTitle className="text-2xl font-bold text-gray-900">Verify Password Reset OTP</CardTitle>
+          <p className="text-gray-600">An OTP has been sent to your email address for password reset.</p>
         </CardHeader>
-        <CardContent>
-          <p className="text-center text-gray-600 mb-4">
-            An OTP has been sent to your email address for password reset.
-          </p>
+        <CardContent className="space-y-6">
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <Label htmlFor="otpCode">OTP Code</Label>
-              <Input
-                id="otpCode"
-                name="otpCode"
-                type="text"
-                maxLength={6}
-                pattern="\d{6}"
-                required
-                value={otpCode}
-                onChange={(e) => setOtpCode(e.target.value)}
-                disabled={isLoading || isResending}
-              />
+            <div className="space-y-2">
+              <Label htmlFor="otpCode" className="text-sm font-medium text-gray-700">
+                OTP Code
+              </Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  id="otpCode"
+                  name="otpCode"
+                  type="text"
+                  maxLength={6}
+                  pattern="\d{6}"
+                  required
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value)}
+                  disabled={isLoading || isResending}
+                  className="pl-10 h-12 border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                  placeholder="Enter 6-digit OTP"
+                />
+              </div>
+              {otpCode && otpCode.length === 6 && (
+                <p className="text-sm text-green-600 flex items-center gap-1">
+                  <Shield className="w-3 h-3" />
+                  OTP format is valid
+                </p>
+              )}
             </div>
-            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isLoading || isResending}>
-              {isLoading ? "Verifying..." : "Verify OTP"}
+            <Button
+              type="submit"
+              className="w-full h-12 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white font-semibold shadow-lg transition-all duration-200"
+              disabled={isLoading || isResending}
+            >
+              {isLoading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Verifying...
+                </div>
+              ) : (
+                "Verify OTP"
+              )}
             </Button>
             <Button
               type="button"
               onClick={handleResendOtp}
-              className="w-full bg-gray-600 hover:bg-gray-700"
+              variant="outline"
+              className="w-full h-12 border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold bg-transparent"
               disabled={isLoading || isResending}
             >
-              {isResending ? "Resending..." : "Resend OTP"}
+              {isResending ? (
+                <div className="flex items-center gap-2">
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  Resending...
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <RefreshCw className="w-4 h-4" />
+                  Resend OTP
+                </div>
+              )}
             </Button>
           </form>
-          <div className="mt-6 text-center">
-            <Link href="/forgot-password" className="text-sm text-blue-600 hover:text-blue-800">
+          <div className="text-center pt-4 border-t border-gray-100">
+            <Link
+              href="/forgot-password"
+              className="inline-flex items-center gap-2 text-sm text-purple-600 hover:text-purple-800 font-medium transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
               Back to Forgot Password
             </Link>
           </div>
