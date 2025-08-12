@@ -62,7 +62,7 @@ export default function HomePage() {
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-gray-600 hover:text-purple-600 transition-colors font-medium">
+                <Link href="/contact-us" className="text-gray-600 hover:text-purple-600 transition-colors font-medium">
                   Contact Us
                 </Link>
               </li>
