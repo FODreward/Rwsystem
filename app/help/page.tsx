@@ -186,13 +186,23 @@ export default function HelpCenter() {
             </div>
 
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
-              <Mail className="w-8 h-8 mx-auto mb-3" />
-              <h3 className="font-semibold mb-2">Email Support</h3>
-              <p className="text-sm text-purple-100 mb-4">Send us a detailed message</p>
-              <Button variant="secondary" size="sm" className="bg-white text-purple-600 hover:bg-gray-100">
-                Send Email
-              </Button>
-            </div>
+  <Mail className="w-8 h-8 mx-auto mb-3" />
+  <h3 className="font-semibold mb-2">Email Support</h3>
+  <p className="text-sm text-purple-100 mb-4">Send us a detailed message</p>
+  
+  <a 
+    href="mailto:info@survecta.com" 
+    className="hover:text-white transition-colors"
+  >
+    <Button 
+      variant="secondary" 
+      size="sm" 
+      className="bg-white text-purple-600 hover:bg-gray-100"
+    >
+      Send Email
+    </Button>
+  </a>
+</div>
 
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
               <Phone className="w-8 h-8 mx-auto mb-3" />
