@@ -1,7 +1,7 @@
 import { toast } from "@/hooks/use-toast"
 import FingerprintJS from "@fingerprintjs/fingerprintjs"
 
-const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL || "https://dansog-backend.onrender.com/api"
+const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.survecta.com"
 
 interface ApiCallOptions {
   [key: string]: string | number | boolean | undefined | null
