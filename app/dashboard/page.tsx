@@ -353,7 +353,7 @@ export default function SurveySparkPro() {
                       <span className="text-gray-600 font-medium">Completed</span>
                     </div>
                     <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full font-medium">
-                      +1 Today
+                      + Today
                     </span>
                   </div>
                   <div>
@@ -371,7 +371,7 @@ export default function SurveySparkPro() {
                       </div>
                       <span className="text-gray-600 font-medium">Redemptions</span>
                     </div>
-                    <span className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full font-medium">None</span>
+                    <span className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full font-medium">All</span>
                   </div>
                   <div>
                     <p className="text-3xl font-bold text-gray-900">{dashboardStats?.pending_redemptions || 0}</p>
