@@ -9,9 +9,73 @@ import { Toaster } from "@/components/ui/toaster"
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 
 export const metadata: Metadata = {
-  title: "SURVECTA REWARD",
-  description: "Unlock Rewards, Earn Points, Live Better.",
-  generator: "v0.dev",
+  title: {
+    default: "SURVECTA REWARD",
+    template: "%s | SURVECTA REWARD",
+  },
+  description:
+    "Unlock Rewards, Earn Points, Live Better. Join Survecta's reward system and start earning points for completing surveys and activities.",
+  keywords: ["rewards", "surveys", "points", "earn money", "survecta", "survey rewards", "online rewards"],
+  authors: [{ name: "Survecta Team" }],
+  creator: "Survecta",
+  publisher: "Survecta",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL("https://survecta.com"),
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://survecta.com",
+    title: "SURVECTA REWARD - Unlock Rewards, Earn Points, Live Better",
+    description:
+      "Join Survecta's reward system and start earning points for completing surveys and activities. Turn your opinions into rewards.",
+    siteName: "SURVECTA REWARD",
+    images: [
+      {
+        url: "https://survecta.com/favicon.png",
+        width: 1200,
+        height: 630,
+        alt: "SURVECTA REWARD - Unlock Rewards, Earn Points, Live Better",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SURVECTA REWARD - Unlock Rewards, Earn Points, Live Better",
+    description: "Join Survecta's reward system and start earning points for completing surveys and activities.",
+    images: ["https://survecta.com/favicon.png"],
+    creator: "@survecta",
+  },
+  icons: {
+    icon: [
+      { url: "https://survecta.com/favicon.png", sizes: "32x32", type: "image/png" },
+      { url: "https://survecta.com/favicon.png", sizes: "16x16", type: "image/png" },
+    ],
+    shortcut: "https://survecta.com/favicon.png",
+    apple: [{ url: "https://survecta.com/favicon.png", sizes: "180x180", type: "image/png" }],
+  },
+  manifest: "/site.webmanifest",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  verification: {
+    google: "your-google-verification-code",
+    yandex: "your-yandex-verification-code",
+  },
 }
 
 export default function RootLayout({
