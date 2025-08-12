@@ -62,12 +62,12 @@ export default function HomePage() {
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-gray-600 hover:text-purple-600 transition-colors font-medium">
+                <Link href="/contact-us" className="text-gray-600 hover:text-purple-600 transition-colors font-medium">
                   Contact Us
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="text-gray-600 hover:text-purple-600 transition-colors font-medium">
+                <Link href="/about-us" className="text-gray-600 hover:text-purple-600 transition-colors font-medium">
                   About Us
                 </Link>
               </li>
@@ -113,14 +113,14 @@ export default function HomePage() {
                   How It Works
                 </Link>
                 <Link
-                  href="/contact"
+                  href="/contact-us"
                   className="block text-gray-600 hover:text-purple-600 transition-colors py-2"
                   onClick={handleMenuItemClick}
                 >
                   Contact Us
                 </Link>
                 <Link
-                  href="/about"
+                  href="/about-us"
                   className="block text-gray-600 hover:text-purple-600 transition-colors py-2"
                   onClick={handleMenuItemClick}
                 >
