@@ -40,12 +40,12 @@ export default function HomePage() {
               </li>
               <li>
                 <Link href="#contact" className="text-gray-600 hover:text-purple-600 transition-colors font-medium">
-                  Contact
+                  Contact Us
                 </Link>
               </li>
               <li>
                 <Link href="/about-us" className="text-gray-600 hover:text-purple-600 transition-colors font-medium">
-                  About
+                  About Us
                 </Link>
               </li>
             </ul>
