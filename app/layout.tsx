@@ -9,7 +9,7 @@ import { Toaster } from "@/components/ui/toaster"
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 
 export const metadata: Metadata = {
-  title: "Reward System",
+  title: "SURVECTA REWARD",
   description: "Unlock Rewards, Earn Points, Live Better.",
   generator: "v0.dev",
 }
