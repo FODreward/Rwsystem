@@ -17,7 +17,7 @@ export default function TermsAndConditionsPage() {
           <p className="text-xl text-purple-100 max-w-2xl mx-auto mb-6">
             Please read these terms carefully before using Survecta's survey platform and reward services.
           </p>
-          <div className="text-sm text-purple-200">Last updated: January 2025</div>
+          <div className="text-sm text-purple-200">Last updated: August 2025</div>
         </div>
       </section>
 
@@ -270,7 +270,7 @@ export default function TermsAndConditionsPage() {
                 </div>
                 <div className="bg-pink-50 p-4 rounded-lg text-center">
                   <div className="text-2xl font-bold text-pink-600 mb-2">Rewards</div>
-                  <p className="text-sm text-pink-700">Cash, gift cards, donations</p>
+                  <p className="text-sm text-pink-700">Cash, gift cards, Bitcoin</p>
                 </div>
                 <div className="bg-indigo-50 p-4 rounded-lg text-center">
                   <div className="text-2xl font-bold text-indigo-600 mb-2">Payouts</div>
@@ -490,23 +490,23 @@ export default function TermsAndConditionsPage() {
               <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-lg space-y-3">
                 <div className="flex items-center text-gray-700">
                   <strong className="w-20">Email:</strong>
-                  <a href="mailto:legal@survecta.com" className="text-purple-600 hover:text-purple-700 font-medium">
+                  <a href="mailto:info@survecta.com" className="text-purple-600 hover:text-purple-700 font-medium">
                     legal@survecta.com
                   </a>
                 </div>
                 <div className="flex items-center text-gray-700">
                   <strong className="w-20">Support:</strong>
-                  <a href="mailto:support@survecta.com" className="text-purple-600 hover:text-purple-700 font-medium">
+                  <a href="mailto:info@survecta.com" className="text-purple-600 hover:text-purple-700 font-medium">
                     support@survecta.com
                   </a>
                 </div>
                 <div className="flex items-center text-gray-700">
                   <strong className="w-20">Address:</strong>
-                  <span>123 Survey Plaza, Research District, RD 12345</span>
+                  <span>Survecta, Nigeria</span>
                 </div>
                 <div className="flex items-center text-gray-700">
                   <strong className="w-20">Phone:</strong>
-                  <span>(555) 123-SURVEY</span>
+                  <span>(+234)-Survecta</span>
                 </div>
               </div>
             </div>
