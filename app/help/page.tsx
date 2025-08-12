@@ -213,7 +213,7 @@ export default function HelpCenter() {
               variant="outline"
               className="border-white text-white hover:bg-white hover:text-purple-600 bg-transparent"
             >
-              <Link href="/contact">Contact Us</Link>
+              <Link href="/contact-us">Contact Us</Link>
             </Button>
             <Button
               asChild
