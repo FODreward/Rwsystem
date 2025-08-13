@@ -10,7 +10,7 @@ export default function AboutUsPage() {
           <div className="text-center">
             <div className="mb-6">
               <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center mx-auto mb-4">
-                <img src="/Surve.png" alt="Survecta Logo" className="w-12 h-12 object-contain" />
+                <img src="/Surve1.png" alt="Survecta Logo" className="w-12 h-12 object-contain" />
               </div>
             </div>
             <h1 className="text-5xl font-bold mb-4">About Survecta</h1>
