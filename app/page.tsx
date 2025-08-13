@@ -62,12 +62,12 @@ export default function HomePage() {
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-gray-600 hover:text-purple-600 transition-colors font-medium">
+                <Link href="/contact-us" className="text-gray-600 hover:text-purple-600 transition-colors font-medium">
                   Contact Us
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="text-gray-600 hover:text-purple-600 transition-colors font-medium">
+                <Link href="/about-us" className="text-gray-600 hover:text-purple-600 transition-colors font-medium">
                   About Us
                 </Link>
               </li>
@@ -477,17 +477,17 @@ export default function HomePage() {
               <h4 className="font-semibold mb-4">Platform</h4>
               <ul className="space-y-2 text-gray-400">
                 <li>
-                  <Link href="/surveys" className="hover:text-white transition-colors">
+                  <Link href="/signup" className="hover:text-white transition-colors">
                     Available Surveys
                   </Link>
                 </li>
                 <li>
-                  <Link href="/rewards" className="hover:text-white transition-colors">
+                  <Link href="/terms-and-conditions" className="hover:text-white transition-colors">
                     Rewards
                   </Link>
                 </li>
                 <li>
-                  <Link href="/referrals" className="hover:text-white transition-colors">
+                  <Link href="/signup" className="hover:text-white transition-colors">
                     Referral Program
                   </Link>
                 </li>
@@ -517,12 +517,12 @@ export default function HomePage() {
               <h4 className="font-semibold mb-4">Legal</h4>
               <ul className="space-y-2 text-gray-400">
                 <li>
-                  <Link href="/privacy" className="hover:text-white transition-colors">
+                  <Link href="/privacy-policy" className="hover:text-white transition-colors">
                     Privacy Policy
                   </Link>
                 </li>
                 <li>
-                  <Link href="/terms" className="hover:text-white transition-colors">
+                  <Link href="/terms-and-condition" className="hover:text-white transition-colors">
                     Terms of Service
                   </Link>
                 </li>
@@ -535,7 +535,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 Survecta. All rights reserved.</p>
+            <p>&copy; 2025 Survecta. All rights reserved.</p>
           </div>
         </div>
       </footer>
