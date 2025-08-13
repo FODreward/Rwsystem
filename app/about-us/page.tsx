@@ -82,7 +82,7 @@ export default function AboutUsPage() {
               </div>
               <div className="bg-white border border-gray-100 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
                 <img
-                  src="/about-us2"
+                  src="/about-us2.png"
                   alt="Earnings and rewards - money, coins, and gift cards showing financial benefits"
                   className="w-full h-48 object-cover rounded-lg mb-6"
                 />
