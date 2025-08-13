@@ -32,7 +32,7 @@ export default function AboutUsPage() {
             </div>
             <div className="mb-8">
               <img
-                src="/about-us"
+                src="/about-us.png"
                 alt="Survecta mission - helping people achieve success through surveys and rewards"
                 className="w-full h-64 object-cover rounded-xl shadow-sm"
               />
@@ -65,7 +65,7 @@ export default function AboutUsPage() {
             <div className="grid md:grid-cols-2 gap-8 mb-8">
               <div className="bg-white border border-gray-100 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
                 <img
-                  src="/about-us1"
+                  src="/about-us1.png"
                   alt="Trust and security - shield and lock symbols showing data protection"
                   className="w-full h-48 object-cover rounded-lg mb-6"
                 />
@@ -124,7 +124,7 @@ export default function AboutUsPage() {
               </div>
               <div>
                 <img
-                  src="/about-us3"
+                  src="/about-us3.png"
                   alt="Company story - professional team collaboration and platform development"
                   className="w-full h-48 object-cover rounded-lg"
                 />
@@ -397,7 +397,7 @@ export default function AboutUsPage() {
             <div className="grid md:grid-cols-3 gap-8">
               <div className="text-center">
                 <img
-                  src="/about-us4"
+                  src="/about-us4.png"
                   alt="Leadership team member - experienced professional from market research sector"
                   className="w-32 h-32 object-cover rounded-full mx-auto mb-4"
                 />
@@ -409,7 +409,7 @@ export default function AboutUsPage() {
               </div>
               <div className="text-center">
                 <img
-                  src="/about-us5"
+                  src="/about-us5.png"
                   alt="Development team member - skilled developer building innovative solutions"
                   className="w-32 h-32 object-cover rounded-full mx-auto mb-4"
                 />
@@ -421,7 +421,7 @@ export default function AboutUsPage() {
               </div>
               <div className="text-center">
                 <img
-                  src="/about-us6"
+                  src="/about-us6.png"
                   alt="Support team member - dedicated customer service specialist"
                   className="w-32 h-32 object-cover rounded-full mx-auto mb-4"
                 />
