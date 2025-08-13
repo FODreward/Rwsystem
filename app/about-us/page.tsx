@@ -40,7 +40,7 @@ export default function AboutUsPage() {
             </div>
             <div className="mb-8">
               <img
-                src="/about-us"
+                src="/about-us.png"
                 alt="Survecta mission - helping people achieve success through surveys and rewards"
                 className="w-full h-64 object-cover rounded-xl shadow-sm"
               />
