@@ -107,25 +107,30 @@ ${message}
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-purple-600 to-pink-500 py-8">
-        <div className="absolute inset-0 bg-black opacity-10"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="flex justify-center mb-4">
-            <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-3xl flex items-center justify-center border border-white/30">
-              <div className="text-center">
-                <Building className="w-8 h-8 text-white mx-auto mb-1" />
-                <p className="text-white/80 text-xs">Survecta Logo</p>
-              </div>
-            </div>
+  {/* Hero Section */}
+  <div className="relative overflow-hidden bg-gradient-to-r from-purple-600 to-pink-500 py-8">
+    <div className="absolute inset-0 bg-black opacity-10"></div>
+    <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div className="flex justify-center mb-4">
+        <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-3xl flex items-center justify-center border border-white/30">
+          <div className="text-center">
+            <img
+              src="/Surve.png"
+              alt="Survecta"
+              className="w-8 h-8 mx-auto mb-1"
+            />
+            <p className="text-white/80 text-xs">Survecta Logo</p>
           </div>
-          <h1 className="text-4xl font-bold text-white mb-4">Contact Survecta Support</h1>
-          <p className="text-lg text-white/90 max-w-3xl mx-auto leading-relaxed">
-            Need help with surveys, payments, or account issues? Our dedicated support team is ready to assist you with
-            any questions or concerns.
-          </p>
         </div>
       </div>
+      <h1 className="text-4xl font-bold text-white mb-4">Contact Survecta Support</h1>
+      <p className="text-lg text-white/90 max-w-3xl mx-auto leading-relaxed">
+        Need help with surveys, payments, or account issues? Our dedicated support team is ready to assist you with
+        any questions or concerns.
+      </p>
+    </div>
+  </div>
+</div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-20">
@@ -164,7 +169,7 @@ ${message}
           <div className="bg-white rounded-3xl p-8 shadow-xl border border-gray-100">
   <div className="w-full h-64 rounded-2xl overflow-hidden border-2 border-gray-300">
     <img
-      src="/team.jpg"  // or "/team.png" — use your exact file extension here
+      src="/team.png"  // or "/team.png" — use your exact file extension here
       alt="Our Customer Support Team"
       className="w-full h-full object-cover"
     />
