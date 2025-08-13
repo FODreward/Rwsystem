@@ -384,7 +384,7 @@ ${message}
               </div>
               <h3 className="font-bold text-gray-900 mb-4 text-lg">How do I contact support?</h3>
               <p className="text-gray-600 leading-relaxed">
-                You can reach us via email at info@survecta.com, phone at +1 (555) 123-4567, or use the contact form on
+                You can reach us via email at info@survecta.com, phone at +234 (Survecta), or use the contact form on
                 this page. We respond to all inquiries within 24 hours.
               </p>
             </div>
