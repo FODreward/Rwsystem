@@ -17,7 +17,7 @@ export default function AboutUsPage() {
                     strokeWidth={2}
                     d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                   />
-                </svg>
+                </Surve.png>
               </div>
               <p className="text-xs text-white/80">Logo Placeholder</p>
             </div>
@@ -73,7 +73,7 @@ export default function AboutUsPage() {
             <div className="grid md:grid-cols-2 gap-8 mb-8">
               <div className="bg-white border border-gray-100 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
                 <img
-                  src="/about-us1"
+                  src="/about-us1.png"
                   alt="Trust and security - shield and lock symbols showing data protection"
                   className="w-full h-48 object-cover rounded-lg mb-6"
                 />
@@ -90,7 +90,7 @@ export default function AboutUsPage() {
               </div>
               <div className="bg-white border border-gray-100 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
                 <img
-                  src="/about-us2"
+                  src="/about-us2.png"
                   alt="Earnings and rewards - money, coins, and gift cards showing financial benefits"
                   className="w-full h-48 object-cover rounded-lg mb-6"
                 />
@@ -132,7 +132,7 @@ export default function AboutUsPage() {
               </div>
               <div>
                 <img
-                  src="/about-us3"
+                  src="/about-us3.png"
                   alt="Company story - professional team collaboration and platform development"
                   className="w-full h-48 object-cover rounded-lg"
                 />
@@ -405,7 +405,7 @@ export default function AboutUsPage() {
             <div className="grid md:grid-cols-3 gap-8">
               <div className="text-center">
                 <img
-                  src="/about-us4"
+                  src="/about-us4.png"
                   alt="Leadership team member - experienced professional from market research sector"
                   className="w-32 h-32 object-cover rounded-full mx-auto mb-4"
                 />
@@ -417,7 +417,7 @@ export default function AboutUsPage() {
               </div>
               <div className="text-center">
                 <img
-                  src="/about-us5"
+                  src="/about-us5.png"
                   alt="Development team member - skilled developer building innovative solutions"
                   className="w-32 h-32 object-cover rounded-full mx-auto mb-4"
                 />
@@ -429,7 +429,7 @@ export default function AboutUsPage() {
               </div>
               <div className="text-center">
                 <img
-                  src="/about-us6"
+                  src="/about-us6.png"
                   alt="Support team member - dedicated customer service specialist"
                   className="w-32 h-32 object-cover rounded-full mx-auto mb-4"
                 />
