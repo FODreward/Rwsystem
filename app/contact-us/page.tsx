@@ -162,15 +162,14 @@ ${message}
           </div>
 
           <div className="bg-white rounded-3xl p-8 shadow-xl border border-gray-100">
-            <div className="w-full h-64 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center border-2 border-dashed border-gray-300">
-              <div className="text-center">
-                <Headphones className="w-16 h-16 text-gray-400 mx-auto mb-3" />
-                <p className="text-gray-500 text-lg font-semibold">Our Customer Support Team</p>
-                <p className="text-gray-400 text-sm">Ready to help you succeed</p>
-              </div>
-            </div>
-          </div>
-        </div>
+  <div className="w-full h-64 rounded-2xl overflow-hidden border-2 border-gray-300">
+    <img
+      src="/team.jpg"  // or "/team.png" — use your exact file extension here
+      alt="Our Customer Support Team"
+      className="w-full h-full object-cover"
+    />
+  </div>
+</div>
 
         {/* Support Response Times */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16">
