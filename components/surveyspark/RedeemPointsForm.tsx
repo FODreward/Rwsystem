@@ -97,8 +97,8 @@ export default function RedeemPointsForm({
       errors.amount = "Amount is required"
     } else if (isNaN(pointsAmount) || pointsAmount <= 0) {
       errors.amount = "Amount must be greater than zero"
-    } else if (pointsAmount < 50) {
-      errors.amount = "Minimum redemption is 50 points"
+    } else if (pointsAmount < 5000) {
+      errors.amount = "Minimum redemption is 5000 points"
     }
 
     if (!destination.trim()) {
@@ -170,8 +170,8 @@ export default function RedeemPointsForm({
     if (isLoadingRates) return "Loading..."
     if (!rates || typeof rate !== "number" || rate <= 0) return "Rate unavailable"
 
-    const dollarValuePer500Points = 500 * rate
-    return `500 pts = $${dollarValuePer500Points.toFixed(2)}`
+    const dollarValuePer100Points = 100 * rate
+    return `100 pts = $${dollarValuePer100Points.toFixed(2)}`
   }
 
   const calculateValue = (points: string): string => {
@@ -384,7 +384,7 @@ export default function RedeemPointsForm({
                 <div>
                   <h4 className="font-bold text-gray-900 mb-2">Important Information</h4>
                   <ul className="text-sm text-gray-600 space-y-1">
-                    <li>• Minimum redemption amount is 50 points</li>
+                    <li>• Minimum redemption amount is 5000 points</li>
                     <li>• Bitcoin redemptions are processed within 24-48 hours</li>
                     <li>• Gift card redemptions are processed within 1-3 business days</li>
                     <li>• All redemptions are final and cannot be reversed</li>
