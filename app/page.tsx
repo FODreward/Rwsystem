@@ -522,7 +522,7 @@ export default function HomePage() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/terms-and-condition" className="hover:text-white transition-colors">
+                  <Link href="/terms-and-conditions" className="hover:text-white transition-colors">
                     Terms of Service
                   </Link>
                 </li>
