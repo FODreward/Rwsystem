@@ -113,7 +113,7 @@ ${message}
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="flex justify-center mb-4">
             <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-3xl flex items-center justify-center border border-white/30">
-              <img src="/Surve.png" alt="Survecta Logo" className="w-16 h-16 object-contain" />
+              <img src="/Surve1.png" alt="Survecta Logo" className="w-16 h-16 object-contain" />
             </div>
           </div>
           <h1 className="text-4xl font-bold text-white mb-4">Contact Survecta Support</h1>
