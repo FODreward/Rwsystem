@@ -244,7 +244,7 @@ export default function SurveySparkPro() {
                   <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
                     <span className="text-white text-sm font-bold">S</span>
                   </div>
-                  <span className="font-semibold text-gray-900">Survey Dashboard</span>
+                  <span className="font-semibold text-gray-900">Survecta Dashboard</span>
                 </div>
               </div>
 
