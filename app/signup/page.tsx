@@ -18,6 +18,10 @@ export default function SignupPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [referralCode, setReferralCode] = useState("")
+  const [dateOfBirth, setDateOfBirth] = useState("") // YYYY-MM-DD
+  const [gender, setGender] = useState("") // "male", "female", "other"
+  const [countryCode, setCountryCode] = useState("")
+  const [zipCode, setZipCode] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
@@ -33,11 +37,29 @@ export default function SignupPage() {
       const deviceFingerprint = await getDeviceFingerprint()
       const ipAddress = await getIpAddress()
 
+      // Split dateOfBirth into day, month, year
+      let birthday_day: number | null = null
+      let birthday_month: number | null = null
+      let birthday_year: number | null = null
+
+      if (dateOfBirth) {
+        const [year, month, day] = dateOfBirth.split("-")
+        birthday_day = parseInt(day, 10)
+        birthday_month = parseInt(month, 10)
+        birthday_year = parseInt(year, 10)
+      }
+
       const tempSignupData = {
         name,
         email,
         password,
-        referral_code: referralCode,
+        referral_code: referralCode || null,
+        birthday_day,
+        birthday_month,
+        birthday_year,
+        gender: gender === "male" ? "m" : gender === "female" ? "f" : "o",
+        user_country_code: countryCode.toUpperCase() || null,
+        zip_code: zipCode || null,
         device_fingerprint: deviceFingerprint,
         ip_address: ipAddress,
         user_agent: navigator.userAgent,
@@ -77,10 +99,10 @@ export default function SignupPage() {
 
         <CardContent className="p-6">
           <form onSubmit={handleSubmit} className="space-y-5">
+
+            {/* Full Name */}
             <div>
-              <Label htmlFor="name" className="text-gray-700 font-medium">
-                Full Name
-              </Label>
+              <Label htmlFor="name" className="text-gray-700 font-medium">Full Name</Label>
               <div className="relative mt-1">
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <Input
@@ -97,10 +119,9 @@ export default function SignupPage() {
               </div>
             </div>
 
+            {/* Email */}
             <div>
-              <Label htmlFor="email" className="text-gray-700 font-medium">
-                Email Address
-              </Label>
+              <Label htmlFor="email" className="text-gray-700 font-medium">Email Address</Label>
               <div className="relative mt-1">
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <Input
@@ -117,10 +138,9 @@ export default function SignupPage() {
               </div>
             </div>
 
+            {/* Password */}
             <div>
-              <Label htmlFor="password" className="text-gray-700 font-medium">
-                Password
-              </Label>
+              <Label htmlFor="password" className="text-gray-700 font-medium">Password</Label>
               <div className="relative mt-1">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 z-10" />
                 <PasswordInput
@@ -143,10 +163,9 @@ export default function SignupPage() {
               )}
             </div>
 
+            {/* Referral Code */}
             <div>
-              <Label htmlFor="referralCode" className="text-gray-700 font-medium">
-                Referral Code (Optional)
-              </Label>
+              <Label htmlFor="referralCode" className="text-gray-700 font-medium">Referral Code (Optional)</Label>
               <div className="relative mt-1">
                 <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <Input
@@ -162,6 +181,66 @@ export default function SignupPage() {
               </div>
             </div>
 
+            {/* Birthday */}
+            <div>
+              <Label htmlFor="dateOfBirth" className="text-gray-700 font-medium">Date of Birth</Label>
+              <Input
+                id="dateOfBirth"
+                type="date"
+                value={dateOfBirth}
+                onChange={(e) => setDateOfBirth(e.target.value)}
+                disabled={isLoading}
+                className="border-gray-200 focus:border-purple-500 focus:ring-purple-500 mt-1"
+              />
+            </div>
+
+            {/* Gender */}
+            <div>
+              <Label htmlFor="gender" className="text-gray-700 font-medium">Gender</Label>
+              <select
+                id="gender"
+                value={gender}
+                onChange={(e) => setGender(e.target.value)}
+                disabled={isLoading}
+                className="w-full mt-1 border-gray-200 focus:border-purple-500 focus:ring-purple-500 rounded"
+              >
+                <option value="">Select gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            {/* Country Code */}
+            <div>
+              <Label htmlFor="countryCode" className="text-gray-700 font-medium">Country Code</Label>
+              <Input
+                id="countryCode"
+                type="text"
+                value={countryCode}
+                onChange={(e) => setCountryCode(e.target.value.toUpperCase())}
+                disabled={isLoading}
+                className="border-gray-200 focus:border-purple-500 focus:ring-purple-500 mt-1"
+                placeholder="e.g., US, NG"
+                maxLength={2}
+              />
+            </div>
+
+            {/* ZIP Code */}
+            <div>
+              <Label htmlFor="zipCode" className="text-gray-700 font-medium">ZIP / Postal Code</Label>
+              <Input
+                id="zipCode"
+                type="text"
+                value={zipCode}
+                onChange={(e) => setZipCode(e.target.value)}
+                disabled={isLoading}
+                className="border-gray-200 focus:border-purple-500 focus:ring-purple-500 mt-1"
+                placeholder="Enter ZIP code"
+              />
+            </div>
+
+            {/* Submit Button */}
             <Button
               type="submit"
               className="w-full bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white font-semibold py-3 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
