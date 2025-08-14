@@ -45,25 +45,8 @@ export async function apiCall<T>(
       })
       sessionStorage.removeItem("accessToken")
       sessionStorage.removeItem("currentUser")
-      setTimeout(() => {
-        window.location.href = "/login"
-      }, 100)
+      window.location.href = "/login"
       throw new Error("No authentication token found. Please log in.")
-    }
-
-    try {
-      const tokenParts = token.split(".")
-      if (tokenParts.length !== 3) {
-        console.warn("Invalid token format detected")
-        sessionStorage.removeItem("accessToken")
-        sessionStorage.removeItem("currentUser")
-        setTimeout(() => {
-          window.location.href = "/login"
-        }, 100)
-        throw new Error("Invalid token format")
-      }
-    } catch (error) {
-      console.warn("Token validation failed:", error)
     }
     ;(options.headers as Record<string, string>)["Authorization"] = `Bearer ${token}`
   }
@@ -83,9 +66,7 @@ export async function apiCall<T>(
         })
         sessionStorage.removeItem("accessToken")
         sessionStorage.removeItem("currentUser")
-        setTimeout(() => {
-          window.location.href = "/login"
-        }, 100)
+        window.location.href = "/login"
         throw new Error("Session expired. Please log in again.")
       }
 
@@ -134,5 +115,4 @@ export async function getDeviceFingerprint(): Promise<string> {
     console.error("Error generating device fingerprint:", error)
     return "unknown_fingerprint"
   }
-                    }
-  
+}
