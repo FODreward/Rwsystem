@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import Link from "next/link"
 import { ExternalLink, FileText, Gift, Clock, Star, ArrowLeft } from "lucide-react"
 import { apiCall } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
@@ -194,7 +193,7 @@ export default function AvailableSurveysSection({
 
                     {/* Survey Footer */}
                     <div className="pt-4 border-t border-gray-100">
-                      <Link
+                      <a
                         href={survey.redirect_url}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -202,7 +201,7 @@ export default function AvailableSurveysSection({
                       >
                         Start Survey
                         <ExternalLink className="ml-2 h-4 w-4" />
-                      </Link>
+                      </a>
                     </div>
                   </div>
                 </div>
@@ -213,4 +212,4 @@ export default function AvailableSurveysSection({
       </div>
     </div>
   )
-}
+                    }
