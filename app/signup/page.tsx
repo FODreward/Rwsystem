@@ -19,7 +19,7 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [referralCode, setReferralCode] = useState("")
   const [dateOfBirth, setDateOfBirth] = useState("") // YYYY-MM-DD
-  const [gender, setGender] = useState("") // "male", "female", "other"
+  const [gender, setGender] = useState("") // "M" or "F"
   const [countryCode, setCountryCode] = useState("")
   const [zipCode, setZipCode] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -27,7 +27,8 @@ export default function SignupPage() {
   const { toast } = useToast()
 
   const isPasswordValid = password.length >= 8
-  const isFormValid = name.trim() && email.trim() && isPasswordValid
+  const isFormValid =
+    name.trim() && email.trim() && isPasswordValid && dateOfBirth && gender && countryCode.trim() && zipCode.trim()
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -57,7 +58,7 @@ export default function SignupPage() {
         birthday_day,
         birthday_month,
         birthday_year,
-        gender: gender === "male" ? "m" : gender === "female" ? "f" : gender === "other" ? "o" : null,
+        gender: gender || null,
         user_country_code: countryCode.toUpperCase() || null,
         zip_code: zipCode || null,
         device_fingerprint: deviceFingerprint,
@@ -104,7 +105,7 @@ export default function SignupPage() {
             {/* Full Name */}
             <div>
               <Label htmlFor="name" className="text-gray-700 font-medium">
-                Full Name
+                Full Name *
               </Label>
               <div className="relative mt-1">
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -125,7 +126,7 @@ export default function SignupPage() {
             {/* Email */}
             <div>
               <Label htmlFor="email" className="text-gray-700 font-medium">
-                Email Address
+                Email Address *
               </Label>
               <div className="relative mt-1">
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -146,7 +147,7 @@ export default function SignupPage() {
             {/* Password */}
             <div>
               <Label htmlFor="password" className="text-gray-700 font-medium">
-                Password
+                Password *
               </Label>
               <div className="relative mt-1">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 z-10" />
@@ -178,6 +179,85 @@ export default function SignupPage() {
               )}
             </div>
 
+            {/* Birthday */}
+            <div>
+              <Label htmlFor="dateOfBirth" className="text-gray-700 font-medium">
+                Date of Birth *
+              </Label>
+              <div className="relative mt-1">
+                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  id="dateOfBirth"
+                  type="date"
+                  required
+                  value={dateOfBirth}
+                  onChange={(e) => setDateOfBirth(e.target.value)}
+                  disabled={isLoading}
+                  className="pl-10 border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                />
+              </div>
+            </div>
+
+            {/* Gender */}
+            <div>
+              <Label htmlFor="gender" className="text-gray-700 font-medium">
+                Gender *
+              </Label>
+              <select
+                id="gender"
+                value={gender}
+                onChange={(e) => setGender(e.target.value)}
+                disabled={isLoading}
+                required
+                className="w-full mt-1 px-3 py-2 border border-gray-200 rounded-md focus:border-purple-500 focus:ring-purple-500 focus:outline-none"
+              >
+                <option value="">Select gender</option>
+                <option value="M">Male</option>
+                <option value="F">Female</option>
+              </select>
+            </div>
+
+            {/* Country Code */}
+            <div>
+              <Label htmlFor="countryCode" className="text-gray-700 font-medium">
+                Country Code *
+              </Label>
+              <div className="relative mt-1">
+                <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  id="countryCode"
+                  type="text"
+                  required
+                  value={countryCode}
+                  onChange={(e) => setCountryCode(e.target.value.toUpperCase())}
+                  disabled={isLoading}
+                  className="pl-10 border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                  placeholder="e.g., NG, UK, US"
+                  maxLength={2}
+                />
+              </div>
+            </div>
+
+            {/* ZIP Code */}
+            <div>
+              <Label htmlFor="zipCode" className="text-gray-700 font-medium">
+                ZIP / Postal Code *
+              </Label>
+              <div className="relative mt-1">
+                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  id="zipCode"
+                  type="text"
+                  required
+                  value={zipCode}
+                  onChange={(e) => setZipCode(e.target.value)}
+                  disabled={isLoading}
+                  className="pl-10 border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                  placeholder="Enter ZIP/postal code"
+                />
+              </div>
+            </div>
+
             {/* Referral Code */}
             <div>
               <Label htmlFor="referralCode" className="text-gray-700 font-medium">
@@ -194,82 +274,6 @@ export default function SignupPage() {
                   disabled={isLoading}
                   className="pl-10 border-gray-200 focus:border-purple-500 focus:ring-purple-500"
                   placeholder="Enter referral code (optional)"
-                />
-              </div>
-            </div>
-
-            {/* Birthday */}
-            <div>
-              <Label htmlFor="dateOfBirth" className="text-gray-700 font-medium">
-                Date of Birth
-              </Label>
-              <div className="relative mt-1">
-                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  id="dateOfBirth"
-                  type="date"
-                  value={dateOfBirth}
-                  onChange={(e) => setDateOfBirth(e.target.value)}
-                  disabled={isLoading}
-                  className="pl-10 border-gray-200 focus:border-purple-500 focus:ring-purple-500"
-                />
-              </div>
-            </div>
-
-            {/* Gender */}
-            <div>
-              <Label htmlFor="gender" className="text-gray-700 font-medium">
-                Gender
-              </Label>
-              <select
-                id="gender"
-                value={gender}
-                onChange={(e) => setGender(e.target.value)}
-                disabled={isLoading}
-                className="w-full mt-1 px-3 py-2 border border-gray-200 rounded-md focus:border-purple-500 focus:ring-purple-500 focus:outline-none"
-              >
-                <option value="">Select gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-
-            {/* Country Code */}
-            <div>
-              <Label htmlFor="countryCode" className="text-gray-700 font-medium">
-                Country Code
-              </Label>
-              <div className="relative mt-1">
-                <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  id="countryCode"
-                  type="text"
-                  value={countryCode}
-                  onChange={(e) => setCountryCode(e.target.value.toUpperCase())}
-                  disabled={isLoading}
-                  className="pl-10 border-gray-200 focus:border-purple-500 focus:ring-purple-500"
-                  placeholder="e.g., US, NG, UK"
-                  maxLength={2}
-                />
-              </div>
-            </div>
-
-            {/* ZIP Code */}
-            <div>
-              <Label htmlFor="zipCode" className="text-gray-700 font-medium">
-                ZIP / Postal Code
-              </Label>
-              <div className="relative mt-1">
-                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  id="zipCode"
-                  type="text"
-                  value={zipCode}
-                  onChange={(e) => setZipCode(e.target.value)}
-                  disabled={isLoading}
-                  className="pl-10 border-gray-200 focus:border-purple-500 focus:ring-purple-500"
-                  placeholder="Enter ZIP/postal code"
                 />
               </div>
             </div>
