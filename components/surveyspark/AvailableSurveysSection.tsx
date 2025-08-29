@@ -1,10 +1,11 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { ExternalLink, FileText, Gift, Clock, Star, ArrowLeft, Target, Zap, Globe } from "lucide-react"
+import { Gift, Clock, ArrowLeft, Globe } from "lucide-react"
 import { apiCall } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
+import VideoAdPlayer from "@/components/VideoAdPlayer"   // ⬅️ Import video player
 
 interface Survey {
   id: string
@@ -79,15 +80,13 @@ export default function AvailableSurveysSection({
           true
         )
         if (res.points_awarded > 0) {
-          // Show toast
           toast({
             title: "Points Awarded!",
             description: `You earned ${res.points_awarded} points.`,
             variant: "success",
           })
-          // Show overlay
           setShowPointsOverlay({ visible: true, points: res.points_awarded })
-          setTimeout(() => setShowPointsOverlay({ visible: false, points: 0 }), 3500) // fade out after 3.5s
+          setTimeout(() => setShowPointsOverlay({ visible: false, points: 0 }), 3500)
         }
       } catch (err: any) {
         console.error("Reward endpoint error:", err)
@@ -150,6 +149,18 @@ export default function AvailableSurveysSection({
               Back to Dashboard
             </Button>
           )}
+        </div>
+
+        {/* ⬅️ Sponsored Video Section */}
+        <div className="space-y-4">
+          <div className="flex items-center space-x-2">
+            <Gift className="h-5 w-5 text-pink-600" />
+            <h2 className="text-xl font-bold text-gray-900">Sponsored Video</h2>
+            <span className="bg-pink-100 text-pink-700 text-xs px-2 py-1 rounded-full font-medium">
+              Auto-Play
+            </span>
+          </div>
+          <VideoAdPlayer />
         </div>
 
         {/* BitLabs iframe section */}
@@ -226,4 +237,4 @@ export default function AvailableSurveysSection({
       `}</style>
     </div>
   )
-}
+        }
