@@ -5,7 +5,8 @@ import { Gift, Clock, ArrowLeft, Globe } from "lucide-react"
 import { apiCall } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
-import VideoAdPlayer from "@/components/VideoAdPlayer"   // ⬅️ Import video player
+import VideoAdPlayer from "@/components/VideoAdPlayer"
+import AdZone from "@/components/AdZone"
 
 interface Survey {
   id: string
@@ -36,8 +37,11 @@ export default function AvailableSurveysSection({
   const [bitlabsUrl, setBitlabsUrl] = useState<string>("")
   const [bitlabsLoading, setBitlabsLoading] = useState(true)
   const [isLoading, setIsLoading] = useState(true)
-  const [showPointsOverlay, setShowPointsOverlay] = useState<{ visible: boolean; points: number }>({ visible: false, points: 0 })
-  const [showVideoAd, setShowVideoAd] = useState(false)   // ⬅️ control video section
+  const [showPointsOverlay, setShowPointsOverlay] = useState<{ visible: boolean; points: number }>({
+    visible: false,
+    points: 0,
+  })
+  const [showVideoAd, setShowVideoAd] = useState(true)
   const { toast } = useToast()
 
   // --- Load surveys/offers ---
@@ -142,7 +146,9 @@ export default function AvailableSurveysSection({
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-1">Available Offers & Tasks</h1>
-            <p className="text-gray-600">Complete offers, tasks, and surveys to earn points and rewards</p>
+            <p className="text-gray-600">
+              Complete offers, tasks, and surveys to earn points and rewards
+            </p>
           </div>
           {showReturnButton && (
             <Button onClick={onReturnToDashboard} variant="outline" className="bg-white">
@@ -152,7 +158,7 @@ export default function AvailableSurveysSection({
           )}
         </div>
 
-        {/* Sponsored Video Section (only if ad is active) */}
+        {/* Sponsored Video Section */}
         {showVideoAd && (
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
@@ -165,6 +171,20 @@ export default function AvailableSurveysSection({
             <VideoAdPlayer onVisibilityChange={setShowVideoAd} />
           </div>
         )}
+
+        {/* Sponsored Banner Section */}
+        <div className="space-y-4">
+          <div className="flex items-center space-x-2">
+            <Gift className="h-5 w-5 text-yellow-600" />
+            <h2 className="text-xl font-bold text-gray-900">Sponsored Banner</h2>
+            <span className="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded-full font-medium">
+              Display
+            </span>
+          </div>
+          <div className="bg-white rounded-2xl border-2 border-yellow-200 p-4 flex items-center justify-center">
+            <AdZone zoneId="5712666" />
+          </div>
+        </div>
 
         {/* BitLabs iframe section */}
         <div className="space-y-4">
@@ -206,13 +226,16 @@ export default function AvailableSurveysSection({
           </div>
         </div>
 
+        {/* Surveys & AdGem Offers */}
         {totalOpportunities === 0 ? (
           <div className="bg-white rounded-2xl p-8 border border-gray-100">
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mb-4">
                 <Clock className="h-6 w-6 text-orange-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">No Additional Opportunities Available</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                No Additional Opportunities Available
+              </h3>
               <p className="text-gray-500 max-w-md">
                 Check out the BitLabs offers above, or come back later for more surveys and tasks!
               </p>
@@ -220,8 +243,47 @@ export default function AvailableSurveysSection({
           </div>
         ) : (
           <div className="space-y-6">
-            {/* Summary Stats & Offers */}
-            {/* Keep your existing offer/survey render logic here */}
+            {/* Render surveys */}
+            {surveys.map((survey) => (
+              <div
+                key={survey.id}
+                className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition"
+              >
+                <h3 className="font-bold text-gray-900">{survey.title}</h3>
+                <p className="text-gray-600 text-sm">{survey.description}</p>
+                <div className="mt-3 flex justify-between items-center">
+                  <span className="text-green-600 font-semibold">
+                    +{survey.points_reward} pts
+                  </span>
+                  <Button asChild>
+                    <a href={survey.redirect_url} target="_blank" rel="noopener noreferrer">
+                      Start Survey
+                    </a>
+                  </Button>
+                </div>
+              </div>
+            ))}
+
+            {/* Render AdGem offers */}
+            {adgemOffers.map((offer) => (
+              <div
+                key={offer.id}
+                className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition"
+              >
+                <h3 className="font-bold text-gray-900">{offer.title}</h3>
+                <p className="text-gray-600 text-sm">{offer.description}</p>
+                <div className="mt-3 flex justify-between items-center">
+                  <span className="text-blue-600 font-semibold">
+                    +{offer.points_reward} pts
+                  </span>
+                  <Button asChild>
+                    <a href={offer.redirect_url} target="_blank" rel="noopener noreferrer">
+                      Claim Offer
+                    </a>
+                  </Button>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -229,10 +291,22 @@ export default function AvailableSurveysSection({
       {/* Overlay fade animation */}
       <style jsx>{`
         @keyframes fade-in-out {
-          0% { opacity: 0; transform: translateY(-10px); }
-          10% { opacity: 1; transform: translateY(0); }
-          90% { opacity: 1; transform: translateY(0); }
-          100% { opacity: 0; transform: translateY(-10px); }
+          0% {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          10% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+          90% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+          100% {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
         }
         .animate-fade-in-out {
           animation: fade-in-out 3.5s ease-in-out forwards;
@@ -240,4 +314,4 @@ export default function AvailableSurveysSection({
       `}</style>
     </div>
   )
-      }
+            }
