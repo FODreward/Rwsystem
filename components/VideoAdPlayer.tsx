@@ -119,7 +119,7 @@ const VideoAdPlayer = ({ onVisibilityChange }: VideoAdPlayerProps) => {
   if (!showAd) return null
 
   return (
-    <div className="w-full max-w-2xl mx-auto my-4">
+    <div className="w-full max-w-2xl mx-auto">
       <div
         id="adContainer"
         className="relative w-full h-64 bg-black rounded-2xl shadow-lg overflow-hidden flex items-center justify-center"
