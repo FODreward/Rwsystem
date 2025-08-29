@@ -1,37 +1,46 @@
-"use client"; 
+"use client";
+import { useEffect, useRef, useState } from "react";
 
-import { useEffect } from "react";
+const AdZone = () => {
+  const adRef = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
 
-declare global {
-  interface Window {
-    AdProvider: any[];
-  }
-}
-
-export default function AdZone() {
   useEffect(() => {
+    // Load ad script dynamically
     const script = document.createElement("script");
     script.src = "https://a.pemsrv.com/ad-provider.js";
     script.async = true;
-    script.type = "application/javascript";
+    script.onload = () => {
+      try {
+        (window as any).AdProvider = (window as any).AdProvider || [];
+        (window as any).AdProvider.push({
+          serve: {},
+          onAdLoaded: () => setVisible(true),  // Show container only if ad loads
+          onNoAd: () => setVisible(false),     // Hide container if no ad
+        });
+      } catch (err) {
+        setVisible(false);
+      }
+    };
+
     document.body.appendChild(script);
 
-    window.AdProvider = window.AdProvider || [];
-    window.AdProvider.push({ serve: {} });
-
     return () => {
-      const ads = document.querySelectorAll(
-        "script[src*='a.pemsrv.com/ad-provider.js']"
-      );
-      ads.forEach((s) => s.remove());
+      script.remove();
     };
   }, []);
 
+  if (!visible) return null; // Nothing renders if no ad is available
+
   return (
-    <ins
-      className="eas6a97888e33"
-      data-zoneid="5712666"
-      style={{ display: "block" }}
-    ></ins>
+    <div ref={adRef} className="w-full flex justify-center">
+      <ins
+        className="eas6a97888e33"
+        data-zoneid="5712666"
+        style={{ display: "block" }}
+      ></ins>
+    </div>
   );
-}
+};
+
+export default AdZone;
