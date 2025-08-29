@@ -159,8 +159,6 @@ export default function AvailableSurveysSection({
 
         {showVideoAd && <VideoAdPlayer onVisibilityChange={setShowVideoAd} />}
 
-        {showBannerAd && <AdZone zoneId="5712666" onVisibilityChange={setShowBannerAd} />}
-
         {/* BitLabs iframe section */}
         <div className="space-y-4">
           <div className="flex items-center space-x-2">
@@ -200,6 +198,8 @@ export default function AvailableSurveysSection({
             )}
           </div>
         </div>
+
+        {showBannerAd && <AdZone zoneId="5712666" onVisibilityChange={setShowBannerAd} />}
 
         {/* Surveys & AdGem Offers */}
         {totalOpportunities === 0 ? (
