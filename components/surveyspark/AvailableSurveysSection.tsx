@@ -37,6 +37,7 @@ export default function AvailableSurveysSection({
   const [bitlabsLoading, setBitlabsLoading] = useState(true)
   const [isLoading, setIsLoading] = useState(true)
   const [showPointsOverlay, setShowPointsOverlay] = useState<{ visible: boolean; points: number }>({ visible: false, points: 0 })
+  const [showVideoAd, setShowVideoAd] = useState(false)   // ⬅️ control video section
   const { toast } = useToast()
 
   // --- Load surveys/offers ---
@@ -151,17 +152,19 @@ export default function AvailableSurveysSection({
           )}
         </div>
 
-        {/* ⬅️ Sponsored Video Section */}
-        <div className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <Gift className="h-5 w-5 text-pink-600" />
-            <h2 className="text-xl font-bold text-gray-900">Sponsored Video</h2>
-            <span className="bg-pink-100 text-pink-700 text-xs px-2 py-1 rounded-full font-medium">
-              Auto-Play
-            </span>
+        {/* Sponsored Video Section (only if ad is active) */}
+        {showVideoAd && (
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <Gift className="h-5 w-5 text-pink-600" />
+              <h2 className="text-xl font-bold text-gray-900">Sponsored Video</h2>
+              <span className="bg-pink-100 text-pink-700 text-xs px-2 py-1 rounded-full font-medium">
+                Auto-Play
+              </span>
+            </div>
+            <VideoAdPlayer onVisibilityChange={setShowVideoAd} />
           </div>
-          <VideoAdPlayer />
-        </div>
+        )}
 
         {/* BitLabs iframe section */}
         <div className="space-y-4">
@@ -237,4 +240,4 @@ export default function AvailableSurveysSection({
       `}</style>
     </div>
   )
-        }
+      }
