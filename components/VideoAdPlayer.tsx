@@ -10,6 +10,7 @@ const VideoAdPlayer = ({ onVisibilityChange }: VideoAdPlayerProps) => {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const [showAd, setShowAd] = useState(false)
   const [isMuted, setIsMuted] = useState(true)
+  const imaLoadedRef = useRef(false)
 
   useEffect(() => {
     let adsLoader: any
@@ -19,14 +20,18 @@ const VideoAdPlayer = ({ onVisibilityChange }: VideoAdPlayerProps) => {
       if (!videoRef.current) return
 
       try {
-        if (!(window as any).google?.ima) {
+        if (!(window as any).google?.ima && !imaLoadedRef.current) {
           const imaScript = document.createElement("script")
           imaScript.src = "https://imasdk.googleapis.com/js/sdkloader/ima3.js"
           imaScript.async = true
-          document.body.appendChild(imaScript)
+          document.head.appendChild(imaScript)
 
-          imaScript.onload = () => initIMA()
+          imaScript.onload = () => {
+            imaLoadedRef.current = true
+            initIMA()
+          }
           imaScript.onerror = () => {
+            console.error("Failed to load Google IMA SDK")
             setShowAd(false)
             onVisibilityChange?.(false)
           }
@@ -44,58 +49,68 @@ const VideoAdPlayer = ({ onVisibilityChange }: VideoAdPlayerProps) => {
       const adContainer = document.getElementById("adContainer")
       if (!adContainer || !videoRef.current) return
 
-      const adDisplayContainer = new (window as any).google.ima.AdDisplayContainer(adContainer, videoRef.current)
-      adDisplayContainer.initialize()
+      try {
+        const adDisplayContainer = new (window as any).google.ima.AdDisplayContainer(adContainer, videoRef.current)
+        adDisplayContainer.initialize()
 
-      adsLoader = new (window as any).google.ima.AdsLoader(adDisplayContainer)
+        adsLoader = new (window as any).google.ima.AdsLoader(adDisplayContainer)
 
-      const adsRequest = new (window as any).google.ima.AdsRequest()
-      adsRequest.adTagUrl = "https://s.magsrv.com/v1/vast.php?idzone=5712182"
+        const adsRequest = new (window as any).google.ima.AdsRequest()
+        adsRequest.adTagUrl = "https://s.magsrv.com/v1/vast.php?idzone=5712182"
 
-      adsLoader.addEventListener(
-        (window as any).google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
-        (event: any) => {
-          adsManager = event.getAdsManager(videoRef.current)
+        adsLoader.addEventListener(
+          (window as any).google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
+          (event: any) => {
+            adsManager = event.getAdsManager(videoRef.current)
 
-          try {
-            setShowAd(true)
-            onVisibilityChange?.(true)
-            adsManager.init(
-              adContainer.clientWidth,
-              adContainer.clientHeight,
-              (window as any).google.ima.ViewMode.NORMAL,
-            )
-            adsManager.start()
+            try {
+              setShowAd(true)
+              onVisibilityChange?.(true)
+              adsManager.init(
+                adContainer.clientWidth,
+                adContainer.clientHeight,
+                (window as any).google.ima.ViewMode.NORMAL,
+              )
+              adsManager.start()
 
-            adsManager.addEventListener((window as any).google.ima.AdEvent.Type.COMPLETE, () => {
+              adsManager.addEventListener((window as any).google.ima.AdEvent.Type.COMPLETE, () => {
+                setShowAd(false)
+                onVisibilityChange?.(false)
+              })
+              adsManager.addEventListener((window as any).google.ima.AdEvent.Type.SKIPPED, () => {
+                setShowAd(false)
+                onVisibilityChange?.(false)
+              })
+              adsManager.addEventListener((window as any).google.ima.AdErrorEvent.Type.AD_ERROR, () => {
+                setShowAd(false)
+                onVisibilityChange?.(false)
+              })
+            } catch (adError: any) {
+              console.error("AdsManager start error:", adError)
               setShowAd(false)
               onVisibilityChange?.(false)
-            })
-            adsManager.addEventListener((window as any).google.ima.AdEvent.Type.SKIPPED, () => {
-              setShowAd(false)
-              onVisibilityChange?.(false)
-            })
-          } catch (adError: any) {
-            console.error("AdsManager start error:", adError)
+            }
+          },
+          false,
+        )
+
+        adsLoader.addEventListener(
+          (window as any).google.ima.AdErrorEvent.Type.AD_ERROR,
+          (error: any) => {
+            console.error("Ad error:", error.getError())
+            if (adsManager) adsManager.destroy()
             setShowAd(false)
             onVisibilityChange?.(false)
-          }
-        },
-        false,
-      )
+          },
+          false,
+        )
 
-      adsLoader.addEventListener(
-        (window as any).google.ima.AdErrorEvent.Type.AD_ERROR,
-        (error: any) => {
-          console.error("Ad error:", error.getError())
-          if (adsManager) adsManager.destroy()
-          setShowAd(false)
-          onVisibilityChange?.(false)
-        },
-        false,
-      )
-
-      adsLoader.requestAds(adsRequest)
+        adsLoader.requestAds(adsRequest)
+      } catch (err) {
+        console.error("IMA initialization error:", err)
+        setShowAd(false)
+        onVisibilityChange?.(false)
+      }
     }
 
     loadVastAd()
@@ -119,7 +134,7 @@ const VideoAdPlayer = ({ onVisibilityChange }: VideoAdPlayerProps) => {
   if (!showAd) return null
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
+    <div className="w-full max-w-2xl mx-auto my-4">
       <div
         id="adContainer"
         className="relative w-full h-64 bg-black rounded-2xl shadow-lg overflow-hidden flex items-center justify-center"
