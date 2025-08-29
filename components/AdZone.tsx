@@ -9,34 +9,41 @@ interface AdZoneProps {
 const AdZone = ({ zoneId = "5712666", onVisibilityChange }: AdZoneProps) => {
   const adRef = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
+  const [adLoaded, setAdLoaded] = useState(false)
 
   useEffect(() => {
-    // Load ad script dynamically
     const script = document.createElement("script")
-    script.src = "https://a.pemsrv.com/ad-provider.js"
+    script.src = "https://a.magsrv.com/ad-provider.js"
     script.async = true
+
     script.onload = () => {
       try {
         ;(window as any).AdProvider = (window as any).AdProvider || []
-        ;(window as any).AdProvider.push({
-          serve: {},
-          onAdLoaded: () => {
+        ;(window as any).AdProvider.push({ serve: {} })
+
+        setTimeout(() => {
+          const insElement = adRef.current?.querySelector("ins")
+          if (insElement && insElement.innerHTML.trim() !== "") {
             setVisible(true)
+            setAdLoaded(true)
             onVisibilityChange?.(true)
-          },
-          onNoAd: () => {
+          } else {
             setVisible(false)
+            setAdLoaded(false)
             onVisibilityChange?.(false)
-          },
-        })
+          }
+        }, 2000) // Give ad time to load
       } catch (err) {
+        console.error("Ad loading error:", err)
         setVisible(false)
+        setAdLoaded(false)
         onVisibilityChange?.(false)
       }
     }
 
     script.onerror = () => {
       setVisible(false)
+      setAdLoaded(false)
       onVisibilityChange?.(false)
     }
 
@@ -45,13 +52,13 @@ const AdZone = ({ zoneId = "5712666", onVisibilityChange }: AdZoneProps) => {
     return () => {
       script.remove()
     }
-  }, [onVisibilityChange])
+  }, [onVisibilityChange, zoneId])
 
-  if (!visible) return null
+  if (!visible || !adLoaded) return null
 
   return (
-    <div ref={adRef} className="w-full flex justify-center my-4">
-      <ins className="eas6a97888e33" data-zoneid={zoneId} style={{ display: "block" }}></ins>
+    <div ref={adRef} className="w-full flex justify-center">
+      <ins className="adsbynetwork" data-zoneid={zoneId} style={{ display: "block" }}></ins>
     </div>
   )
 }
