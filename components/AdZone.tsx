@@ -13,34 +13,29 @@ const AdZone = ({ zoneId = "5712666", onVisibilityChange }: AdZoneProps) => {
 
   useEffect(() => {
     const loadAd = () => {
+      const handleAdDisplayed = () => {
+        setVisible(true)
+        onVisibilityChange?.(true)
+      }
+
+      document.addEventListener(`creativeDisplayed-${zoneId}`, handleAdDisplayed, false)
+
       if (scriptLoadedRef.current) {
-        // Script already loaded, just trigger ad serving
         try {
           ;(window as any).AdProvider = (window as any).AdProvider || []
           ;(window as any).AdProvider.push({ serve: {} })
-
-          // Check if ad loaded after a delay
-          setTimeout(() => {
-            const insElement = adRef.current?.querySelector("ins")
-            if (insElement && (insElement.innerHTML.trim() !== "" || insElement.children.length > 0)) {
-              setVisible(true)
-              onVisibilityChange?.(true)
-            } else {
-              setVisible(false)
-              onVisibilityChange?.(false)
-            }
-          }, 3000) // Increased timeout for better ad detection
         } catch (err) {
           console.error("Ad serving error:", err)
           setVisible(false)
           onVisibilityChange?.(false)
         }
-        return
+        return () => {
+          document.removeEventListener(`creativeDisplayed-${zoneId}`, handleAdDisplayed, false)
+        }
       }
 
-      // Load script for first time with correct ExoClick URL
       const script = document.createElement("script")
-      script.src = "https://a.magsrv.com/ad-provider.js" // Correct ExoClick script URL
+      script.src = "https://a.pemsrv.com/ad-provider.js"
       script.async = true
 
       script.onload = () => {
@@ -48,17 +43,6 @@ const AdZone = ({ zoneId = "5712666", onVisibilityChange }: AdZoneProps) => {
         try {
           ;(window as any).AdProvider = (window as any).AdProvider || []
           ;(window as any).AdProvider.push({ serve: {} })
-
-          setTimeout(() => {
-            const insElement = adRef.current?.querySelector("ins")
-            if (insElement && (insElement.innerHTML.trim() !== "" || insElement.children.length > 0)) {
-              setVisible(true)
-              onVisibilityChange?.(true)
-            } else {
-              setVisible(false)
-              onVisibilityChange?.(false)
-            }
-          }, 3000)
         } catch (err) {
           console.error("Ad loading error:", err)
           setVisible(false)
@@ -73,19 +57,23 @@ const AdZone = ({ zoneId = "5712666", onVisibilityChange }: AdZoneProps) => {
       }
 
       document.head.appendChild(script)
+
+      return () => {
+        document.removeEventListener(`creativeDisplayed-${zoneId}`, handleAdDisplayed, false)
+      }
     }
 
-    loadAd()
+    const cleanup = loadAd()
+    return cleanup
   }, [onVisibilityChange, zoneId])
 
   if (!visible) return null
 
   return (
     <div ref={adRef} className="w-full flex justify-center my-4">
-      <ins className="adsbynetwork" data-zoneid={zoneId} style={{ display: "block" }}></ins>
+      <ins className="eas6a97888e33" data-zoneid={zoneId} style={{ display: "block" }}></ins>
     </div>
   )
 }
 
 export default AdZone
-      
