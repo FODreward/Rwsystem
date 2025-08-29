@@ -45,7 +45,6 @@ export default function AvailableSurveysSection({
   const [showBannerAd, setShowBannerAd] = useState(false)
   const { toast } = useToast()
 
-  // --- Load surveys/offers ---
   useEffect(() => {
     const loadOffersAndSurveys = async () => {
       setIsLoading(true)
@@ -75,7 +74,6 @@ export default function AvailableSurveysSection({
 
   const totalOpportunities = surveys.length + adgemOffers.length
 
-  // --- Reward endpoint: fires once per page visit ---
   useEffect(() => {
     const rewardUserOnce = async () => {
       try {
@@ -135,7 +133,6 @@ export default function AvailableSurveysSection({
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 relative">
-      {/* Points Overlay */}
       {showPointsOverlay.visible && (
         <div className="fixed top-16 right-4 bg-green-600 text-white px-5 py-3 rounded-xl shadow-lg z-50 animate-fade-in-out">
           🎉 You earned {showPointsOverlay.points} points!
@@ -143,7 +140,6 @@ export default function AvailableSurveysSection({
       )}
 
       <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-1">Available Offers & Tasks</h1>
@@ -157,9 +153,9 @@ export default function AvailableSurveysSection({
           )}
         </div>
 
-        {showVideoAd && <VideoAdPlayer onVisibilityChange={setShowVideoAd} />}
+        <VideoAdPlayer onVisibilityChange={setShowVideoAd} />
+        <AdZone onVisibilityChange={setShowBannerAd} />
 
-        {/* BitLabs iframe section */}
         <div className="space-y-4">
           <div className="flex items-center space-x-2">
             <Globe className="h-5 w-5 text-indigo-600" />
@@ -199,9 +195,8 @@ export default function AvailableSurveysSection({
           </div>
         </div>
 
-        {showBannerAd && <AdZone zoneId="5712666" onVisibilityChange={setShowBannerAd} />}
+        <AdZone onVisibilityChange={setShowBannerAd} />
 
-        {/* Surveys & AdGem Offers */}
         {totalOpportunities === 0 ? (
           <div className="bg-white rounded-2xl p-8 border border-gray-100">
             <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -216,7 +211,6 @@ export default function AvailableSurveysSection({
           </div>
         ) : (
           <div className="space-y-6">
-            {/* Render surveys */}
             {surveys.map((survey) => (
               <div
                 key={survey.id}
@@ -235,7 +229,6 @@ export default function AvailableSurveysSection({
               </div>
             ))}
 
-            {/* Render AdGem offers */}
             {adgemOffers.map((offer) => (
               <div
                 key={offer.id}
@@ -257,7 +250,6 @@ export default function AvailableSurveysSection({
         )}
       </div>
 
-      {/* Overlay fade animation */}
       <style jsx>{`
         @keyframes fade-in-out {
           0% {
