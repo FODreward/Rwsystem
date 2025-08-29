@@ -55,14 +55,12 @@ export default function SurveySparkPro() {
   const [showVideoAd, setShowVideoAd] = useState(false)
   const [showBannerAd, setShowBannerAd] = useState(false)
 
-  // Function to reset the timeout
   const resetTimeout = () => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current)
     }
     timeoutRef.current = setTimeout(
       () => {
-        // Save current section and path before redirecting for PIN verification
         sessionStorage.setItem("prePinVerifyPath", `/dashboard?section=${activeSection}`)
         toast({
           title: "Session Timeout",
@@ -71,28 +69,24 @@ export default function SurveySparkPro() {
         })
         router.push("/pin-verify-login")
       },
-      10 * 60 * 1000, // 10 minutes
+      10 * 60 * 1000,
     )
   }
 
   useEffect(() => {
-    // Handle section persistence on page refresh
     const sectionParam = searchParams.get("section")
     if (sectionParam) {
       setActiveSection(sectionParam)
     } else {
-      // If no section param, default to dashboardHome but update URL
       const newParams = new URLSearchParams(searchParams.toString())
       newParams.set("section", "dashboardHome")
       router.replace(`?${newParams.toString()}`, { scroll: false })
     }
 
-    // Set up inactivity timeout
     resetTimeout()
 
     const handleActivity = () => resetTimeout()
 
-    // Add event listeners for user activity
     window.addEventListener("mousemove", handleActivity)
     window.addEventListener("keydown", handleActivity)
     window.addEventListener("click", handleActivity)
@@ -111,7 +105,6 @@ export default function SurveySparkPro() {
     }
   }, [searchParams, router])
 
-  // Fetch dashboard data
   const {
     data: dashboardStats,
     isLoading: isStatsLoading,
@@ -158,7 +151,6 @@ export default function SurveySparkPro() {
     refetchActivity()
   }
 
-  // Format time ago
   const formatTimeAgo = (date: Date) => {
     const now = new Date()
     const diffInMs = now.getTime() - new Date(date).getTime()
@@ -186,7 +178,7 @@ export default function SurveySparkPro() {
   const getUserDisplayName = (fullName?: string) => {
     if (!fullName || fullName.trim() === "") return "User"
     const names = fullName.trim().split(" ")
-    return names[0] // Return first name only
+    return names[0]
   }
 
   const getUserInitials = (fullName?: string) => {
@@ -238,7 +230,6 @@ export default function SurveySparkPro() {
       default:
         return (
           <div className="min-h-screen bg-gray-50">
-            {/* Header */}
             <div className="bg-white px-4 py-3 flex items-center justify-between border-b border-gray-100">
               <div className="flex items-center space-x-3">
                 <Button variant="ghost" size="sm" onClick={toggleSidebar} className="p-2">
@@ -266,9 +257,7 @@ export default function SurveySparkPro() {
               </div>
             </div>
 
-            {/* Main Content */}
             <div className="px-4 py-6 space-y-6">
-              {/* Welcome Section */}
               <div className="flex items-start justify-between">
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900 mb-1">
@@ -283,8 +272,8 @@ export default function SurveySparkPro() {
               </div>
 
               <VideoAdPlayer onVisibilityChange={setShowVideoAd} />
+              <AdZone onVisibilityChange={setShowBannerAd} />
 
-              {/* Premium Offers Card */}
               <div
                 className="bg-gradient-to-r from-purple-600 to-pink-500 rounded-2xl p-6 text-white cursor-pointer"
                 onClick={() => handleMenuAction("surveys")}
@@ -311,11 +300,7 @@ export default function SurveySparkPro() {
                 </div>
               </div>
 
-              <AdZone zoneId="5712666" onVisibilityChange={setShowBannerAd} />
-
-              {/* Stats Cards */}
               <div className="space-y-4">
-                {/* Wallet Balance */}
                 <div className="bg-white rounded-2xl p-4 border border-gray-100">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center space-x-3">
@@ -334,7 +319,8 @@ export default function SurveySparkPro() {
                   </div>
                 </div>
 
-                {/* Pending Points */}
+                <AdZone onVisibilityChange={setShowBannerAd} />
+
                 <div className="bg-white rounded-2xl p-4 border border-gray-100">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center space-x-3">
@@ -353,7 +339,6 @@ export default function SurveySparkPro() {
                   </div>
                 </div>
 
-                {/* Completed Activities */}
                 <div className="bg-white rounded-2xl p-4 border border-gray-100">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center space-x-3">
@@ -372,7 +357,6 @@ export default function SurveySparkPro() {
                   </div>
                 </div>
 
-                {/* Redemptions */}
                 <div className="bg-white rounded-2xl p-4 border border-gray-100">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center space-x-3">
@@ -389,7 +373,6 @@ export default function SurveySparkPro() {
                   </div>
                 </div>
 
-                {/* Total Earned */}
                 <div className="bg-white rounded-2xl p-4 border border-gray-100 border-2 border-dashed border-purple-200">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center space-x-3">
@@ -409,7 +392,6 @@ export default function SurveySparkPro() {
                 </div>
               </div>
 
-              {/* Recent Activity */}
               <div className="bg-white rounded-2xl p-4 border border-gray-100">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-bold text-gray-900">Recent Activity</h3>
@@ -426,7 +408,6 @@ export default function SurveySparkPro() {
                 <div className="space-y-4">
                   {activityData && activityData.length > 0 ? (
                     activityData.slice(0, showAllActivities ? 10 : 5).map((activity, index) => {
-                      // Use exact message from backend without modification
                       const description = activity?.message || "Activity occurred"
                       const createdAt = activity?.timestamp ? new Date(activity.timestamp) : new Date()
 
@@ -466,11 +447,9 @@ export default function SurveySparkPro() {
               </div>
             </div>
 
-            {/* Mobile Menu Overlay */}
             {sidebarOpen && (
               <div className="fixed inset-0 bg-black bg-opacity-50 z-50" onClick={toggleSidebar}>
                 <div className="bg-gray-50 w-80 h-full shadow-2xl flex flex-col" onClick={(e) => e.stopPropagation()}>
-                  {/* Header with gradient background - fixed at top */}
                   <div className="bg-gradient-to-r from-purple-600 to-pink-500 p-4 flex-shrink-0">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
@@ -630,7 +609,6 @@ export default function SurveySparkPro() {
     }
   }
 
-  // Loading state
   if (isStatsLoading || isActivityLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
@@ -642,7 +620,6 @@ export default function SurveySparkPro() {
     )
   }
 
-  // Error state
   if (statsError || activityError) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
