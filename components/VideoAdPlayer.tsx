@@ -51,7 +51,7 @@ const VideoAdPlayer = () => {
           adsManager = event.getAdsManager(videoRef.current)
 
           try {
-            setShowAd(true) // 👈 show ad container
+            setShowAd(true) // 👈 show ad
             adsManager.init(
               adContainer.clientWidth,
               adContainer.clientHeight,
@@ -59,14 +59,14 @@ const VideoAdPlayer = () => {
             )
             adsManager.start()
 
+            // When ad completes or is skipped → hide
             adsManager.addEventListener(
               (window as any).google.ima.AdEvent.Type.COMPLETE,
-              () => setShowAd(false) // 👈 hide when ad ends
+              () => setShowAd(false)
             )
-
             adsManager.addEventListener(
               (window as any).google.ima.AdEvent.Type.SKIPPED,
-              () => setShowAd(false) // 👈 hide if skipped
+              () => setShowAd(false)
             )
           } catch (adError: any) {
             console.error("AdsManager start error:", adError)
@@ -81,7 +81,7 @@ const VideoAdPlayer = () => {
         (error: any) => {
           console.error("Ad error:", error.getError())
           if (adsManager) adsManager.destroy()
-          setShowAd(false) // hide if error
+          setShowAd(false)
         },
         false
       )
@@ -107,7 +107,7 @@ const VideoAdPlayer = () => {
     }
   }
 
-  if (!showAd) return null // 👈 nothing rendered when no ad
+  if (!showAd) return null // 👈 hide when no ad
 
   return (
     <div className="w-full max-w-2xl mx-auto">
@@ -124,7 +124,7 @@ const VideoAdPlayer = () => {
           playsInline
         />
 
-        {/* 🔊 Unmute/Mute Button */}
+        {/* 🔊 Mute toggle */}
         <button
           onClick={toggleMute}
           className="absolute bottom-3 right-3 bg-white/80 hover:bg-white text-black text-sm font-medium px-3 py-1 rounded-full shadow-lg"
