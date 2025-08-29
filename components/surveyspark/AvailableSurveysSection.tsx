@@ -102,15 +102,33 @@ export default function AvailableSurveysSection({
     rewardUserOnce()
   }, [])
 
-  // --- Auto-play video ads on mount ---
-  useEffect(() => {
-    setShowVideoAd(true)
-  }, [])
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 p-4">
-        {/* ... your existing loading UI ... */}
+        <div className="max-w-6xl mx-auto">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                  <Gift className="h-5 w-5 text-blue-600" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900">Available Offers & Tasks</h2>
+              </div>
+              {showReturnButton && (
+                <Button onClick={onReturnToDashboard} variant="outline" className="bg-white">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Return to Dashboard
+                </Button>
+              )}
+            </div>
+            <div className="flex flex-col items-center justify-center py-16">
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <Gift className="h-6 w-6 text-blue-600 animate-pulse" />
+              </div>
+              <p className="text-gray-500 text-lg">Loading exciting opportunities for you...</p>
+            </div>
+          </div>
+        </div>
       </div>
     )
   }
@@ -139,27 +157,129 @@ export default function AvailableSurveysSection({
           )}
         </div>
 
-        {/* Auto-play video ad */}
         {showVideoAd && <VideoAdPlayer onVisibilityChange={setShowVideoAd} />}
-        {/* Banner ad fallback */}
+
         {showBannerAd && <AdZone zoneId="5712666" onVisibilityChange={setShowBannerAd} />}
 
         {/* BitLabs iframe section */}
-        {/* ... your existing BitLabs iframe code ... */}
+        <div className="space-y-4">
+          <div className="flex items-center space-x-2">
+            <Globe className="h-5 w-5 text-indigo-600" />
+            <h2 className="text-xl font-bold text-gray-900">BitLabs Offers</h2>
+            <span className="bg-indigo-100 text-indigo-700 text-xs px-2 py-1 rounded-full font-medium">
+              Interactive
+            </span>
+          </div>
+
+          <div className="bg-white rounded-2xl border-2 border-indigo-200 overflow-hidden">
+            {bitlabsLoading ? (
+              <div className="flex flex-col items-center justify-center py-16">
+                <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <Globe className="h-6 w-6 text-indigo-600 animate-pulse" />
+                </div>
+                <p className="text-gray-500 text-lg">Loading BitLabs offers...</p>
+              </div>
+            ) : bitlabsUrl ? (
+              <div className="w-full h-[800px]">
+                <iframe
+                  src={bitlabsUrl}
+                  width="100%"
+                  height="100%"
+                  frameBorder="0"
+                  className="w-full h-full"
+                  title="BitLabs Offers"
+                />
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-16">
+                <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <Globe className="h-6 w-6 text-gray-400" />
+                </div>
+                <p className="text-gray-500 text-lg">BitLabs offers temporarily unavailable</p>
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* Surveys & AdGem Offers */}
-        {/* ... your existing surveys & AdGem rendering code ... */}
+        {totalOpportunities === 0 ? (
+          <div className="bg-white rounded-2xl p-8 border border-gray-100">
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mb-4">
+                <Clock className="h-6 w-6 text-orange-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">No Additional Opportunities Available</h3>
+              <p className="text-gray-500 max-w-md">
+                Check out the BitLabs offers above, or come back later for more surveys and tasks!
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {/* Render surveys */}
+            {surveys.map((survey) => (
+              <div
+                key={survey.id}
+                className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition"
+              >
+                <h3 className="font-bold text-gray-900">{survey.title}</h3>
+                <p className="text-gray-600 text-sm">{survey.description}</p>
+                <div className="mt-3 flex justify-between items-center">
+                  <span className="text-green-600 font-semibold">+{survey.points_reward} pts</span>
+                  <Button asChild>
+                    <a href={survey.redirect_url} target="_blank" rel="noopener noreferrer">
+                      Start Survey
+                    </a>
+                  </Button>
+                </div>
+              </div>
+            ))}
+
+            {/* Render AdGem offers */}
+            {adgemOffers.map((offer) => (
+              <div
+                key={offer.id}
+                className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition"
+              >
+                <h3 className="font-bold text-gray-900">{offer.title}</h3>
+                <p className="text-gray-600 text-sm">{offer.description}</p>
+                <div className="mt-3 flex justify-between items-center">
+                  <span className="text-blue-600 font-semibold">+{offer.points_reward} pts</span>
+                  <Button asChild>
+                    <a href={offer.redirect_url} target="_blank" rel="noopener noreferrer">
+                      Claim Offer
+                    </a>
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Overlay fade animation */}
       <style jsx>{`
         @keyframes fade-in-out {
-          0% { opacity: 0; transform: translateY(-10px); }
-          10% { opacity: 1; transform: translateY(0); }
-          90% { opacity: 1; transform: translateY(0); }
-          100% { opacity: 0; transform: translateY(-10px); }
+          0% {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          10% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+          90% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+          100% {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
         }
-        .animate-fade-in-out { animation: fade-in-out 3.5s ease-in-out forwards; }
+        .animate-fade-in-out {
+          animation: fade-in-out 3.5s ease-in-out forwards;
+        }
       `}</style>
     </div>
   )
